@@ -1,1 +1,2 @@
-# Project README
+# quickstart-eks-gitlab
+GitLab Quick Start 
