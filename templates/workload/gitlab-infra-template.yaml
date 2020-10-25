@@ -1,0 +1,142 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Gitlab s3 Buckets
+Parameters:
+  DomainName:
+    Type: String
+  CreateHostedZone:
+    Type: String
+    AllowedValues: ["Yes", "No"]
+    Default: "No"
+  CreateEmailDomain:
+    Type: String
+    AllowedValues: ["Yes", "No"]
+    Default: "No"
+  CreateSslCertificate:
+    Type: String
+    AllowedValues: ["Yes", "No"]
+    Default: "No"
+
+  QSS3BucketName:
+    Type: String
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
+      letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
+      (-).
+    Default: aws-quickstart
+    Description: S3 bucket name for the Quick Start assets. This string can include
+      numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start
+      or end with a hyphen (-).
+  QSS3BucketRegion:
+    Type: String
+    Default: 'us-east-1'
+    Description: 'The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. 
+      When using your own bucket, you must specify this value.'
+  QSS3KeyPrefix:
+    Type: String
+    AllowedPattern: ^[0-9a-zA-Z-/]*$
+    ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters, 
+      uppercase letters, hyphens (-), and forward slash (/).
+    Default: quickstart-examples/
+    Description: S3 key prefix for the Quick Start assets. Quick Start key prefix
+      can include numbers, lowercase letters, uppercase letters, hyphens (-), and
+      forward slash (/).
+
+Conditions:
+  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+  HostedZoneRequested: !Equals  [!Ref CreateHostedZone, 'Yes']
+  EmailDomainRequested: !Equals [!Ref CreateEmailDomain, 'Yes']
+  CertificateRequested: !And
+    - !Equals [!Ref CreateSslCertificate, 'Yes']
+    - !Condition HostedZoneRequested
+
+Resources:
+  # 1. Create a new hosted zone for subdomain
+  HostedZone: 
+    Type: AWS::Route53::HostedZone
+    Condition: HostedZoneRequested
+    Properties: 
+      Name: !Sub "${DomainName}."
+
+  # 2. Request ACM certificate for the domain
+  SslCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Condition: CertificateRequested 
+    Properties:
+      DomainName: !Sub "*.${DomainName}"
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: !Sub "*.${DomainName}"
+          HostedZoneId: !Ref HostedZone
+
+  # 3. Define the Custom::SES_Domain's Lambda Function via a nested stack. 
+  CfnSESResources:
+    Type: AWS::CloudFormation::Stack
+    Condition: EmailDomainRequested
+    Properties:
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}scripts/aws-cfn-ses-domain/aws-cfn-ses-domain-0.3.cf.yaml'
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        LambdaCodeS3Bucket: !Ref QSS3BucketName
+        LambdaCodeS3Key: !Sub '${QSS3KeyPrefix}scripts/aws-cfn-ses-domain/aws-cfn-ses-domain-0.3.lambda.zip'
+
+  # 4. Declare a Custom::SES_Domain resource for your SES domain.
+  SESDomain:
+    Type: Custom::SES_Domain
+    Condition: EmailDomainRequested
+    Properties:
+      # ServiceToken is the Arn of a Lambda Function from the nested stack:
+      ServiceToken: !GetAtt CfnSESResources.Outputs.CustomDomainIdentityArn
+      # Remaining Properties are options for provisioning for your SES domain identity:
+      # (Domain is required; all others are optional and shown with their defaults)
+      Domain: !Sub "${DomainName}."
+      EnableSend: true
+      EnableReceive: false
+      MailFromSubdomain: "mail"
+      TTL: "1800"
+      CustomDMARC: '"v=DMARC1; p=none; pct=100; sp=none; aspf=r;"'
+      Region: !Ref "AWS::Region"
+
+  # 5. Declare a Route 53 RecordSetGroup to manage SES's required DNS entries.
+  #    (This assumes you already have a Route 53 hosted zone for your domain;
+  #    if not, you'll also want an AWS::Route53::HostedZone resource for it.
+  #    Or if you don't use Route 53, see "Return Values" for other DNS options.)
+  Route53RecordsForSES:
+    Type: AWS::Route53::RecordSetGroup
+    Condition: EmailDomainRequested
+    Properties:
+      HostedZoneName: !Sub "${DomainName}."
+      # The Route53RecordSets attribute specifies all DNS records needed:
+      RecordSets: !GetAtt SESDomain.Route53RecordSets
+      
+  DomainNameParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Name: /quickstart/gitlab/infra/domain-name
+      Value: !Ref DomainName
+
+  HostedZoneNameParameter:
+    Type: AWS::SSM::Parameter
+    Condition: HostedZoneRequested
+    Properties:
+      Type: String
+      Name: /quickstart/gitlab/infra/hosted-zone-name
+      Value: !Sub "${DomainName}."
+
+  HostedZoneIdParameter:
+    Type: AWS::SSM::Parameter
+    Condition: HostedZoneRequested
+    Properties:
+      Type: String
+      Name: /quickstart/gitlab/infra/hosted-zone-id
+      Value: !Ref HostedZone
+
+  CertificateArnParameter:
+    Type: AWS::SSM::Parameter
+    Condition: CertificateRequested
+    Properties:
+      Type: String
+      Name: /quickstart/gitlab/infra/certificate-arn
+      Value: !Ref SslCertificate

@@ -1,0 +1,262 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Gitlab s3 Buckets
+
+Parameters:
+  SSEAlgorithm:
+    Type: String
+    Default: AES256
+    AllowedValues: [ 'AES256', 'aws:kms' ]
+  KMSMasterKeyID:
+    Type: String
+    Default: ''
+  CredentialsSecretName:
+    Type: String
+    Default: /quickstart/gitlab/storage/credentials
+
+Conditions:
+  UseKMS: !Equals [!Ref KMSMasterKeyID, 'aws:kms']
+
+Resources:
+
+  ArtifactsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: !Ref SSEAlgorithm
+              KMSMasterKeyID: !If [UseKMS, !Ref KMSMasterKeyID, !Ref 'AWS::NoValue']
+
+  LfsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: !Ref SSEAlgorithm
+              KMSMasterKeyID: !If [UseKMS, !Ref KMSMasterKeyID, !Ref 'AWS::NoValue']
+
+
+  UploadsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: !Ref SSEAlgorithm
+              KMSMasterKeyID: !If [UseKMS, !Ref KMSMasterKeyID, !Ref 'AWS::NoValue']
+
+  PackagesBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: !Ref SSEAlgorithm
+              KMSMasterKeyID: !If [UseKMS, !Ref KMSMasterKeyID, !Ref 'AWS::NoValue']
+
+  TerraformBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: !Ref SSEAlgorithm
+              KMSMasterKeyID: !If [UseKMS, !Ref KMSMasterKeyID, !Ref 'AWS::NoValue']
+
+  PseudonymizerBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: !Ref SSEAlgorithm
+              KMSMasterKeyID: !If [UseKMS, !Ref KMSMasterKeyID, !Ref 'AWS::NoValue']
+
+  RegistryBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: !Ref SSEAlgorithm
+              KMSMasterKeyID: !If [UseKMS, !Ref KMSMasterKeyID, !Ref 'AWS::NoValue']
+
+  BuckupBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: !Ref SSEAlgorithm
+              KMSMasterKeyID: !If [UseKMS, !Ref KMSMasterKeyID, !Ref 'AWS::NoValue']
+
+  BuckupTempBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: !Ref SSEAlgorithm
+              KMSMasterKeyID: !If [UseKMS, !Ref KMSMasterKeyID, !Ref 'AWS::NoValue']
+
+  ObjectStorageGroup:
+    Type: AWS::IAM::Group
+    Properties:
+      Path: /quickstart/gitlab/
+      Policies:
+      - PolicyName: objectStorageAccess
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          # Common object storage permissions
+          - Effect: Allow
+            Action:
+              - s3:ListBucket
+            Resource: 
+              - !Sub "arn:aws:s3:::${ArtifactsBucket}"
+              - !Sub "arn:aws:s3:::${LfsBucket}"
+              - !Sub "arn:aws:s3:::${UploadsBucket}"
+              - !Sub "arn:aws:s3:::${PackagesBucket}"
+              - !Sub "arn:aws:s3:::${TerraformBucket}"
+              - !Sub "arn:aws:s3:::${PseudonymizerBucket}"
+              - !Sub "arn:aws:s3:::${RegistryBucket}"
+              - !Sub "arn:aws:s3:::${BuckupBucket}"
+              - !Sub "arn:aws:s3:::${BuckupTempBucket}"
+          - Effect: Allow
+            Action:
+              - s3:*Object
+            Resource: 
+              - !Sub "arn:aws:s3:::${ArtifactsBucket}/*"
+              - !Sub "arn:aws:s3:::${LfsBucket}/*"
+              - !Sub "arn:aws:s3:::${UploadsBucket}/*"
+              - !Sub "arn:aws:s3:::${PackagesBucket}/*"
+              - !Sub "arn:aws:s3:::${TerraformBucket}/*"
+              - !Sub "arn:aws:s3:::${PseudonymizerBucket}/*"
+              - !Sub "arn:aws:s3:::${RegistryBucket}/*"
+              - !Sub "arn:aws:s3:::${BuckupBucket}/*"
+              - !Sub "arn:aws:s3:::${BuckupTempBucket}/*"
+          # Additional registry & backup permissions below
+          - Effect: Allow
+            Action:
+              - s3:GetBucketLocation
+              - s3:ListBucketMultipartUploads
+            Resource: 
+              - !Sub "arn:aws:s3:::${RegistryBucket}"
+              - !Sub "arn:aws:s3:::${BuckupBucket}"
+              - !Sub "arn:aws:s3:::${BuckupTempBucket}"
+          - Effect: Allow
+            Action:
+              - s3:ListMultipartUploadParts
+              - s3:AbortMultipartUpload
+            Resource: 
+              - !Sub "arn:aws:s3:::${RegistryBucket}/*"
+              - !Sub "arn:aws:s3:::${BuckupBucket}/*"
+              - !Sub "arn:aws:s3:::${BuckupTempBucket}/*"
+
+  GitLabObjectStorageUser:
+    Type: AWS::IAM::User
+    Properties:
+      Path: /quickstart/gitlab/
+      Groups: 
+        - !Ref ObjectStorageGroup
+
+  GitLabObjectStorageKeys:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      Status: Active
+      UserName:
+        Ref: GitLabObjectStorageUser
+
+  GitLabObjectStorageKeysSecret:
+    Type: 'AWS::SecretsManager::Secret'
+    Properties:
+      Name: !Ref CredentialsSecretName
+      Description: "GitLab EKS admin user access keys"
+      SecretString: !Sub '{"accessKeyId": "${GitLabObjectStorageKeys}", "secretAccessKey": "${GitLabObjectStorageKeys.SecretAccessKey}"}'
+
+  ArtifactsBucketParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Name: /quickstart/gitlab/storage/buckets/artifacts
+      Value: !Ref ArtifactsBucket 
+
+  LfsBucketBucketParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Name: /quickstart/gitlab/storage/buckets/lfs
+      Value: !Ref LfsBucket 
+
+  UploadsBucketParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Name: /quickstart/gitlab/storage/buckets/uploads
+      Value: !Ref UploadsBucket
+
+  PackagesBucketParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Name: /quickstart/gitlab/storage/buckets/packages
+      Value: !Ref PackagesBucket
+
+  TerraformBucketParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Name: /quickstart/gitlab/storage/buckets/terraform
+      Value: !Ref TerraformBucket
+
+  PseudonymizerBucketParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Name: /quickstart/gitlab/storage/buckets/pseudonymizer
+      Value: !Ref PseudonymizerBucket
+
+  RegistryBucketParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Name: /quickstart/gitlab/storage/buckets/registry
+      Value: !Ref RegistryBucket
+
+  BackupBucketParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Name: /quickstart/gitlab/storage/buckets/backup
+      Value: !Ref BuckupBucket
+
+  BackupTmpBucketParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Name: /quickstart/gitlab/storage/buckets/backup-tmp
+      Value: !Ref BuckupTempBucket
+
+Outputs:
+  ArtifactsBucket: 
+    Value: !Ref ArtifactsBucket
+  LfsBucket: 
+    Value: !Ref LfsBucket
+  UploadsBucket: 
+    Value: !Ref UploadsBucket
+  PackagesBucket: 
+    Value: !Ref PackagesBucket
+  TerraformBucket: 
+    Value: !Ref TerraformBucket
+  PseudonymizerBucket: 
+    Value: !Ref PseudonymizerBucket
+  RegistryBucket:
+    Value: !Ref RegistryBucket
+  BuckupBucket: 
+    Value: !Ref BuckupBucket
+  BuckupTempBucket: 
+    Value: !Ref BuckupTempBucket
+
+  CredentialsSecretName:
+    Value: !Ref CredentialsSecretName

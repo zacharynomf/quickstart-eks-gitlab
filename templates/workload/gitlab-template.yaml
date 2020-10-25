@@ -1,0 +1,268 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Gitlab s3 Buckets
+
+Parameters:
+  # Quickstart location Parameters
+  QSS3BucketName:
+    Type: String
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
+      letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
+      (-).
+    Default: aws-quickstart
+    Description: S3 bucket name for the Quick Start assets. This string can include
+      numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start
+      or end with a hyphen (-).
+  QSS3BucketRegion:
+    Type: String
+    Default: 'us-east-1'
+    Description: 'The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. 
+      When using your own bucket, you must specify this value.'
+  QSS3KeyPrefix:
+    Type: String
+    AllowedPattern: ^[0-9a-zA-Z-/]*$
+    ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters, 
+      uppercase letters, hyphens (-), and forward slash (/).
+    Default: quickstart-examples/
+    Description: S3 key prefix for the Quick Start assets. Quick Start key prefix
+      can include numbers, lowercase letters, uppercase letters, hyphens (-), and
+      forward slash (/).
+
+  # Infra Parameters
+  DomainName:
+    Type: String
+    Description: The Domain name for the gitlab server.
+  RealDomainName:
+    Type: String
+    Default: 'No'
+    AllowedValues: [ 'Yes', 'No' ]
+  CreateHostedZone:
+    Type: String
+    AllowedValues: [ 'Yes', 'No' ]
+    Default: 'No'
+  CreateEmailDomain:
+    Type: String
+    AllowedValues: [ 'Yes', 'No' ]
+    Default: 'No'
+  CreateSslCertificate:
+    Type: String
+    AllowedValues: [ 'Yes', 'No' ]
+    Default: 'No'
+
+  # Network Parameters
+  VPCID: 
+    Description: "ID of the VPC you are deploying Aurora into (e.g., vpc-0343606e)."
+    Type: 'AWS::EC2::VPC::Id'
+    Default: ''
+  PrivateSubnet1ID:
+    Description: The ID of the private subnet in Availability Zone 1.
+    Type: 'AWS::EC2::Subnet::Id'
+  PrivateSubnet2ID:
+    Description: The ID of the private subnet in Availability Zone 2.
+    Type: 'AWS::EC2::Subnet::Id'
+
+  # Cluster Parameters
+  KubeClusterName:
+    Type: String
+
+  # Databse Parameters
+  DBName: 
+    AllowedPattern: "[a-zA-Z0-9]*"
+    Description: "Name of the Amazon Aurora database."
+    MaxLength: "64"
+    MinLength: "0"
+    Default: 'GitLab'
+    Type: String
+  DBMasterUsername: 
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    ConstraintDescription: "Must begin with a letter and contain only alphanumeric characters."
+    Default: gitlabadmin
+    Description: "The database admin account username."
+    MaxLength: "16"
+    MinLength: "1"
+    Type: String
+  DBMasterUserPassword:
+    AllowedPattern: >-
+      ^(?=^.{8,255}$)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)((?=.*[^A-Za-z0-9])(?!.*[@/"'])).*$
+    ConstraintDescription: >-
+      Min 8 chars. Must include 1 uppercase, 1 lowercase, 1 number, 1 (non / @ " ') symbol
+    Description: "The database admin account password."
+    MaxLength: "64"
+    MinLength: "8"
+    NoEcho: "True"
+    Type: String
+  DBPort:
+    Default: 5432
+    Description: "The port the instance will listen for connections on."
+    Type: Number
+    ConstraintDescription: 'Must be in the range [1115-65535].'
+    MinValue: 1150
+    MaxValue: 65535
+
+  # Object Storage Parameters
+  ObjectStorageSSEAlgorithm:
+    Type: String
+    Default: AES256
+    AllowedValues: [ 'AES256', 'aws:kms' ]
+  ObjectStorageKMSMasterKeyID:
+    Type: String
+    Default: none
+
+  # GitLab Parameters
+  HelmChartName:
+    Type: String
+    Description: Name of Helm GitLab deployment.
+  HelmChartNamespace:
+    Type: String
+    Default: default
+    Description: Kubernetes namespace to deploy GitLab chart to.
+  HelmChartVersion:
+    Type: String
+    Default: '4.4.4'
+  BackupSchedule:
+    Type: String
+    Default: '0 1 * * *'
+
+Conditions:
+  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+  # RealDomainNameProvided: !Equals [!Ref RealDomainName, 'Yes']
+
+Resources:
+
+  Infrastructure:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-infra-template.yaml'
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        DomainName: !Ref DomainName
+        CreateHostedZone: !Ref CreateHostedZone
+        CreateEmailDomain: !Ref CreateEmailDomain
+        CreateSslCertificate: !Ref CreateSslCertificate
+
+  Database:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-aurora-postgresql/templates/aurora_postgres.template.yaml'
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        DBName: !Ref DBName
+        DBMasterUsername: !Ref DBMasterUsername
+        DBMasterUserPassword: !Ref DBMasterUserPassword
+        DBPort: !Ref DBPort
+        VPCID: !Ref VPCID
+        Subnet1ID: !Ref PrivateSubnet1ID
+        Subnet2ID: !Ref PrivateSubnet2ID
+
+  ObjectStorage:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-storage-template.yaml'
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        SSEAlgorithm: !Ref ObjectStorageSSEAlgorithm
+        KMSMasterKeyID: !Ref ObjectStorageKMSMasterKeyID
+
+  KubeSecrets:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-secrets-template.yaml'
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        KubeClusterName: !Ref KubeClusterName
+        HelmChartNamespace: !Ref HelmChartNamespace
+        DatabasePassword: !Ref DBMasterUserPassword
+        StorageAccessKeyId: !Sub "{{resolve:secretsmanager:${ObjectStorage.Outputs.CredentialsSecretName}:SecretString:accessKeyId}}"
+        StorageSecretAccessKey: !Sub "{{resolve:secretsmanager:${ObjectStorage.Outputs.CredentialsSecretName}:SecretString:secretAccessKey}}"
+        RegistryBucket: !GetAtt ObjectStorage.Outputs.RegistryBucket
+
+  Chart:
+    Type: AWSQS::Kubernetes::Helm   
+    # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Helm
+    Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
+    Properties:
+      ClusterID: !Ref KubeClusterName 
+      Namespace: !Ref HelmChartNamespace
+      Repository: https://charts.gitlab.io/
+      Chart: gitlab/gitlab 
+      Name: !Ref HelmChartName
+      Version: !Ref HelmChartVersion
+      ValueYaml:
+        Fn::Sub: |
+          certmanager:
+            install: false
+
+          gitlab-runner:
+            install: false
+          postgresql:
+            install: false
+
+          registry:
+            storage:
+              secret: ${KubeSecrets.Outputs.ObjectStorageKubeSecretName}
+              key: ${KubeSecrets.Outputs.RegistrySecretKey}        
+          
+          gitlab:
+            task-runner:
+              # see https://docs.gitlab.com/charts/backup-restore/backup.html
+              backups:                
+                cron:
+                  enabled: true
+                  schedule: '${BackupSchedule}'
+                objectStorage:
+                  config:
+                    secret: ${KubeSecrets.Outputs.ObjectStorageKubeSecretName}
+                    key: ${KubeSecrets.Outputs.BackupSecretKey}
+        
+          global:
+            hosts:
+              domain: ${DomainName}
+            
+            # This is needed to switch from internal minio object storage to external (S3 in our case)
+            minio:
+              enabled: false
+            
+            appConfig:    
+              # Global configuration for object storage (creds, encryption, buckets, etc.)
+              object_store:
+                enabled: true
+                proxy_download: true
+                storage_options:
+                  server_side_encryption: AES256
+                connection:
+                  secret: ${KubeSecrets.Outputs.ObjectStorageKubeSecretName}
+                  key: ${KubeSecrets.Outputs.ConnectionSecretKey}
+              artifacts:
+                bucket: ${ObjectStorage.Outputs.ArtifactsBucket}
+              lfs:
+                bucket: ${ObjectStorage.Outputs.LfsBucket}
+              uploads:
+                bucket: ${ObjectStorage.Outputs.UploadsBucket}
+              packages:
+                bucket: ${ObjectStorage.Outputs.PackagesBucket}
+              terraformState:
+                bucket: ${ObjectStorage.Outputs.TerraformBucket}
+              pseudonymizer:
+                bucket: ${ObjectStorage.Outputs.PseudonymizerBucket}
+              backups:
+                bucket: ${ObjectStorage.Outputs.BuckupBucket}
+                tmpBucket: ${ObjectStorage.Outputs.BuckupTempBucket}
+           
+            registry:
+              bucket: ${ObjectStorage.Outputs.RegistryBucket}
+
+            psql:
+              host:  ${Database.Outputs.RDSEndPointAddress}
+              database: ${DBName}
+              username: ${DBMasterUsername}
+              password:
+                secret: ${KubeSecrets.Outputs.DatabaseKubeSecretName}
+                key: ${KubeSecrets.Outputs.DatabaseKubeSecretName}
