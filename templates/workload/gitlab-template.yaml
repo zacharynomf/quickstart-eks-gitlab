@@ -71,12 +71,12 @@ Parameters:
     Description: "Name of the Amazon Aurora database."
     MaxLength: "64"
     MinLength: "0"
-    Default: 'GitLab'
+    Default: gitlab
     Type: String
   DBMasterUsername: 
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
     ConstraintDescription: "Must begin with a letter and contain only alphanumeric characters."
-    Default: gitlabadmin
+    Default: gitlab
     Description: "The database admin account username."
     MaxLength: "16"
     MinLength: "1"
@@ -111,6 +111,7 @@ Parameters:
   # GitLab Parameters
   HelmChartName:
     Type: String
+    Default: gitlab
     Description: Name of Helm GitLab deployment.
   HelmChartNamespace:
     Type: String
@@ -118,7 +119,7 @@ Parameters:
     Description: Kubernetes namespace to deploy GitLab chart to.
   HelmChartVersion:
     Type: String
-    Default: '4.4.4'
+    Default: '4.5.1'
   BackupSchedule:
     Type: String
     Default: '0 1 * * *'
@@ -141,6 +142,9 @@ Resources:
         CreateHostedZone: !Ref CreateHostedZone
         CreateEmailDomain: !Ref CreateEmailDomain
         CreateSslCertificate: !Ref CreateSslCertificate
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3KeyPrefix: !Ref QSS3KeyPrefix
+        QSS3BucketRegion: !Ref QSS3BucketRegion
 
   Database:
     Type: AWS::CloudFormation::Stack
@@ -150,6 +154,7 @@ Resources:
         - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
+        DBEngineVersion: 11.7 # GitLab requires >= 11
         DBName: !Ref DBName
         DBMasterUsername: !Ref DBMasterUsername
         DBMasterUserPassword: !Ref DBMasterUserPassword
@@ -171,6 +176,7 @@ Resources:
 
   KubeSecrets:
     Type: AWS::CloudFormation::Stack
+    DependsOn: Database
     Properties:
       TemplateURL: !Sub
         - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-secrets-template.yaml'
@@ -195,74 +201,47 @@ Resources:
       Chart: gitlab/gitlab 
       Name: !Ref HelmChartName
       Version: !Ref HelmChartVersion
-      ValueYaml:
-        Fn::Sub: |
-          certmanager:
-            install: false
+      Values:
+        certmanager-issuer.email: kolomiets@gmail.com
+        # certmanager.install: false
 
-          gitlab-runner:
-            install: false
-          postgresql:
-            install: false
+        # domain name
+        global.hosts.domain: !Ref DomainName
 
-          registry:
-            storage:
-              secret: ${KubeSecrets.Outputs.ObjectStorageKubeSecretName}
-              key: ${KubeSecrets.Outputs.RegistrySecretKey}        
-          
-          gitlab:
-            task-runner:
-              # see https://docs.gitlab.com/charts/backup-restore/backup.html
-              backups:                
-                cron:
-                  enabled: true
-                  schedule: '${BackupSchedule}'
-                objectStorage:
-                  config:
-                    secret: ${KubeSecrets.Outputs.ObjectStorageKubeSecretName}
-                    key: ${KubeSecrets.Outputs.BackupSecretKey}
-        
-          global:
-            hosts:
-              domain: ${DomainName}
-            
-            # This is needed to switch from internal minio object storage to external (S3 in our case)
-            minio:
-              enabled: false
-            
-            appConfig:    
-              # Global configuration for object storage (creds, encryption, buckets, etc.)
-              object_store:
-                enabled: true
-                proxy_download: true
-                storage_options:
-                  server_side_encryption: AES256
-                connection:
-                  secret: ${KubeSecrets.Outputs.ObjectStorageKubeSecretName}
-                  key: ${KubeSecrets.Outputs.ConnectionSecretKey}
-              artifacts:
-                bucket: ${ObjectStorage.Outputs.ArtifactsBucket}
-              lfs:
-                bucket: ${ObjectStorage.Outputs.LfsBucket}
-              uploads:
-                bucket: ${ObjectStorage.Outputs.UploadsBucket}
-              packages:
-                bucket: ${ObjectStorage.Outputs.PackagesBucket}
-              terraformState:
-                bucket: ${ObjectStorage.Outputs.TerraformBucket}
-              pseudonymizer:
-                bucket: ${ObjectStorage.Outputs.PseudonymizerBucket}
-              backups:
-                bucket: ${ObjectStorage.Outputs.BuckupBucket}
-                tmpBucket: ${ObjectStorage.Outputs.BuckupTempBucket}
-           
-            registry:
-              bucket: ${ObjectStorage.Outputs.RegistryBucket}
+        # runner configuration
+        gitlab-runner.install: false
 
-            psql:
-              host:  ${Database.Outputs.RDSEndPointAddress}
-              database: ${DBName}
-              username: ${DBMasterUsername}
-              password:
-                secret: ${KubeSecrets.Outputs.DatabaseKubeSecretName}
-                key: ${KubeSecrets.Outputs.DatabaseKubeSecretName}
+        # database configuration
+        postgresql.install: false
+        global.psql.host: !GetAtt Database.Outputs.RDSEndPointAddress
+        global.psql.database: !Ref DBName
+        global.psql.username: !Ref DBMasterUsername
+        global.psql.password.secret: !GetAtt KubeSecrets.Outputs.DatabaseKubeSecretName
+        global.psql.password.key: !GetAtt KubeSecrets.Outputs.DatabaseSecretKey
+
+        # S3 storage configuration
+        ## object storage
+        global.minio.enabled: false
+        global.appConfig.object_store.enabled: true
+        global.appConfig.object_store.proxy_download: true
+        global.appConfig.object_store.storage_options.server_side_encryption: AES256
+        global.appConfig.object_store.connection.secret: !GetAtt KubeSecrets.Outputs.ObjectStorageKubeSecretName
+        global.appConfig.object_store.connection.key: !GetAtt KubeSecrets.Outputs.ConnectionSecretKey
+        global.appConfig.artifacts.bucket: !GetAtt ObjectStorage.Outputs.ArtifactsBucket
+        global.appConfig.lfs.bucket: !GetAtt ObjectStorage.Outputs.LfsBucket
+        global.appConfig.uploads.bucket: !GetAtt ObjectStorage.Outputs.UploadsBucket
+        global.appConfig.packages.bucket: !GetAtt ObjectStorage.Outputs.PackagesBucket
+        global.appConfig.terraformState.bucket: !GetAtt ObjectStorage.Outputs.TerraformBucket
+        global.appConfig.pseudonymizer.bucket: !GetAtt ObjectStorage.Outputs.PseudonymizerBucket
+        global.appConfig.backups.bucket: !GetAtt ObjectStorage.Outputs.BuckupBucket
+        global.appConfig.backups.tmpBucket: !GetAtt ObjectStorage.Outputs.BuckupTempBucket
+        ## registry
+        global.registry.bucket: !GetAtt ObjectStorage.Outputs.RegistryBucket
+        registry.storage.secret: !GetAtt KubeSecrets.Outputs.ObjectStorageKubeSecretName
+        registry.storage.key: !GetAtt KubeSecrets.Outputs.RegistrySecretKey
+
+        # backups, see https://docs.gitlab.com/charts/backup-restore/backup.html
+        gitlab.task-runner.backups.cron.enabled: true
+        gitlab.task-runner.backups.cron.schedule: !Sub '${BackupSchedule}'
+        gitlab.task-runner.backups.objectStorage.config.secret: !GetAtt KubeSecrets.Outputs.ObjectStorageKubeSecretName
+        gitlab.task-runner.backups.objectStorage.config.key: !GetAtt KubeSecrets.Outputs.BackupSecretKey

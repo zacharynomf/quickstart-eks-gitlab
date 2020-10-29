@@ -137,6 +137,12 @@ Parameters:
     Default: 10.0.32.0/19
     Description: CIDR block for private subnet 2 located in Availability Zone 2.
     Type: String
+  PrivateSubnet3CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16–28
+    Default: 10.0.64.0/19
+    Description: CIDR block for private subnet 3, located in Availability Zone 3.
+    Type: String
   PublicSubnet1CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
@@ -150,6 +156,13 @@ Parameters:
     Default: 10.0.144.0/20
     Description: CIDR block for the public (DMZ) subnet 2 located in Availability
       Zone 2.
+    Type: String
+  PublicSubnet3CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16–28
+    Default: 10.0.160.0/20
+    Description: CIDR block for the public (DMZ) subnet 3, located in Availability
+      Zone 3.
     Type: String
   RemoteAccessCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
@@ -216,12 +229,12 @@ Parameters:
     Description: "Name of the Amazon Aurora database."
     MaxLength: "64"
     MinLength: "0"
-    Default: 'GitLab'
+    Default: gitlab
     Type: String
   DBMasterUsername: 
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
     ConstraintDescription: "Must begin with a letter and contain only alphanumeric characters."
-    Default: gitlabadmin
+    Default: gitlab
     Description: "The database admin account username."
     MaxLength: "16"
     MinLength: "1"
@@ -264,7 +277,7 @@ Parameters:
     Description: Kubernetes namespace to deploy GitLab chart to.
   HelmChartVersion:
     Type: String
-    Default: '4.4.4'
+    Default: '4.5.1'
   BackupSchedule:
     Type: String
     Default: '0 1 * * *'
@@ -306,11 +319,16 @@ Resources:
         AvailabilityZones: !Join [ ',', !Ref AvailabilityZones ]
         NumberOfAZs: !Ref NumberOfAZs
         KeyPairName: !Ref KeyPairName
-        PrivateSubnet1ACIDR: !Ref PrivateSubnet1CIDR
-        PrivateSubnet2ACIDR: !Ref PrivateSubnet2CIDR
         PublicSubnet1CIDR: !Ref PublicSubnet1CIDR
         PublicSubnet2CIDR: !Ref PublicSubnet2CIDR
+        PublicSubnet3CIDR: !If [Using3AvailabilityZones, !Ref PublicSubnet3CIDR, !Ref 'AWS::NoValue']
+        PrivateSubnet1ACIDR: !Ref PrivateSubnet1CIDR
+        PrivateSubnet2ACIDR: !Ref PrivateSubnet2CIDR
+        PrivateSubnet3ACIDR: !If [Using3AvailabilityZones, !Ref PrivateSubnet3CIDR, !Ref 'AWS::NoValue']
         VPCCIDR: !Ref VPCCIDR
+        # Subnet tags required for EKS Quickstart 
+        PublicSubnetTag2: "kubernetes.io/role/elb="
+        PrivateSubnetATag2: "kubernetes.io/role/internal-elb="
 
   EKSStack:
     Type: AWS::CloudFormation::Stack
@@ -367,8 +385,8 @@ Resources:
         CreateSslCertificate: !Ref CreateSslCertificate
         # Network properties
         VPCID: !GetAtt VPCStack.Outputs.VPCID
-        PrivateSubnet1ID: !GetAtt VPCStack.Outputs.PrivateSubnet1ID
-        PrivateSubnet2ID: !GetAtt VPCStack.Outputs.PrivateSubnet2ID
+        PrivateSubnet1ID: !GetAtt VPCStack.Outputs.PrivateSubnet1AID
+        PrivateSubnet2ID: !GetAtt VPCStack.Outputs.PrivateSubnet2AID
         # Cluster properties
         KubeClusterName: !GetAtt EKSStack.Outputs.EKSClusterName 
         # Database properties
