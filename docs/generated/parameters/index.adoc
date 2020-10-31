@@ -1,0 +1,12 @@
+
+=== Launch into a new VPC
+include::amazon-eks-entrypoint-new-vpc.template.adoc[]
+
+=== Launch into an existing VPC
+include::amazon-eks-entrypoint-existing-vpc.template.adoc[]
+
+=== Prepare an existing EKS cluster
+include::amazon-eks-entrypoint-existing-cluster.template.adoc[]
+
+=== Configure advanced options
+include::amazon-eks-advanced-configuration.template.adoc[]
