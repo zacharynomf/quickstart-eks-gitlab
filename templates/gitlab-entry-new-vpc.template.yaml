@@ -25,19 +25,6 @@ Metadata:
         default: Amazon EC2 configuration
       Parameters:
       - KeyPairName
-      - BastionAMIOS
-      - BastionInstanceType
-      - WorkloadInstanceType
-    - Label:
-        default: Workload nodes configuration
-      Parameters:
-      - WorkloadNodesMinSize
-      - NodesMaxSize
-      - OperatorEmail
-    - Label:
-        default: Workload storage configuration
-      Parameters:
-      - S3BucketName
     - Label:
         default: AWS Quick Start configuration
       Parameters:
@@ -47,14 +34,8 @@ Metadata:
     ParameterLabels:
       AvailabilityZones:
         default: Availability Zones
-      BastionAMIOS:
-        default: Bastion AMI operating system
-      BastionInstanceType:
-        default: Bastion instance type
       KeyPairName:
         default: Key pair name
-      OperatorEmail:
-        default: Operator email
       PrivateSubnet1CIDR:
         default: Private subnet 1 CIDR
       PrivateSubnet2CIDR:
@@ -69,20 +50,10 @@ Metadata:
         default: Quick Start S3 bucket region
       QSS3KeyPrefix:
         default: Quick Start S3 Key Prefix
-      S3BucketName:
-        default: S3 bucket name
       RemoteAccessCIDR:
         default: Allowed bastion external access CIDR
       VPCCIDR:
         default: VPC CIDR
-      WorkloadInstanceType:
-        default: Workload servers instance type
-      WorkloadoNodesDesiredCapacity:
-        default: Workload nodes desired capacity
-      WorkloadNodesMaxSize:
-        default: Workload nodes max size
-      WorkloadNodesMinSize:
-        default: Workload nodes min size
 Parameters:
 
 # Quickstart location parameters
