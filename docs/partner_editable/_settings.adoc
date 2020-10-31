@@ -1,10 +1,10 @@
-:quickstart-project-name: quickstart-amazon-eks
-:partner-product-name: Amazon EKS
-// :partner-company-name: Amazon
-:doc-month: October
+:quickstart-project-name: quickstart-gitlab
+:partner-product-name: GitLab
+:partner-company-name: GitLab
+:doc-month: November
 :doc-year: 2020
 // :partner-contributors:
-:quickstart-contributors: Jay McConnell, Troy Ameigh, and Andrew Gargan, AWS Quick Start team
+:quickstart-contributors: Dmitry Kolomiets, AWS Quick Start team
 :deployment_time: 25 and 90 minutes
 :default_deployment_region: us-east-2
 :disable_licenses:

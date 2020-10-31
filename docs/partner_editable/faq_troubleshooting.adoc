@@ -2,7 +2,6 @@
 
 == FAQ
 
-
 *Q.* I encountered a *CREATE_FAILED* error when I launched the Quick Start.
 
 *A.* If AWS CloudFormation fails to create the stack, we recommend that you relaunch the template with *Rollback on failure* set to *Disabled*. (This setting is under *Advanced* in the AWS CloudFormation console, *Options* page.) With this setting, the stack’s state is retained, and instances remain running so you can troubleshoot the issue.

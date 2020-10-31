@@ -1,1 +1,1 @@
-This Quick Start assumes familiarity with Kubernetes concepts and usage. The sections about authoring templates assume a working knowledge of AWS CloudFormation.
+This Quick Start assumes familiarity with Kubernetes and Helm concepts and usage. The sections about authoring templates assume a working knowledge of AWS CloudFormation.

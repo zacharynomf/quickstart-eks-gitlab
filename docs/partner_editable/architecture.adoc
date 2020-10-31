@@ -2,8 +2,8 @@ Deploying this Quick Start for a new virtual private cloud (VPC) with default pa
 
 [#architecture1]
 .Quick Start architecture for _{partner-product-name}_ on AWS
-[link=images/architecture_diagram.png]
-image::../images/architecture_diagram.png[Architecture]
+[link=images/architecture.png]
+image::../images/architecture.png[Architecture]
 
 The Quick Start sets up the following:
 
