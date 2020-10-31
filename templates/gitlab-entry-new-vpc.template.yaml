@@ -6,6 +6,9 @@ Description: This master template creates a VPC infrastructure for a multi-AZ, m
   This template creates EC2 instances and related resources. You will be billed for
   the AWS resources used if you create a stack from this template.
 Metadata:
+  QuickStartDocumentation:
+    EntrypointName: "Launch into a new VPC"
+    Order: Index a
   AWS::CloudFormation::Interface:
     ParameterGroups:
     - Label:

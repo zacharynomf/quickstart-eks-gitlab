@@ -247,13 +247,13 @@ Resources:
         gitlab.task-runner.backups.objectStorage.config.key: !GetAtt KubeSecrets.Outputs.BackupSecretKey
 
 
-            praefect:
-              enabled: true
-              gitalyReplicas: 3
-              dbSecret: 
-                secret: ${GitLabSecrets.Outputs.DatabaseSecretName}
-                key: ${GitLabSecrets.Outputs.DatabaseSecretKey}
-              psql:
-                host: ${DatabaseWriteEndpoint}
-                user: {{resolve:secretsmanager:${DatabaseCredsSecretName}:SecretString:username}}
-                dbName: ${DatabasePraefectName}
+            # praefect:
+            #   enabled: true
+            #   gitalyReplicas: 3
+            #   dbSecret: 
+            #     secret: ${GitLabSecrets.Outputs.DatabaseSecretName}
+            #     key: ${GitLabSecrets.Outputs.DatabaseSecretKey}
+            #   psql:
+            #     host: ${DatabaseWriteEndpoint}
+            #     user: {{resolve:secretsmanager:${DatabaseCredsSecretName}:SecretString:username}}
+            #     dbName: ${DatabasePraefectName}
