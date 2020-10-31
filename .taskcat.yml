@@ -17,7 +17,7 @@ tests:
       NumberOfAZs: 3      
       EKSPublicAccessEndpoint: Enabled
       ProvisionBastionHost: Disabled
-      DBMasterUserPassword: $[taskcat_genpass_16S]
+      DBMasterUserPassword: $[taskcat_genpass_32S]
       DomainName: devops.$[taskcat_random-string].com
       PerAccountSharedResources: 'No'
       PerRegionSharedResources: 'No'
