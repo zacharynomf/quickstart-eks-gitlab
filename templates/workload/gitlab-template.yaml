@@ -303,9 +303,9 @@ Resources:
         gitlab.task-runner.backups.objectStorage.config.secret: !GetAtt KubeSecrets.Outputs.ObjectStorageKubeSecretName
         gitlab.task-runner.backups.objectStorage.config.key: !GetAtt KubeSecrets.Outputs.BackupSecretKey
 
-
   PostInstall: 
     Type: AWS::CloudFormation::Stack
+    DependsOn: Chart
     Properties: 
       TemplateURL: !Sub
         - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-postinstall-template.yaml'
