@@ -11,39 +11,89 @@ Metadata:
     Order: Index a
   AWS::CloudFormation::Interface:
     ParameterGroups:
-    - Label:
-        default: Network configuration
-      Parameters:
-      - AvailabilityZones
-      - VPCCIDR
-      - PrivateSubnet1CIDR
-      - PrivateSubnet2CIDR
-      - PublicSubnet1CIDR
-      - PublicSubnet2CIDR
-      - RemoteAccessCIDR
-    - Label:
-        default: Amazon EC2 configuration
-      Parameters:
-      - KeyPairName
-    - Label:
-        default: AWS Quick Start configuration
-      Parameters:
-      - QSS3BucketName
-      - QSS3BucketRegion
-      - QSS3KeyPrefix
+      - Label:
+          default: Basic configuration
+        Parameters:
+          - AvailabilityZones
+          - RemoteAccessCIDR
+          - KeyPairName
+          - PerAccountSharedResources
+          - PerRegionSharedResources    
+      - Label:
+          default: VPC network configuration
+        Parameters:
+          - NumberOfAZs
+          - VPCCIDR
+          - PrivateSubnet1CIDR
+          - PrivateSubnet2CIDR
+          - PrivateSubnet3CIDR
+          - PublicSubnet1CIDR
+          - PublicSubnet2CIDR
+          - PublicSubnet3CIDR
+      - Label:
+          default: Bastion host configuration
+        Parameters:
+          - ProvisionBastionHost
+      - Label:
+          default: Amazon EKS cluster configuration
+        Parameters:
+          - EKSPublicAccessEndpoint
+          - AdditionalEKSAdminUserArn
+          - AdditionalEKSAdminRoleArn
+          - NodeInstanceType
+          - NumberOfNodes
+          - MaxNumberOfNodes
+      - Label:
+          default: Amazon Aurora Postgres configuration
+        Parameters:
+          - DBName
+          - DBPraefectName
+          - DBMasterUsername
+          - DBMasterUserPassword
+          - DBPort
+      - Label:
+          default: GitLab infrastructure configuration
+        Parameters:
+          - DomainName
+          - CreateHostedZone
+          - CreateSslCertificate
+          - CreateEmailDomain
+      - Label:
+          default: GitLab Helm chart configuration
+        Parameters:
+          - HelmChartName
+          - HelmChartNamespace
+          - HelmChartVersion
+          - ConfigureContainerInsights
+      - Label:
+          default: GitLab object storage configuration
+        Parameters:
+          - ObjectStorageSSEAlgorithm
+          - ObjectStorageKMSMasterKeyID
+          - BackupSchedule
+      - Label:
+          default: AWS Quick Start configuration
+        Parameters:
+          - QSS3BucketName
+          - QSS3KeyPrefix
+          - QSS3BucketRegion
     ParameterLabels:
       AvailabilityZones:
         default: Availability Zones
       KeyPairName:
-        default: Key pair name
+        default: SSH key name
       PrivateSubnet1CIDR:
         default: Private subnet 1 CIDR
       PrivateSubnet2CIDR:
         default: Private subnet 2 CIDR
+      PrivateSubnet3CIDR:
+        default: Private subnet 3 CIDR
       PublicSubnet1CIDR:
         default: Public subnet 1 CIDR
       PublicSubnet2CIDR:
         default: Public subnet 2 CIDR
+      PublicSubnet3CIDR:
+        default: Public subnet 3 CIDR
       QSS3BucketName:
         default: Quick Start S3 bucket name
       QSS3BucketRegion:
@@ -54,6 +104,27 @@ Metadata:
         default: Allowed bastion external access CIDR
       VPCCIDR:
         default: VPC CIDR
+      NodeInstanceType:
+        default: Instance type
+      NumberOfNodes:
+        default: Number of nodes
+      MaxNumberOfNodes:
+        default: Maximum number of nodes
+      AdditionalEKSAdminUserArn:
+        default: Additional EKS admin ARN (IAM user)
+      AdditionalEKSAdminRoleArn:
+        default: Additional EKS admin ARN (IAM role)
+      NumberOfAZs:
+        default: Number of Availability Zones
+      ProvisionBastionHost:
+        default: Provision bastion host
+      EKSPublicAccessEndpoint:
+        default: EKS public access endpoint
+      PerAccountSharedResources:
+        default: Per-account shared resources
+      PerRegionSharedResources:
+        default: Per-Region shared resources
+        
 Parameters:
 
 # Quickstart location parameters
@@ -81,12 +152,34 @@ Parameters:
       forward slash (/).
     Type: String
 
-# VPC parameters
+# Basic Configuration
   AvailabilityZones:
     Description: List of Availability Zones to use for the subnets in the VPC. Only
       two Availability Zones are used for this deployment, and the logical order of
       your selections is preserved.
     Type: List<AWS::EC2::AvailabilityZone::Name>
+  RemoteAccessCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+    Description: CIDR IP range that is permitted to access the bastions. We recommend
+      that you set this value to a trusted IP range.
+    Type: String
+  KeyPairName:
+    Description: Name of an existing public/private key pair, which allows you
+      to securely connect to your instance after it launches.
+    Type: AWS::EC2::KeyPair::KeyName 
+  PerAccountSharedResources:
+    Type: String
+    AllowedValues: ['Yes', 'No']
+    Default: 'Yes'
+    Description: Choose "No" if you already deployed another EKS Quick Start stack in your AWS account.
+  PerRegionSharedResources:
+    Type: String
+    AllowedValues: ['Yes', 'No']
+    Default: 'Yes'
+    Description: Choose "No" if you already deployed another EKS Quick Start stack in your Region.
+
+# VPC parameters
   NumberOfAZs:
     AllowedValues:
       - '2'
@@ -95,10 +188,12 @@ Parameters:
     Description: Number of Availability Zones to use in the VPC. This must match your
       selections in the list of Availability Zones parameter.
     Type: String
-  KeyPairName:
-    Description: Name of an existing public/private key pair, which allows you
-      to securely connect to your instance after it launches.
-    Type: AWS::EC2::KeyPair::KeyName 
+  VPCCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.0.0/16
+    Description: CIDR block for the VPC.
+    Type: String    
   PrivateSubnet1CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
@@ -138,18 +233,6 @@ Parameters:
     Description: CIDR block for the public (DMZ) subnet 3, located in Availability
       Zone 3.
     Type: String
-  RemoteAccessCIDR:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
-    Description: CIDR IP range that is permitted to access the bastions. We recommend
-      that you set this value to a trusted IP range.
-    Type: String
-  VPCCIDR:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
-    Default: 10.0.0.0/16
-    Description: CIDR block for the VPC.
-    Type: String
 
 # Bastion parameters
   ProvisionBastionHost:
@@ -186,25 +269,22 @@ Parameters:
     Default: 6
     Description: Maximum number of Amazon EKS node instances. The default is three.
     Type: Number
-  PerAccountSharedResources:
-    Type: String
-    AllowedValues: ['Yes', 'No']
-    Default: 'Yes'
-    Description: Choose "No" if you already deployed another EKS Quick Start stack in your AWS account.
-  PerRegionSharedResources:
-    Type: String
-    AllowedValues: ['Yes', 'No']
-    Default: 'Yes'
-    Description: Choose "No" if you already deployed another EKS Quick Start stack in your Region.
 
 # Databse Parameters
   DBName: 
     AllowedPattern: "[a-zA-Z0-9]*"
-    Description: "Name of the Amazon Aurora database."
+    Description: "Name of the GitLab Postgres database."
     MaxLength: "64"
     MinLength: "0"
     Default: gitlab
     Type: String
+  DBPraefectName: 
+    AllowedPattern: "[a-zA-Z0-9]*"
+    Description: "Name of the Praefect Postgres database."
+    MaxLength: "64"
+    MinLength: "0"
+    Default: praefect
+    Type: String     
   DBMasterUsername: 
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
     ConstraintDescription: "Must begin with a letter and contain only alphanumeric characters."
@@ -231,31 +311,6 @@ Parameters:
     MinValue: 1150
     MaxValue: 65535
 
-# Object Storage Parameters
-  ObjectStorageSSEAlgorithm:
-    Type: String
-    Default: AES256
-    AllowedValues: [ 'AES256', 'aws:kms' ]
-  ObjectStorageKMSMasterKeyID:
-    Type: String
-    Default: none
-
-# GitLab Parameters
-  HelmChartName:
-    Type: String
-    Default: gitlab
-    Description: Name of Helm GitLab deployment.
-  HelmChartNamespace:
-    Type: String
-    Default: default
-    Description: Kubernetes namespace to deploy GitLab chart to.
-  HelmChartVersion:
-    Type: String
-    Default: '4.5.1'
-  BackupSchedule:
-    Type: String
-    Default: '0 1 * * *'
-
 # Infra Parameters
   DomainName:
     Type: String
@@ -268,14 +323,43 @@ Parameters:
     Type: String
     AllowedValues: [ 'Yes', 'No' ]
     Default: 'No'
+  CreateSslCertificate:
+    Type: String
+    AllowedValues: [ 'Yes', 'No' ]
+    Default: 'No'  
   CreateEmailDomain:
     Type: String
     AllowedValues: [ 'Yes', 'No' ]
     Default: 'No'
-  CreateSslCertificate:
+
+# GitLab Helm chart Parameters
+  HelmChartName:
+    Type: String
+    Default: gitlab
+    Description: Name of Helm GitLab deployment.
+  HelmChartNamespace:
+    Type: String
+    Default: default
+    Description: Kubernetes namespace to deploy GitLab chart to.
+  HelmChartVersion:
+    Type: String
+    Default: '4.5.1'
+  ConfigureContainerInsights:
     Type: String
     AllowedValues: [ 'Yes', 'No' ]
     Default: 'No'
+
+# Object Storage Parameters
+  ObjectStorageSSEAlgorithm:
+    Type: String
+    Default: AES256
+    AllowedValues: [ 'AES256', 'aws:kms' ]
+  ObjectStorageKMSMasterKeyID:
+    Type: String
+    Default: none
+  BackupSchedule:
+    Type: String
+    Default: '0 1 * * *'
 
 Conditions:
   Using3AvailabilityZones:  !Equals [!Ref NumberOfAZs, '3']
@@ -359,12 +443,15 @@ Resources:
         CreateSslCertificate: !Ref CreateSslCertificate
         # Network properties
         VPCID: !GetAtt VPCStack.Outputs.VPCID
+        VPCCIDR: !Ref VPCCIDR
         PrivateSubnet1ID: !GetAtt VPCStack.Outputs.PrivateSubnet1AID
         PrivateSubnet2ID: !GetAtt VPCStack.Outputs.PrivateSubnet2AID
+        NumberOfAZs: !Ref NumberOfAZs
         # Cluster properties
         KubeClusterName: !GetAtt EKSStack.Outputs.EKSClusterName 
         # Database properties
         DBName: !Ref DBName
+        DBPraefectName: !Ref DBPraefectName
         DBMasterUsername: !Ref DBMasterUsername
         DBMasterUserPassword: !Ref DBMasterUserPassword
         DBPort: !Ref DBPort

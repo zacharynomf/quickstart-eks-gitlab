@@ -28,7 +28,7 @@ Parameters:
       can include numbers, lowercase letters, uppercase letters, hyphens (-), and
       forward slash (/).
 
-  # Infra Parameters
+# Infra Parameters
   DomainName:
     Type: String
     Description: The Domain name for the gitlab server.
@@ -49,23 +49,31 @@ Parameters:
     AllowedValues: [ 'Yes', 'No' ]
     Default: 'No'
 
-  # Network Parameters
+# Network Parameters
   VPCID: 
     Description: "ID of the VPC you are deploying Aurora into (e.g., vpc-0343606e)."
     Type: 'AWS::EC2::VPC::Id'
-    Default: ''
+  VPCCIDR:
+    Type: String
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Description: CIDR block for the VPC.
   PrivateSubnet1ID:
     Description: The ID of the private subnet in Availability Zone 1.
     Type: 'AWS::EC2::Subnet::Id'
   PrivateSubnet2ID:
     Description: The ID of the private subnet in Availability Zone 2.
     Type: 'AWS::EC2::Subnet::Id'
+  NumberOfAZs:
+    Description: Number of Availability Zones to use in the VPC. This must match your
+      selections in the list of Availability Zones parameter.
+    Type: String
 
-  # Cluster Parameters
+# Cluster Parameters
   KubeClusterName:
     Type: String
 
-  # Databse Parameters
+# Databse Parameters
   DBName: 
     AllowedPattern: "[a-zA-Z0-9]*"
     Description: "Name of the Amazon Aurora database."
@@ -73,6 +81,13 @@ Parameters:
     MinLength: "0"
     Default: gitlab
     Type: String
+  DBPraefectName: 
+    AllowedPattern: "[a-zA-Z0-9]*"
+    Description: "Name of the Amazon Aurora database."
+    MaxLength: "64"
+    MinLength: "0"
+    Default: praefect
+    Type: String    
   DBMasterUsername: 
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
     ConstraintDescription: "Must begin with a letter and contain only alphanumeric characters."
@@ -130,6 +145,16 @@ Conditions:
 
 Resources:
 
+  Telemetry: 
+    Type: AWS::CloudFormation::Stack
+    Properties: 
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-telemetry-template.yaml'
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters: 
+        ClusterName: !Ref KubeClusterName
+
   Infrastructure:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -138,6 +163,9 @@ Resources:
         - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
+        VPCID: !Ref VPCID
+        DBPort: !Ref DBPort
+        DBAccessCIDR: !Ref VPCCIDR
         DomainName: !Ref DomainName
         CreateHostedZone: !Ref CreateHostedZone
         CreateEmailDomain: !Ref CreateEmailDomain
@@ -162,6 +190,25 @@ Resources:
         VPCID: !Ref VPCID
         Subnet1ID: !Ref PrivateSubnet1ID
         Subnet2ID: !Ref PrivateSubnet2ID
+        CustomDBSecurityGroup: !GetAtt Infrastructure.Outputs.DatabaseSecurityGroupID
+
+  PraefectDatabase:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-praefect-template.yaml'
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        DBHost: !GetAtt Database.Outputs.RDSEndPointAddress
+        DBName: !Ref DBPraefectName
+        DBMasterUsername: !Ref DBMasterUsername
+        DBMasterUserPassword: !Ref DBMasterUserPassword
+        DBPrivateSubnet1ID: !Ref PrivateSubnet1ID
+        DBPrivateSubnet2ID: !Ref PrivateSubnet2ID
+        DBSecurityGroup: !GetAtt Infrastructure.Outputs.DatabaseSecurityGroupID
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3KeyPrefix: !Ref QSS3KeyPrefix
 
   ObjectStorage:
     Type: AWS::CloudFormation::Stack
@@ -192,6 +239,7 @@ Resources:
 
   Chart:
     Type: AWSQS::Kubernetes::Helm   
+    DependsOn: PraefectDatabase
     # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Helm
     Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
@@ -218,6 +266,15 @@ Resources:
         global.psql.username: !Ref DBMasterUsername
         global.psql.password.secret: !GetAtt KubeSecrets.Outputs.DatabaseKubeSecretName
         global.psql.password.key: !GetAtt KubeSecrets.Outputs.DatabaseSecretKey
+
+        # Gitaly configuration
+        global.praefect.enabled: true
+        global.praefect.gitalyReplicas: !Ref NumberOfAZs
+        global.praefect.dbSecret.secret: !GetAtt KubeSecrets.Outputs.DatabaseKubeSecretName
+        global.praefect.dbSecret.key: !GetAtt KubeSecrets.Outputs.DatabaseSecretKey
+        global.praefect.psql.host: !GetAtt Database.Outputs.RDSEndPointAddress
+        global.praefect.psql.user: !Ref DBMasterUsername
+        global.praefect.psql.dbName: !Ref DBPraefectName
 
         # S3 storage configuration
         ## object storage
@@ -247,13 +304,12 @@ Resources:
         gitlab.task-runner.backups.objectStorage.config.key: !GetAtt KubeSecrets.Outputs.BackupSecretKey
 
 
-            # praefect:
-            #   enabled: true
-            #   gitalyReplicas: 3
-            #   dbSecret: 
-            #     secret: ${GitLabSecrets.Outputs.DatabaseSecretName}
-            #     key: ${GitLabSecrets.Outputs.DatabaseSecretKey}
-            #   psql:
-            #     host: ${DatabaseWriteEndpoint}
-            #     user: {{resolve:secretsmanager:${DatabaseCredsSecretName}:SecretString:username}}
-            #     dbName: ${DatabasePraefectName}
+  PostInstall: 
+    Type: AWS::CloudFormation::Stack
+    Properties: 
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-postinstall-template.yaml'
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters: 
+        ClusterName: !Ref KubeClusterName
