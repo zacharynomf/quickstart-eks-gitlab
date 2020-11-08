@@ -172,7 +172,7 @@ Resources:
     Type: 'AWS::SecretsManager::Secret'
     Properties:
       Name: !Ref CredentialsSecretName
-      Description: "GitLab EKS admin user access keys"
+      Description: "GitLab Object Storage access keys"
       SecretString: !Sub '{"accessKeyId": "${GitLabObjectStorageKeys}", "secretAccessKey": "${GitLabObjectStorageKeys.SecretAccessKey}"}'
 
   ArtifactsBucketParameter:
