@@ -23,7 +23,7 @@ Resources:
       ClusterName: !Ref ClusterName
       Namespace: !Ref HelmChartNamespace
       Name: !Sub 'secret/${HelmChartName}-rails-secret'
-      JsonPath: '{.data[secrets.yml]}'
+      JsonPath: '{.data}'
   RailsSecret:
     Type: AWS::SecretsManager::Secret
     Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }
