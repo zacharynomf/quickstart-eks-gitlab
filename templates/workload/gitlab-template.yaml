@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: Gitlab s3 Buckets
 
 Parameters:
-  # Quickstart location Parameters
+# Quickstart location Parameters
   QSS3BucketName:
     Type: String
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
@@ -64,10 +64,6 @@ Parameters:
   PrivateSubnet2ID:
     Description: The ID of the private subnet in Availability Zone 2.
     Type: 'AWS::EC2::Subnet::Id'
-  NumberOfAZs:
-    Description: Number of Availability Zones to use in the VPC. This must match your
-      selections in the list of Availability Zones parameter.
-    Type: String
 
 # Cluster Parameters
   KubeClusterName:
@@ -114,7 +110,7 @@ Parameters:
     MinValue: 1150
     MaxValue: 65535
 
-  # Object Storage Parameters
+# Object Storage Parameters
   ObjectStorageSSEAlgorithm:
     Type: String
     Default: AES256
@@ -123,7 +119,7 @@ Parameters:
     Type: String
     Default: none
 
-  # GitLab Parameters
+# GitLab Parameters
   HelmChartName:
     Type: String
     Default: gitlab
@@ -138,6 +134,10 @@ Parameters:
   BackupSchedule:
     Type: String
     Default: '0 1 * * *'
+  NumberOfGitalyReplicas:
+    Type: Number
+    Description: Number of Availability Zones to use in the VPC. This must match your
+      selections in the list of Availability Zones parameter.
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
@@ -269,7 +269,7 @@ Resources:
 
         # Gitaly configuration
         global.praefect.enabled: true
-        global.praefect.gitalyReplicas: !Ref NumberOfAZs
+        global.praefect.gitalyReplicas: !Ref NumberOfGitalyReplicas
         global.praefect.dbSecret.secret: !GetAtt KubeSecrets.Outputs.DatabaseKubeSecretName
         global.praefect.dbSecret.key: !GetAtt KubeSecrets.Outputs.DatabaseSecretKey
         global.praefect.psql.host: !GetAtt Database.Outputs.RDSEndPointAddress

@@ -52,7 +52,7 @@ Resources:
     Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
-      Manifest: |
+      Manifest:
         apiVersion: v1
         kind: Namespace
         metadata:
@@ -68,7 +68,7 @@ Resources:
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: amazon-cloudwatch
-      Manifest: |
+      Manifest:
         apiVersion: v1
         kind: ServiceAccount
         metadata:
@@ -82,7 +82,7 @@ Resources:
     Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
-      Manifest: |
+      Manifest:
         apiVersion: rbac.authorization.k8s.io/v1
         kind: ClusterRole
         metadata:
@@ -115,7 +115,7 @@ Resources:
     Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
-      Manifest: |
+      Manifest:
         apiVersion: rbac.authorization.k8s.io/v1
         kind: ClusterRoleBinding
         metadata:
@@ -137,14 +137,14 @@ Resources:
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: amazon-cloudwatch
-      Manifest: !Sub
-        - |
-          # create configmap for cwagent config
-          apiVersion: v1
-          data:
-            # Configuration is in Json format. No matter what configure change you make,
-            # please keep the Json blob valid.
-            cwagentconfig.json: |
+      Manifest: 
+        # create configmap for cwagent config
+        apiVersion: v1
+        data:
+          # Configuration is in Json format. No matter what configure change you make,
+          # please keep the Json blob valid.
+          cwagentconfig.json: !Sub
+            - |
               {
                 "logs": {
                   "metrics_collected": {
@@ -156,13 +156,11 @@ Resources:
                   "force_flush_interval": 5
                 }
               }
-          kind: ConfigMap
-          metadata:
-            name: ${ConfigMapName}
-            namespace: ${ConfigMapNamespace}
-        - ConfigMapName: cwagentconfig
-          ConfigMapNamespace: amazon-cloudwatch
-          ClusterName: !Ref ClusterName
+            - ClusterName: !Ref ClusterName
+        kind: ConfigMap
+        metadata:
+          name: cwagentconfig
+          namespace: amazon-cloudwatch
 
   CloudWatchAgentDaemonSet:
     Type: AWSQS::Kubernetes::Resource
@@ -172,94 +170,92 @@ Resources:
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: amazon-cloudwatch
-      Manifest: !Sub
-        - |
-          # deploy cwagent as daemonset
-          apiVersion: apps/v1
-          kind: DaemonSet
-          metadata:
-            name: cloudwatch-agent
-            namespace: amazon-cloudwatch
-          spec:
-            selector:
-              matchLabels:
+      Manifest: 
+        # deploy cwagent as daemonset
+        apiVersion: apps/v1
+        kind: DaemonSet
+        metadata:
+          name: cloudwatch-agent
+          namespace: amazon-cloudwatch
+        spec:
+          selector:
+            matchLabels:
+              name: cloudwatch-agent
+          template:
+            metadata:
+              labels:
                 name: cloudwatch-agent
-            template:
-              metadata:
-                labels:
-                  name: cloudwatch-agent
-              spec:
-                containers:
-                  - name: cloudwatch-agent
-                    image: ${CloudWatchAgentImage}
-                    #ports:
-                    #  - containerPort: 8125
-                    #    hostPort: 8125
-                    #    protocol: UDP
-                    resources:
-                      limits:
-                        cpu:  200m
-                        memory: 200Mi
-                      requests:
-                        cpu: 200m
-                        memory: 200Mi
-                    # Please don't change below envs
-                    env:
-                      - name: HOST_IP
-                        valueFrom:
-                          fieldRef:
-                            fieldPath: status.hostIP
-                      - name: HOST_NAME
-                        valueFrom:
-                          fieldRef:
-                            fieldPath: spec.nodeName
-                      - name: K8S_NAMESPACE
-                        valueFrom:
-                          fieldRef:
-                            fieldPath: metadata.namespace
-                      - name: CI_VERSION
-                        value: "k8s/1.2.3"
-                    # Please don't change the mountPath
-                    volumeMounts:
-                      - name: cwagentconfig
-                        mountPath: /etc/cwagentconfig
-                      - name: rootfs
-                        mountPath: /rootfs
-                        readOnly: true
-                      - name: dockersock
-                        mountPath: /var/run/docker.sock
-                        readOnly: true
-                      - name: varlibdocker
-                        mountPath: /var/lib/docker
-                        readOnly: true
-                      - name: sys
-                        mountPath: /sys
-                        readOnly: true
-                      - name: devdisk
-                        mountPath: /dev/disk
-                        readOnly: true
-                volumes:
-                  - name: cwagentconfig
-                    configMap:
-                      name: cwagentconfig
-                  - name: rootfs
-                    hostPath:
-                      path: /
-                  - name: dockersock
-                    hostPath:
-                      path: /var/run/docker.sock
-                  - name: varlibdocker
-                    hostPath:
-                      path: /var/lib/docker
-                  - name: sys
-                    hostPath:
-                      path: /sys
-                  - name: devdisk
-                    hostPath:
-                      path: /dev/disk/
-                terminationGracePeriodSeconds: 60
-                serviceAccountName: cloudwatch-agent
-        - CloudWatchAgentImage: !Ref CloudWatchAgentImage
+            spec:
+              containers:
+                - name: cloudwatch-agent
+                  image: !Ref CloudWatchAgentImage
+                  #ports:
+                  #  - containerPort: 8125
+                  #    hostPort: 8125
+                  #    protocol: UDP
+                  resources:
+                    limits:
+                      cpu:  200m
+                      memory: 200Mi
+                    requests:
+                      cpu: 200m
+                      memory: 200Mi
+                  # Please don't change below envs
+                  env:
+                    - name: HOST_IP
+                      valueFrom:
+                        fieldRef:
+                          fieldPath: status.hostIP
+                    - name: HOST_NAME
+                      valueFrom:
+                        fieldRef:
+                          fieldPath: spec.nodeName
+                    - name: K8S_NAMESPACE
+                      valueFrom:
+                        fieldRef:
+                          fieldPath: metadata.namespace
+                    - name: CI_VERSION
+                      value: "k8s/1.2.3"
+                  # Please don't change the mountPath
+                  volumeMounts:
+                    - name: cwagentconfig
+                      mountPath: /etc/cwagentconfig
+                    - name: rootfs
+                      mountPath: /rootfs
+                      readOnly: true
+                    - name: dockersock
+                      mountPath: /var/run/docker.sock
+                      readOnly: true
+                    - name: varlibdocker
+                      mountPath: /var/lib/docker
+                      readOnly: true
+                    - name: sys
+                      mountPath: /sys
+                      readOnly: true
+                    - name: devdisk
+                      mountPath: /dev/disk
+                      readOnly: true
+              volumes:
+                - name: cwagentconfig
+                  configMap:
+                    name: cwagentconfig
+                - name: rootfs
+                  hostPath:
+                    path: /
+                - name: dockersock
+                  hostPath:
+                    path: /var/run/docker.sock
+                - name: varlibdocker
+                  hostPath:
+                    path: /var/lib/docker
+                - name: sys
+                  hostPath:
+                    path: /sys
+                - name: devdisk
+                  hostPath:
+                    path: /dev/disk/
+              terminationGracePeriodSeconds: 60
+              serviceAccountName: cloudwatch-agent
 
   # 2. Set Up FluentD as a DaemonSet to Send Logs to CloudWatch Logs 
   # https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-setup-logs.html
@@ -271,20 +267,15 @@ Resources:
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: amazon-cloudwatch
-      Manifest: !Sub
-        - |
-          apiVersion: v1
-          kind: ConfigMap
-          metadata:
-            name: ${ConfigMapName}
-            namespace: ${ConfigMapNamespace}
-          data:
-            cluster.name: ${ClusterName}
-            logs.region: ${Region}
-        - ConfigMapName: cluster-info
-          ConfigMapNamespace: amazon-cloudwatch
-          ClusterName: !Ref ClusterName
-          Region: !Ref 'AWS::Region'
+      Manifest: 
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: cluster-info
+          namespace: amazon-cloudwatch
+        data:
+          cluster.name: !Ref ClusterName
+          logs.region: !Ref 'AWS::Region'
 
   FluentdServiceAccount:
     Type: AWSQS::Kubernetes::Resource
@@ -294,7 +285,7 @@ Resources:
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: amazon-cloudwatch
-      Manifest: |
+      Manifest:
         apiVersion: v1
         kind: ServiceAccount
         metadata:
@@ -308,7 +299,7 @@ Resources:
     Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
-      Manifest: |
+      Manifest:
         apiVersion: rbac.authorization.k8s.io/v1
         kind: ClusterRole
         metadata:
@@ -328,7 +319,7 @@ Resources:
     Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
-      Manifest: |
+      Manifest:
         apiVersion: rbac.authorization.k8s.io/v1
         kind: ClusterRoleBinding
         metadata:
@@ -350,7 +341,7 @@ Resources:
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: amazon-cloudwatch
-      Manifest: |
+      Manifest:
         apiVersion: v1
         kind: ConfigMap
         metadata:
@@ -673,95 +664,93 @@ Resources:
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: amazon-cloudwatch
-      Manifest: !Sub
-        - |
-          apiVersion: apps/v1
-          kind: DaemonSet
-          metadata:
-            name: fluentd-cloudwatch
-            namespace: amazon-cloudwatch
-          spec:
-            selector:
-              matchLabels:
+      Manifest: 
+        apiVersion: apps/v1
+        kind: DaemonSet
+        metadata:
+          name: fluentd-cloudwatch
+          namespace: amazon-cloudwatch
+        spec:
+          selector:
+            matchLabels:
+              k8s-app: fluentd-cloudwatch
+          template:
+            metadata:
+              labels:
                 k8s-app: fluentd-cloudwatch
-            template:
-              metadata:
-                labels:
-                  k8s-app: fluentd-cloudwatch
-                annotations:
-                  configHash: 8915de4cf9c3551a8dc74c0137a3e83569d28c71044b0359c2578d2e0461825
-              spec:
-                serviceAccountName: fluentd
-                terminationGracePeriodSeconds: 30
-                # Because the image's entrypoint requires to write on /fluentd/etc but we mount configmap there which is read-only,
-                # this initContainers workaround or other is needed.
-                # See https://github.com/fluent/fluentd-kubernetes-daemonset/issues/90
-                initContainers:
-                  - name: copy-fluentd-config
-                    image: busybox
-                    command: ['sh', '-c', 'cp /config-volume/..data/* /fluentd/etc']
-                    volumeMounts:
-                      - name: config-volume
-                        mountPath: /config-volume
-                      - name: fluentdconf
-                        mountPath: /fluentd/etc
-                  - name: update-log-driver
-                    image: busybox
-                    command: ['sh','-c','']
-                containers:
-                  - name: fluentd-cloudwatch
-                    image: ${FluentdImage}
-                    env:
-                      - name: REGION
-                        valueFrom:
-                          configMapKeyRef:
-                            name: cluster-info
-                            key: logs.region
-                      - name: CLUSTER_NAME
-                        valueFrom:
-                          configMapKeyRef:
-                            name: cluster-info
-                            key: cluster.name
-                      - name: CI_VERSION
-                        value: "k8s/1.2.3"
-                    resources:
-                      limits:
-                        memory: 400Mi
-                      requests:
-                        cpu: 100m
-                        memory: 200Mi
-                    volumeMounts:
-                      - name: config-volume
-                        mountPath: /config-volume
-                      - name: fluentdconf
-                        mountPath: /fluentd/etc
-                      - name: varlog
-                        mountPath: /var/log
-                      - name: varlibdockercontainers
-                        mountPath: /var/lib/docker/containers
-                        readOnly: true
-                      - name: runlogjournal
-                        mountPath: /run/log/journal
-                        readOnly: true
-                      - name: dmesg
-                        mountPath: /var/log/dmesg
-                        readOnly: true
-                volumes:
-                  - name: config-volume
-                    configMap:
-                      name: fluentd-config
-                  - name: fluentdconf
-                    emptyDir: {}
-                  - name: varlog
-                    hostPath:
-                      path: /var/log
-                  - name: varlibdockercontainers
-                    hostPath:
-                      path: /var/lib/docker/containers
-                  - name: runlogjournal
-                    hostPath:
-                      path: /run/log/journal
-                  - name: dmesg
-                    hostPath:
-                      path: /var/log/dmesg          
-        - FluentdImage: !Ref FluentdImage
+              annotations:
+                configHash: 8915de4cf9c3551a8dc74c0137a3e83569d28c71044b0359c2578d2e0461825
+            spec:
+              serviceAccountName: fluentd
+              terminationGracePeriodSeconds: 30
+              # Because the image's entrypoint requires to write on /fluentd/etc but we mount configmap there which is read-only,
+              # this initContainers workaround or other is needed.
+              # See https://github.com/fluent/fluentd-kubernetes-daemonset/issues/90
+              initContainers:
+                - name: copy-fluentd-config
+                  image: busybox
+                  command: ['sh', '-c', 'cp /config-volume/..data/* /fluentd/etc']
+                  volumeMounts:
+                    - name: config-volume
+                      mountPath: /config-volume
+                    - name: fluentdconf
+                      mountPath: /fluentd/etc
+                - name: update-log-driver
+                  image: busybox
+                  command: ['sh','-c','']
+              containers:
+                - name: fluentd-cloudwatch
+                  image: !Ref FluentdImage
+                  env:
+                    - name: REGION
+                      valueFrom:
+                        configMapKeyRef:
+                          name: cluster-info
+                          key: logs.region
+                    - name: CLUSTER_NAME
+                      valueFrom:
+                        configMapKeyRef:
+                          name: cluster-info
+                          key: cluster.name
+                    - name: CI_VERSION
+                      value: "k8s/1.2.3"
+                  resources:
+                    limits:
+                      memory: 400Mi
+                    requests:
+                      cpu: 100m
+                      memory: 200Mi
+                  volumeMounts:
+                    - name: config-volume
+                      mountPath: /config-volume
+                    - name: fluentdconf
+                      mountPath: /fluentd/etc
+                    - name: varlog
+                      mountPath: /var/log
+                    - name: varlibdockercontainers
+                      mountPath: /var/lib/docker/containers
+                      readOnly: true
+                    - name: runlogjournal
+                      mountPath: /run/log/journal
+                      readOnly: true
+                    - name: dmesg
+                      mountPath: /var/log/dmesg
+                      readOnly: true
+              volumes:
+                - name: config-volume
+                  configMap:
+                    name: fluentd-config
+                - name: fluentdconf
+                  emptyDir: {}
+                - name: varlog
+                  hostPath:
+                    path: /var/log
+                - name: varlibdockercontainers
+                  hostPath:
+                    path: /var/lib/docker/containers
+                - name: runlogjournal
+                  hostPath:
+                    path: /run/log/journal
+                - name: dmesg
+                  hostPath:
+                    path: /var/log/dmesg          
