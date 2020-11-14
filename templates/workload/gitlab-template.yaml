@@ -2,67 +2,31 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: Gitlab s3 Buckets
 
 Parameters:
-# Quickstart location Parameters
-  QSS3BucketName:
-    Type: String
-    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
-    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
-      letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
-      (-).
-    Default: aws-quickstart
-    Description: S3 bucket name for the Quick Start assets. This string can include
-      numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start
-      or end with a hyphen (-).
-  QSS3BucketRegion:
-    Type: String
-    Default: 'us-east-1'
-    Description: 'The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. 
-      When using your own bucket, you must specify this value.'
-  QSS3KeyPrefix:
-    Type: String
-    AllowedPattern: ^[0-9a-zA-Z-/]*$
-    ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters, 
-      uppercase letters, hyphens (-), and forward slash (/).
-    Default: quickstart-examples/
-    Description: S3 key prefix for the Quick Start assets. Quick Start key prefix
-      can include numbers, lowercase letters, uppercase letters, hyphens (-), and
-      forward slash (/).
-
 # Infra Parameters
   DomainName:
     Type: String
-    Description: The Domain name for the gitlab server.
   RealDomainName:
     Type: String
-    Default: 'No'
     AllowedValues: [ 'Yes', 'No' ]
   CreateHostedZone:
     Type: String
     AllowedValues: [ 'Yes', 'No' ]
-    Default: 'No'
   CreateEmailDomain:
     Type: String
     AllowedValues: [ 'Yes', 'No' ]
-    Default: 'No'
   CreateSslCertificate:
     Type: String
     AllowedValues: [ 'Yes', 'No' ]
-    Default: 'No'
 
 # Network Parameters
   VPCID: 
-    Description: "ID of the VPC you are deploying Aurora into (e.g., vpc-0343606e)."
     Type: 'AWS::EC2::VPC::Id'
   VPCCIDR:
     Type: String
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
-    Description: CIDR block for the VPC.
   PrivateSubnet1ID:
-    Description: The ID of the private subnet in Availability Zone 1.
     Type: 'AWS::EC2::Subnet::Id'
   PrivateSubnet2ID:
-    Description: The ID of the private subnet in Availability Zone 2.
     Type: 'AWS::EC2::Subnet::Id'
 
 # Cluster Parameters
@@ -72,78 +36,78 @@ Parameters:
 # Databse Parameters
   DBName: 
     AllowedPattern: "[a-zA-Z0-9]*"
-    Description: "Name of the Amazon Aurora database."
     MaxLength: "64"
     MinLength: "0"
-    Default: gitlab
     Type: String
   DBPraefectName: 
     AllowedPattern: "[a-zA-Z0-9]*"
-    Description: "Name of the Amazon Aurora database."
     MaxLength: "64"
     MinLength: "0"
-    Default: praefect
     Type: String    
-  DBMasterUsername: 
+  DBUserName: 
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
-    ConstraintDescription: "Must begin with a letter and contain only alphanumeric characters."
-    Default: gitlab
-    Description: "The database admin account username."
     MaxLength: "16"
     MinLength: "1"
     Type: String
-  DBMasterUserPassword:
+  DBUserPassword:
     AllowedPattern: >-
       ^(?=^.{8,255}$)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)((?=.*[^A-Za-z0-9])(?!.*[@/"'])).*$
-    ConstraintDescription: >-
-      Min 8 chars. Must include 1 uppercase, 1 lowercase, 1 number, 1 (non / @ " ') symbol
-    Description: "The database admin account password."
     MaxLength: "64"
     MinLength: "8"
     NoEcho: "True"
     Type: String
   DBPort:
-    Default: 5432
-    Description: "The port the instance will listen for connections on."
     Type: Number
-    ConstraintDescription: 'Must be in the range [1115-65535].'
     MinValue: 1150
     MaxValue: 65535
 
 # Object Storage Parameters
   ObjectStorageSSEAlgorithm:
     Type: String
-    Default: AES256
     AllowedValues: [ 'AES256', 'aws:kms' ]
-  ObjectStorageKMSMasterKeyID:
+  ObjectStorageKMSKeyID:
     Type: String
-    Default: none
 
 # GitLab Parameters
   HelmChartName:
     Type: String
-    Default: gitlab
-    Description: Name of Helm GitLab deployment.
   HelmChartNamespace:
     Type: String
-    Default: default
-    Description: Kubernetes namespace to deploy GitLab chart to.
   HelmChartVersion:
     Type: String
-    Default: '4.5.1'
   BackupSchedule:
     Type: String
-    Default: '0 1 * * *'
   NumberOfGitalyReplicas:
     Type: Number
-    Description: Number of Availability Zones to use in the VPC. This must match your
-      selections in the list of Availability Zones parameter.
 
+# Quickstart location Parameters
+  QSS3BucketName:
+    Type: String
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+    Default: aws-quickstart
+  QSS3BucketRegion:
+    Type: String
+    Default: 'us-east-1'
+  QSS3KeyPrefix:
+    Type: String
+    AllowedPattern: ^[0-9a-zA-Z-/]*$
+    Default: quickstart-examples/
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
   # RealDomainNameProvided: !Equals [!Ref RealDomainName, 'Yes']
 
 Resources:
+
+  Functions: 
+    Type: AWS::CloudFormation::Stack
+    Properties: 
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-functions-template.yaml'
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters: 
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3KeyPrefix: !Ref QSS3KeyPrefix
 
   Telemetry: 
     Type: AWS::CloudFormation::Stack
@@ -170,12 +134,15 @@ Resources:
         CreateHostedZone: !Ref CreateHostedZone
         CreateEmailDomain: !Ref CreateEmailDomain
         CreateSslCertificate: !Ref CreateSslCertificate
+        FunctionsBucketName: !GetAtt Functions.Outputs.FunctionsBucketName
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
         QSS3BucketRegion: !Ref QSS3BucketRegion
 
   Database:
     Type: AWS::CloudFormation::Stack
+    # E9101 Ignoring 'master' in Aurora PostgreSQL quickstart parameter names
+    Metadata: { cfn-lint: { config: { ignore_checks: [E9101] } } }
     Properties:
       TemplateURL: !Sub
         - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-aurora-postgresql/templates/aurora_postgres.template.yaml'
@@ -184,8 +151,8 @@ Resources:
       Parameters:
         DBEngineVersion: 11.7 # GitLab requires >= 11
         DBName: !Ref DBName
-        DBMasterUsername: !Ref DBMasterUsername
-        DBMasterUserPassword: !Ref DBMasterUserPassword
+        DBMasterUsername: !Ref DBUserName
+        DBMasterUserPassword: !Ref DBUserPassword
         DBPort: !Ref DBPort
         VPCID: !Ref VPCID
         Subnet1ID: !Ref PrivateSubnet1ID
@@ -202,12 +169,12 @@ Resources:
       Parameters:
         DBHost: !GetAtt Database.Outputs.RDSEndPointAddress
         DBName: !Ref DBPraefectName
-        DBMasterUsername: !Ref DBMasterUsername
-        DBMasterUserPassword: !Ref DBMasterUserPassword
+        DBUsername: !Ref DBUserName
+        DBUserPassword: !Ref DBUserPassword
         DBPrivateSubnet1ID: !Ref PrivateSubnet1ID
         DBPrivateSubnet2ID: !Ref PrivateSubnet2ID
         DBSecurityGroup: !GetAtt Infrastructure.Outputs.DatabaseSecurityGroupID
-        QSS3BucketName: !Ref QSS3BucketName
+        FunctionsBucketName: !GetAtt Functions.Outputs.FunctionsBucketName
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
 
   ObjectStorage:
@@ -219,7 +186,7 @@ Resources:
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
         SSEAlgorithm: !Ref ObjectStorageSSEAlgorithm
-        KMSMasterKeyID: !Ref ObjectStorageKMSMasterKeyID
+        KMSKeyID: !Ref ObjectStorageKMSKeyID
 
   KubeSecrets:
     Type: AWS::CloudFormation::Stack
@@ -232,7 +199,7 @@ Resources:
       Parameters:
         KubeClusterName: !Ref KubeClusterName
         HelmChartNamespace: !Ref HelmChartNamespace
-        DatabasePassword: !Ref DBMasterUserPassword
+        DatabasePassword: !Ref DBUserPassword
         StorageAccessKeyId: !Sub "{{resolve:secretsmanager:${ObjectStorage.Outputs.CredentialsSecretName}:SecretString:accessKeyId}}"
         StorageSecretAccessKey: !Sub "{{resolve:secretsmanager:${ObjectStorage.Outputs.CredentialsSecretName}:SecretString:secretAccessKey}}"
         RegistryBucket: !GetAtt ObjectStorage.Outputs.RegistryBucket
@@ -263,7 +230,7 @@ Resources:
         postgresql.install: false
         global.psql.host: !GetAtt Database.Outputs.RDSEndPointAddress
         global.psql.database: !Ref DBName
-        global.psql.username: !Ref DBMasterUsername
+        global.psql.username: !Ref DBUserName
         global.psql.password.secret: !GetAtt KubeSecrets.Outputs.DatabaseKubeSecretName
         global.psql.password.key: !GetAtt KubeSecrets.Outputs.DatabaseSecretKey
 
@@ -273,7 +240,7 @@ Resources:
         global.praefect.dbSecret.secret: !GetAtt KubeSecrets.Outputs.DatabaseKubeSecretName
         global.praefect.dbSecret.key: !GetAtt KubeSecrets.Outputs.DatabaseSecretKey
         global.praefect.psql.host: !GetAtt Database.Outputs.RDSEndPointAddress
-        global.praefect.psql.user: !Ref DBMasterUsername
+        global.praefect.psql.user: !Ref DBUserName
         global.praefect.psql.dbName: !Ref DBPraefectName
 
         # S3 storage configuration

@@ -6,11 +6,9 @@ Parameters:
   HelmChartNamespace:
     Type: String
     Default: default
-    Description: Kubernetes namespace to deploy GitLab chart to.
   HelmChartName:
     Type: String
     Default: gitlab
-    Description: Name of Helm GitLab deployment.
 
 Resources:
 

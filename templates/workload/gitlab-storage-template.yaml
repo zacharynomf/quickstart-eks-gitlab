@@ -6,7 +6,7 @@ Parameters:
     Type: String
     Default: AES256
     AllowedValues: [ 'AES256', 'aws:kms' ]
-  KMSMasterKeyID:
+  KMSKeyID:
     Type: String
     Default: ''
   CredentialsSecretName:
@@ -14,7 +14,7 @@ Parameters:
     Default: /quickstart/gitlab/storage/credentials
 
 Conditions:
-  UseKMS: !Equals [!Ref KMSMasterKeyID, 'aws:kms']
+  UseKMS: !Equals [!Ref KMSKeyID, 'aws:kms']
 
 Resources:
 
@@ -25,7 +25,7 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
-              KMSMasterKeyID: !If [UseKMS, !Ref KMSMasterKeyID, !Ref 'AWS::NoValue']
+              KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref 'AWS::NoValue']
 
   LfsBucket:
     Type: AWS::S3::Bucket
@@ -34,7 +34,7 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
-              KMSMasterKeyID: !If [UseKMS, !Ref KMSMasterKeyID, !Ref 'AWS::NoValue']
+              KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref 'AWS::NoValue']
 
 
   UploadsBucket:
@@ -44,7 +44,7 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
-              KMSMasterKeyID: !If [UseKMS, !Ref KMSMasterKeyID, !Ref 'AWS::NoValue']
+              KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref 'AWS::NoValue']
 
   PackagesBucket:
     Type: AWS::S3::Bucket
@@ -53,7 +53,7 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
-              KMSMasterKeyID: !If [UseKMS, !Ref KMSMasterKeyID, !Ref 'AWS::NoValue']
+              KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref 'AWS::NoValue']
 
   TerraformBucket:
     Type: AWS::S3::Bucket
@@ -62,7 +62,7 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
-              KMSMasterKeyID: !If [UseKMS, !Ref KMSMasterKeyID, !Ref 'AWS::NoValue']
+              KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref 'AWS::NoValue']
 
   PseudonymizerBucket:
     Type: AWS::S3::Bucket
@@ -71,7 +71,7 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
-              KMSMasterKeyID: !If [UseKMS, !Ref KMSMasterKeyID, !Ref 'AWS::NoValue']
+              KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref 'AWS::NoValue']
 
   RegistryBucket:
     Type: AWS::S3::Bucket
@@ -80,7 +80,7 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
-              KMSMasterKeyID: !If [UseKMS, !Ref KMSMasterKeyID, !Ref 'AWS::NoValue']
+              KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref 'AWS::NoValue']
 
   BuckupBucket:
     Type: AWS::S3::Bucket
@@ -89,7 +89,7 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
-              KMSMasterKeyID: !If [UseKMS, !Ref KMSMasterKeyID, !Ref 'AWS::NoValue']
+              KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref 'AWS::NoValue']
 
   BuckupTempBucket:
     Type: AWS::S3::Bucket
@@ -98,7 +98,7 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
-              KMSMasterKeyID: !If [UseKMS, !Ref KMSMasterKeyID, !Ref 'AWS::NoValue']
+              KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref 'AWS::NoValue']
 
   ObjectStorageGroup:
     Type: AWS::IAM::Group
@@ -114,45 +114,45 @@ Resources:
             Action:
               - s3:ListBucket
             Resource: 
-              - !Sub "arn:aws:s3:::${ArtifactsBucket}"
-              - !Sub "arn:aws:s3:::${LfsBucket}"
-              - !Sub "arn:aws:s3:::${UploadsBucket}"
-              - !Sub "arn:aws:s3:::${PackagesBucket}"
-              - !Sub "arn:aws:s3:::${TerraformBucket}"
-              - !Sub "arn:aws:s3:::${PseudonymizerBucket}"
-              - !Sub "arn:aws:s3:::${RegistryBucket}"
-              - !Sub "arn:aws:s3:::${BuckupBucket}"
-              - !Sub "arn:aws:s3:::${BuckupTempBucket}"
+              - !Sub "arn:${AWS::Partition}:s3:::${ArtifactsBucket}"
+              - !Sub "arn:${AWS::Partition}:s3:::${LfsBucket}"
+              - !Sub "arn:${AWS::Partition}:s3:::${UploadsBucket}"
+              - !Sub "arn:${AWS::Partition}:s3:::${PackagesBucket}"
+              - !Sub "arn:${AWS::Partition}:s3:::${TerraformBucket}"
+              - !Sub "arn:${AWS::Partition}:s3:::${PseudonymizerBucket}"
+              - !Sub "arn:${AWS::Partition}:s3:::${RegistryBucket}"
+              - !Sub "arn:${AWS::Partition}:s3:::${BuckupBucket}"
+              - !Sub "arn:${AWS::Partition}:s3:::${BuckupTempBucket}"
           - Effect: Allow
             Action:
               - s3:*Object
             Resource: 
-              - !Sub "arn:aws:s3:::${ArtifactsBucket}/*"
-              - !Sub "arn:aws:s3:::${LfsBucket}/*"
-              - !Sub "arn:aws:s3:::${UploadsBucket}/*"
-              - !Sub "arn:aws:s3:::${PackagesBucket}/*"
-              - !Sub "arn:aws:s3:::${TerraformBucket}/*"
-              - !Sub "arn:aws:s3:::${PseudonymizerBucket}/*"
-              - !Sub "arn:aws:s3:::${RegistryBucket}/*"
-              - !Sub "arn:aws:s3:::${BuckupBucket}/*"
-              - !Sub "arn:aws:s3:::${BuckupTempBucket}/*"
+              - !Sub "arn:${AWS::Partition}:s3:::${ArtifactsBucket}/*"
+              - !Sub "arn:${AWS::Partition}:s3:::${LfsBucket}/*"
+              - !Sub "arn:${AWS::Partition}:s3:::${UploadsBucket}/*"
+              - !Sub "arn:${AWS::Partition}:s3:::${PackagesBucket}/*"
+              - !Sub "arn:${AWS::Partition}:s3:::${TerraformBucket}/*"
+              - !Sub "arn:${AWS::Partition}:s3:::${PseudonymizerBucket}/*"
+              - !Sub "arn:${AWS::Partition}:s3:::${RegistryBucket}/*"
+              - !Sub "arn:${AWS::Partition}:s3:::${BuckupBucket}/*"
+              - !Sub "arn:${AWS::Partition}:s3:::${BuckupTempBucket}/*"
           # Additional registry & backup permissions below
           - Effect: Allow
             Action:
               - s3:GetBucketLocation
               - s3:ListBucketMultipartUploads
             Resource: 
-              - !Sub "arn:aws:s3:::${RegistryBucket}"
-              - !Sub "arn:aws:s3:::${BuckupBucket}"
-              - !Sub "arn:aws:s3:::${BuckupTempBucket}"
+              - !Sub "arn:${AWS::Partition}:s3:::${RegistryBucket}"
+              - !Sub "arn:${AWS::Partition}:s3:::${BuckupBucket}"
+              - !Sub "arn:${AWS::Partition}:s3:::${BuckupTempBucket}"
           - Effect: Allow
             Action:
               - s3:ListMultipartUploadParts
               - s3:AbortMultipartUpload
             Resource: 
-              - !Sub "arn:aws:s3:::${RegistryBucket}/*"
-              - !Sub "arn:aws:s3:::${BuckupBucket}/*"
-              - !Sub "arn:aws:s3:::${BuckupTempBucket}/*"
+              - !Sub "arn:${AWS::Partition}:s3:::${RegistryBucket}/*"
+              - !Sub "arn:${AWS::Partition}:s3:::${BuckupBucket}/*"
+              - !Sub "arn:${AWS::Partition}:s3:::${BuckupTempBucket}/*"
 
   GitLabObjectStorageUser:
     Type: AWS::IAM::User

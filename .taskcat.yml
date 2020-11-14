@@ -13,13 +13,11 @@ project:
 tests:
   deploy-in-3-az-with-defaults:
     parameters:
-      AvailabilityZones: $[taskcat_genaz_3]
-      NumberOfAZs: 3      
+      AvailabilityZones: $[taskcat_genaz_2]
+      NumberOfAZs: 2
       EKSPublicAccessEndpoint: Enabled
       ProvisionBastionHost: Disabled
-      DBMasterUserPassword: 'Ae6ii5fcckj4ddi0t!'
+      DBUserPassword: 'Ae6ii5fcckj4ddi0t!'
       DomainName: devops.$[taskcat_random-string].com
-      PerAccountSharedResources: 'No'
-      PerRegionSharedResources: 'No'
     regions:
     - eu-west-1

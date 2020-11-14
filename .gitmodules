@@ -14,3 +14,15 @@
 	path = docs/boilerplate
 	url = git@github.com:aws-quickstart/quickstart-documentation-base-common.git
 	branch = main
+[submodule "scripts/qs-cfn-lint-rules"]
+	path = scripts/qs-cfn-lint-rules
+	url = git@github.com:aws-quickstart/qs-cfn-lint-rules.git
+	branch = main
+[submodule "functions/source/CfnSesDomain/aws-cfn-ses-domain"]
+	path = functions/source/CfnSesDomain/aws-cfn-ses-domain
+	url = git@github.com:medmunds/aws-cfn-ses-domain.git
+	branch = main
+[submodule "submodules/aws-cfn-ses-domain"]
+	path = submodules/aws-cfn-ses-domain
+	url = git@github.com:medmunds/aws-cfn-ses-domain.git
+	branch = main

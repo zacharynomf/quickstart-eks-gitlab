@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Deploys Lambda functions required for the AWS GitLab Quick Start
+Parameters:
+  QSS3BucketName:
+    Type: String
+  QSS3KeyPrefix:
+    Type: String
+
+Mappings:
+  Config:
+    EksPrefix: { Value: 'eks-quickstart' }
+    GitLabPrefix: { Value: 'gitlab-quickstart' }
+
+Conditions:
+  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+
+Resources:
+  LambdaZipsBucket:
+    Type: AWS::S3::Bucket
+
+  CopyZips:
+    Type: Custom::CopyZips
+    Properties:
+      ServiceToken: !Sub ['arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Prefix}-CopyZips', {Prefix: !FindInMap [Config, EksPrefix, Value]}]
+      DestBucket: !Sub ['${Prefix}-lambdazips-${AWS::Region}-${AWS::AccountId}', {Prefix: !FindInMap [Config, GitLabPrefix, Value]}]
+      SourceBucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Prefix: !Ref 'QSS3KeyPrefix'
+      Objects:
+        - functions/packages/CfnSesDomain/lambda.zip
+        - functions/packages/CreateDatabase/lambda.zip
+
+Outputs:
+  FunctionsBucketName:
+    Value: !Ref LambdaZipsBucket
