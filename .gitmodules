@@ -5,7 +5,7 @@
 [submodule "submodules/quickstart-amazon-eks"]
 	path = submodules/quickstart-amazon-eks
 	url = git@github.com:aws-quickstart/quickstart-amazon-eks.git
-	branch = update_resources
+	branch = lb_controller
 [submodule "submodules/quickstart-amazon-aurora-postgresql"]
 	path = submodules/quickstart-amazon-aurora-postgresql
 	url = git@github.com:aws-quickstart/quickstart-amazon-aurora-postgresql.git
