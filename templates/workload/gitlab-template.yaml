@@ -32,6 +32,10 @@ Parameters:
 # Cluster Parameters
   KubeClusterName:
     Type: String
+  ConfigureContainerInsights:
+    Type: String
+    AllowedValues: [ 'Yes', 'No' ]
+    Default: 'No'
 
 # Databse Parameters
   DBName: 
@@ -92,8 +96,10 @@ Parameters:
     Type: String
     AllowedPattern: ^[0-9a-zA-Z-/]*$
     Default: quickstart-examples/
+
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+  TelemetryRequired: !Equals [!Ref ConfigureContainerInsights, 'Yes']
   # RealDomainNameProvided: !Equals [!Ref RealDomainName, 'Yes']
 
 Resources:
@@ -111,6 +117,7 @@ Resources:
 
   Telemetry: 
     Type: AWS::CloudFormation::Stack
+    Condition: TelemetryRequired
     Properties: 
       TemplateURL: !Sub
         - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-telemetry-template.yaml'
@@ -169,7 +176,7 @@ Resources:
       Parameters:
         DBHost: !GetAtt Database.Outputs.RDSEndPointAddress
         DBName: !Ref DBPraefectName
-        DBUsername: !Ref DBUserName
+        DBUserName: !Ref DBUserName
         DBUserPassword: !Ref DBUserPassword
         DBPrivateSubnet1ID: !Ref PrivateSubnet1ID
         DBPrivateSubnet2ID: !Ref PrivateSubnet2ID

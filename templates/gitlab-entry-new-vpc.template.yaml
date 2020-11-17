@@ -14,12 +14,14 @@ Metadata:
     - GitLab
     - Praefect
     - Gitaly
-    - Amazon Resource Name
+    - Resource Name
+    - Container Insights
     - Route 53
     - Certificate Manager
     - Simple Email Service
     - '"No"'
     - '"Yes"'
+    - '"Enabled"'
     - namespace
     - cron
   AWS::CloudFormation::Interface:
@@ -136,6 +138,8 @@ Metadata:
         default: Number of nodes
       MaxNumberOfNodes:
         default: Maximum number of nodes
+      ConfigureContainerInsights:
+        default: Configure Container Insights
     # Amazon Aurora Postgres configuration
       DBName:
         default: GitLab database name
@@ -268,7 +272,7 @@ Parameters:
     Type: String
     AllowedValues: [Enabled, Disabled]
     Default: Disabled
-    Description: Choose "Yes" to provision a bastion host to access EKS cluster instances.
+    Description: Choose "Enabled" to provision a bastion host to access EKS cluster instances.
 
 # Cluster parameters
   EKSPublicAccessEndpoint:
@@ -302,6 +306,7 @@ Parameters:
     Type: String
     AllowedValues: [ 'Yes', 'No' ]
     Default: 'No'
+    Description: Choose "Yes" to enable integration with CloudWatch Container Insights.
 
 # Databse Parameters
   DBName: 
@@ -513,6 +518,7 @@ Resources:
         PrivateSubnet2ID: !GetAtt VPCStack.Outputs.PrivateSubnet2AID
         # Cluster properties
         KubeClusterName: !GetAtt EKSStack.Outputs.EKSClusterName 
+        ConfigureContainerInsights: !Ref ConfigureContainerInsights
         # Database properties
         DBName: !Ref DBName
         DBPraefectName: !Ref DBPraefectName

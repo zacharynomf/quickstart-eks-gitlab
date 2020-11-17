@@ -9,20 +9,17 @@ Parameters:
 Mappings:
   Config:
     EksPrefix: { Value: 'eks-quickstart' }
-    GitLabPrefix: { Value: 'gitlab-quickstart' }
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
 
 Resources:
-  LambdaZipsBucket:
-    Type: AWS::S3::Bucket
 
   CopyZips:
     Type: Custom::CopyZips
     Properties:
       ServiceToken: !Sub ['arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Prefix}-CopyZips', {Prefix: !FindInMap [Config, EksPrefix, Value]}]
-      DestBucket: !Sub ['${Prefix}-lambdazips-${AWS::Region}-${AWS::AccountId}', {Prefix: !FindInMap [Config, GitLabPrefix, Value]}]
+      DestBucket: !Sub ['${Prefix}-lambdazips-${AWS::Region}-${AWS::AccountId}', {Prefix: !FindInMap [Config, EksPrefix, Value]}]
       SourceBucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Prefix: !Ref 'QSS3KeyPrefix'
       Objects:
@@ -31,4 +28,4 @@ Resources:
 
 Outputs:
   FunctionsBucketName:
-    Value: !Ref LambdaZipsBucket
+    Value: !Sub ['${Prefix}-lambdazips-${AWS::Region}-${AWS::AccountId}', {Prefix: !FindInMap [Config, EksPrefix, Value]}]

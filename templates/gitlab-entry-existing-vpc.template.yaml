@@ -9,6 +9,23 @@ Metadata:
   QuickStartDocumentation:
     EntrypointName: "Launch into an existing VPC"
     Order: Index b
+  LintSpellExclude:
+    - Kubernetes
+    - Helm
+    - GitLab
+    - Praefect
+    - Gitaly
+    - Resource Name
+    - Container Insights
+    - Route 53
+    - Certificate Manager
+    - Simple Email Service
+    - '"No"'
+    - '"Yes"'
+    - '"Enabled"'    
+    - namespace
+    - cron    
+    - vpc
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
@@ -48,8 +65,8 @@ Metadata:
         Parameters:
           - DBName
           - DBPraefectName
-          - DBMasterUsername
-          - DBMasterUserPassword
+          - DBUserName
+          - DBUserPassword
           - DBPort
       - Label:
           default: GitLab infrastructure configuration
@@ -69,7 +86,7 @@ Metadata:
           default: GitLab object storage configuration
         Parameters:
           - ObjectStorageSSEAlgorithm
-          - ObjectStorageKMSMasterKeyID
+          - ObjectStorageKMSKeyID
           - BackupSchedule
       - Label:
           default: AWS Quick Start configuration
@@ -78,8 +95,20 @@ Metadata:
           - QSS3KeyPrefix
           - QSS3BucketRegion
     ParameterLabels:
+    # Basic configuration
+      RemoteAccessCIDR:
+        default: Allowed bastion external access CIDR
       KeyPairName:
         default: SSH key name
+      PerAccountSharedResources:
+        default: Per-account shared resources
+      PerRegionSharedResources:
+        default: Per-Region shared resources
+    # VPC network configuration
+      VPCID:
+        default: VPC ID        
+      VPCCIDR:
+        default: VPC CIDR
       PublicSubnet1ID:
         default: Public subnet 1 ID
       PublicSubnet2ID:
@@ -92,63 +121,69 @@ Metadata:
         default: Private subnet 2 ID
       PrivateSubnet3ID:
         default: Private subnet 3 ID
-      VPCID:
-        default: VPC ID
-      QSS3BucketName:
-        default: Quick Start S3 bucket name
-      QSS3BucketRegion:
-        default: Quick Start S3 bucket region
-      QSS3KeyPrefix:
-        default: Quick Start S3 Key Prefix
-      RemoteAccessCIDR:
-        default: Allowed bastion external access CIDR
-      VPCCIDR:
-        default: VPC CIDR
+    # Bastion host configuration
+      ProvisionBastionHost:
+        default: Provision a bastion host
+    # Amazon EKS cluster configuration
+      EKSPublicAccessEndpoint:
+        default: EKS public access endpoint
+      AdditionalEKSAdminUserArn:
+        default: Additional EKS admin ARN (IAM user)
+      AdditionalEKSAdminRoleArn:
+        default: Additional EKS admin ARN (IAM role)
       NodeInstanceType:
         default: Instance type
       NumberOfNodes:
         default: Number of nodes
       MaxNumberOfNodes:
         default: Maximum number of nodes
-      AdditionalEKSAdminUserArn:
-        default: Additional EKS admin ARN (IAM user)
-      AdditionalEKSAdminRoleArn:
-        default: Additional EKS admin ARN (IAM role)
-      ProvisionBastionHost:
-        default: Provision bastion host
-      EKSPublicAccessEndpoint:
-        default: EKS public access endpoint
-      PerAccountSharedResources:
-        default: Per-account shared resources
-      PerRegionSharedResources:
-        default: Per-Region shared resources
+      ConfigureContainerInsights:
+        default: Configure Container Insights
+    # Amazon Aurora Postgres configuration
+      DBName:
+        default: GitLab database name
+      DBPraefectName:
+        default: Praefect database name
+      DBUserName:
+        default: Database admin username
+      DBUserPassword:
+        default: Database admin password
+      DBPort:
+        default: Database port
+    # GitLab infrastructure configuration
+      DomainName: 
+        default: GitLab DNS name
+      CreateHostedZone: 
+        default: Create Route 53 hosted zone
+      CreateSslCertificate: 
+        default: Request AWS Certificate Manager SSL certificate
+      CreateEmailDomain:
+        default: Create Amazon Simple Email Service domain
+    # GitLab Helm chart configuration
+      HelmChartNamespace: 
+        default: Kubernetes namespace for GitLab Helm chart
+      HelmChartName:
+        default: GitLab Helm chart name
+      HelmChartVersion:
+        default: GitLab Helm chart version
+      NumberOfGitalyReplicas:
+        default: Number of Gitaly replicas
+    # GitLab object storage configuration
+      ObjectStorageSSEAlgorithm: 
+        default: Object storage encryption algorithm
+      ObjectStorageKMSKeyID:
+        default: KMS key ID
+      BackupSchedule:
+        default: Object storage backup schedule
+    # AWS Quick Start configuration
+      QSS3BucketName:
+        default: Quick Start S3 bucket name
+      QSS3BucketRegion:
+        default: Quick Start S3 bucket region
+      QSS3KeyPrefix:
+        default: Quick Start S3 key prefix
         
 Parameters:
-
-# Quickstart location parameters
-  QSS3BucketName:
-    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
-    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
-      letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
-      (-).
-    Default: aws-quickstart
-    Description: S3 bucket name for the Quick Start assets. This string can include
-      numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start
-      or end with a hyphen (-).
-    Type: String
-  QSS3BucketRegion:
-    Default: 'us-east-1'
-    Description: 'The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.'
-    Type: String
-  QSS3KeyPrefix:
-    AllowedPattern: ^[0-9a-zA-Z-/]*$
-    ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
-      uppercase letters, hyphens (-), and forward slash (/).
-    Default: quickstart-examples/
-    Description: S3 key prefix for the Quick Start assets. Quick Start key prefix
-      can include numbers, lowercase letters, uppercase letters, hyphens (-), and
-      forward slash (/).
-    Type: String
 
 # Basic Configuration
   RemoteAccessCIDR:
@@ -184,7 +219,7 @@ Parameters:
     Type: String       
   PublicSubnet1ID:
     Type: String
-    Description: ID of the public subnet in Availability Zone 1 of your existing VPC (e.g., subnet-a0246dcd).
+    Description: ID of the public subnet in Availability Zone 1 of your existing VPC (e.g., subnet-a0246ccd).
     Default: ""
   PublicSubnet2ID:
     Type: String
@@ -209,9 +244,9 @@ Parameters:
 # Bastion parameters
   ProvisionBastionHost:
     Type: String
-    AllowedValues: [ "Enabled", "Disabled" ]
-    Default: "Enabled"
-    Description: Choose "Disabled" to skip creating a bastion host.
+    AllowedValues: [Enabled, Disabled]
+    Default: Disabled
+    Description: Choose "Enabled" to provision a bastion host to access EKS cluster instances.
 
 # Cluster parameters
   EKSPublicAccessEndpoint:
@@ -245,6 +280,7 @@ Parameters:
     Type: String
     AllowedValues: [ 'Yes', 'No' ]
     Default: 'No'
+    Description: Choose "Yes" to enable integration with CloudWatch Container Insights.
 
 # Databse Parameters
   DBName: 
@@ -261,7 +297,7 @@ Parameters:
     MinLength: "0"
     Default: praefect
     Type: String     
-  DBMasterUsername: 
+  DBUserName: 
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
     ConstraintDescription: "Must begin with a letter and contain only alphanumeric characters."
     Default: gitlab
@@ -269,7 +305,7 @@ Parameters:
     MaxLength: "16"
     MinLength: "1"
     Type: String
-  DBMasterUserPassword:
+  DBUserPassword:
     AllowedPattern: >-
       ^(?=^.{8,255}$)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)((?=.*[^A-Za-z0-9])(?!.*[@/"'])).*$
     ConstraintDescription: >-
@@ -290,53 +326,84 @@ Parameters:
 # Infra Parameters
   DomainName:
     Type: String
-    Description: The Domain name for the gitlab server.
+    Description: The domain name for the GitLab server.
   RealDomainName:
     Type: String
     AllowedValues: [ 'Yes', 'No' ]
     Default: 'No'
   CreateHostedZone:
     Type: String
+    Description: Choose "Yes" if you want to create Amazon Route 53 to manage DNS for GitLab domain.
     AllowedValues: [ 'Yes', 'No' ]
     Default: 'No'
   CreateSslCertificate:
     Type: String
+    Description: Choose "Yes" if you want to request  AWS Certificate Manager SSL certificate for GitLab domain.
     AllowedValues: [ 'Yes', 'No' ]
     Default: 'No'  
   CreateEmailDomain:
     Type: String
+    Description: Choose "Yes" if you want to create Amazon Simple Email Service domain to send out GitLab notification email messages.
     AllowedValues: [ 'Yes', 'No' ]
     Default: 'No'
 
 # GitLab Helm chart Parameters
-  HelmChartName:
-    Type: String
-    Default: gitlab
-    Description: Name of Helm GitLab deployment.
   HelmChartNamespace:
     Type: String
-    Default: default
     Description: Kubernetes namespace to deploy GitLab chart to.
+    Default: default
+  HelmChartName:
+    Type: String
+    Description: Name of Helm GitLab deployment.
+    Default: gitlab
   HelmChartVersion:
     Type: String
+    Description: Version of GitLab Helm chart GitLab for deployment.
     Default: '4.5.1'
   NumberOfGitalyReplicas:
     Type: Number
     Default: 2
-    Description: Number of Availability Zones to use in the VPC. This must match your
-      selections in the list of Availability Zones parameter.
+    Description: Number of Gitaly replicas to deploy in GitLab cluster. The replicas will be distributed across Availability Zones selected.
 
 # Object Storage Parameters
   ObjectStorageSSEAlgorithm:
     Type: String
-    Default: AES256
+    Description: Encryption algorithm for GitLab object storage artifacts.
     AllowedValues: [ 'AES256', 'aws:kms' ]
-  ObjectStorageKMSMasterKeyID:
+    Default: AES256
+  ObjectStorageKMSKeyID:
     Type: String
+    Description: Provide KMS key ID to be used for encryption if KMS encryption is selected. 
     Default: none
   BackupSchedule:
     Type: String
+    Description: cron expression that is used to run GitLab backup jobs (default is daily at 1am).
     Default: '0 1 * * *'
+
+# Quickstart location parameters
+  QSS3BucketName:
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
+      letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
+      (-).
+    Default: aws-quickstart
+    Description: S3 bucket name for the Quick Start assets. This string can include
+      numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start
+      or end with a hyphen (-).
+    Type: String
+  QSS3BucketRegion:
+    Default: 'us-east-1'
+    Description: 'The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.'
+    Type: String
+  QSS3KeyPrefix:
+    AllowedPattern: ^[0-9a-zA-Z-/]*$
+    ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
+      uppercase letters, hyphens (-), and forward slash (/).
+    Default: quickstart-examples/
+    Description: S3 key prefix for the Quick Start assets. Quick Start key prefix
+      can include numbers, lowercase letters, uppercase letters, hyphens (-), and
+      forward slash (/).
+    Type: String
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
@@ -403,15 +470,16 @@ Resources:
         PrivateSubnet2ID: !Ref PrivateSubnet2ID
         # Cluster properties
         KubeClusterName: !GetAtt EKSStack.Outputs.EKSClusterName 
+        ConfigureContainerInsights: !Ref ConfigureContainerInsights
         # Database properties
         DBName: !Ref DBName
         DBPraefectName: !Ref DBPraefectName
-        DBMasterUsername: !Ref DBMasterUsername
-        DBMasterUserPassword: !Ref DBMasterUserPassword
+        DBUserName: !Ref DBUserName
+        DBUserPassword: !Ref DBUserPassword
         DBPort: !Ref DBPort
         # Object storage properties
         ObjectStorageSSEAlgorithm: !Ref ObjectStorageSSEAlgorithm
-        ObjectStorageKMSMasterKeyID: !Ref ObjectStorageKMSMasterKeyID
+        ObjectStorageKMSKeyID: !Ref ObjectStorageKMSKeyID
         # Chart properties
         HelmChartName: !Ref HelmChartName
         HelmChartNamespace: !Ref HelmChartNamespace

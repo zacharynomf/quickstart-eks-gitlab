@@ -1,0 +1,333 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: This master template creates a VPC infrastructure for a multi-AZ, multi-tier
+  deployment of a workload on AWS. It deploys a VPC with bastions and a workload cluster
+  behind an ELB. The cluster is configured to use an S3 bucket for storage  **WARNING**
+  This template creates EC2 instances and related resources. You will be billed for
+  the AWS resources used if you create a stack from this template.
+Metadata:
+  QuickStartDocumentation:
+    EntrypointName: "Launch into an existing EKS cluster"
+    Order: Index c
+  LintSpellExclude:
+    - Kubernetes
+    - Helm
+    - GitLab
+    - Praefect
+    - Gitaly
+    - Resource Name
+    - Container Insights
+    - Route 53
+    - Certificate Manager
+    - Simple Email Service
+    - '"No"'
+    - '"Yes"'
+    - namespace
+    - cron
+    - vpc
+  AWS::CloudFormation::Interface:
+    ParameterGroups: 
+      - Label:
+          default: VPC network configuration
+        Parameters:
+          - VPCID
+          - VPCCIDR
+          - PrivateSubnet1ID
+          - PrivateSubnet2ID
+      - Label:
+          default: Amazon EKS cluster configuration
+        Parameters:
+          - EKSClusterName
+          - ConfigureContainerInsights
+      - Label:
+          default: Amazon Aurora Postgres configuration
+        Parameters:
+          - DBName
+          - DBPraefectName
+          - DBUserName
+          - DBUserPassword
+          - DBPort
+      - Label:
+          default: GitLab infrastructure configuration
+        Parameters:
+          - DomainName
+          - CreateHostedZone
+          - CreateSslCertificate
+          - CreateEmailDomain
+      - Label:
+          default: GitLab Helm chart configuration
+        Parameters:
+          - HelmChartName
+          - HelmChartNamespace
+          - HelmChartVersion
+          - NumberOfGitalyReplicas
+      - Label:
+          default: GitLab object storage configuration
+        Parameters:
+          - ObjectStorageSSEAlgorithm
+          - ObjectStorageKMSKeyID
+          - BackupSchedule
+      - Label:
+          default: AWS Quick Start configuration
+        Parameters:
+          - QSS3BucketName
+          - QSS3KeyPrefix
+          - QSS3BucketRegion
+    ParameterLabels:
+    # VPC network configuration    
+      VPCID:
+        default: VPC ID
+      VPCCIDR:
+        default: VPC CIDR        
+      PrivateSubnet1ID:
+        default: Private subnet 1 ID
+      PrivateSubnet2ID:
+        default: Private subnet 2 ID
+    # Amazon EKS cluster configuration
+      ConfigureContainerInsights:
+        default: Configure Container Insights
+      EKSClusterName:
+        default: EKS cluster name
+    # Amazon Aurora Postgres configuration
+      DBName:
+        default: GitLab database name
+      DBPraefectName:
+        default: Praefect database name
+      DBUserName:
+        default: Database admin username
+      DBUserPassword:
+        default: Database admin password
+      DBPort:
+        default: Database port
+    # GitLab infrastructure configuration
+      DomainName: 
+        default: GitLab DNS name
+      CreateHostedZone: 
+        default: Create Route 53 hosted zone
+      CreateSslCertificate: 
+        default: Request AWS Certificate Manager SSL certificate
+      CreateEmailDomain:
+        default: Create Amazon Simple Email Service domain
+    # GitLab Helm chart configuration
+      HelmChartNamespace: 
+        default: Kubernetes namespace for GitLab Helm chart
+      HelmChartName:
+        default: GitLab Helm chart name
+      HelmChartVersion:
+        default: GitLab Helm chart version
+      NumberOfGitalyReplicas:
+        default: Number of Gitaly replicas
+    # GitLab object storage configuration
+      ObjectStorageSSEAlgorithm: 
+        default: Object storage encryption algorithm
+      ObjectStorageKMSKeyID:
+        default: KMS key ID
+      BackupSchedule:
+        default: Object storage backup schedule        
+    # AWS Quick Start configuration
+      QSS3BucketName:
+        default: Quick Start S3 bucket name
+      QSS3BucketRegion:
+        default: Quick Start S3 bucket region
+      QSS3KeyPrefix:
+        default: Quick Start S3 key prefix
+
+Parameters:
+
+# VPC parameters
+  VPCID:
+    Type: AWS::EC2::VPC::Id
+    Description: ID of your existing VPC (e.g., vpc-0343606e).
+  VPCCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.0.0/16
+    Description: CIDR block for the VPC.
+    Type: String       
+  PrivateSubnet1ID:
+    Type: AWS::EC2::Subnet::Id
+    Description: ID of the private subnet in Availability Zone 1 of your existing VPC (e.g., subnet-fe9a8b32).
+  PrivateSubnet2ID:
+    Type: String
+    Description: ID of the private subnet in Availability Zone 2 of your existing VPC (e.g., subnet-be8b01ea).
+    Default: ""
+
+# Cluster parameters
+  EKSClusterName: 
+    Type: String
+    Description: EKS cluster to install GitLab in.
+  ConfigureContainerInsights:
+    Type: String
+    AllowedValues: [ 'Yes', 'No' ]
+    Default: 'No'
+    Description: Choose "Yes" to enable integration with CloudWatch Container Insights.
+
+# Databse Parameters
+  DBName: 
+    AllowedPattern: "[a-zA-Z0-9]*"
+    Description: "Name of the GitLab Postgres database."
+    MaxLength: "64"
+    MinLength: "0"
+    Default: gitlab
+    Type: String
+  DBPraefectName: 
+    AllowedPattern: "[a-zA-Z0-9]*"
+    Description: "Name of the Praefect Postgres database."
+    MaxLength: "64"
+    MinLength: "0"
+    Default: praefect
+    Type: String     
+  DBUserName: 
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    ConstraintDescription: "Must begin with a letter and contain only alphanumeric characters."
+    Default: gitlab
+    Description: "The database admin account username."
+    MaxLength: "16"
+    MinLength: "1"
+    Type: String
+  DBUserPassword:
+    AllowedPattern: >-
+      ^(?=^.{8,255}$)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)((?=.*[^A-Za-z0-9])(?!.*[@/"'])).*$
+    ConstraintDescription: >-
+      Min 8 chars. Must include 1 uppercase, 1 lowercase, 1 number, 1 (non / @ " ') symbol
+    Description: "The database admin account password."
+    MaxLength: "64"
+    MinLength: "8"
+    NoEcho: "True"
+    Type: String
+  DBPort:
+    Default: 5432
+    Description: "The port the instance will listen for connections on."
+    Type: Number
+    ConstraintDescription: 'Must be in the range [1115-65535].'
+    MinValue: 1150
+    MaxValue: 65535
+
+# Infra Parameters
+  DomainName:
+    Type: String
+    Description: The domain name for the GitLab server.
+  RealDomainName:
+    Type: String
+    AllowedValues: [ 'Yes', 'No' ]
+    Default: 'No'
+  CreateHostedZone:
+    Type: String
+    Description: Choose "Yes" if you want to create Amazon Route 53 to manage DNS for GitLab domain.
+    AllowedValues: [ 'Yes', 'No' ]
+    Default: 'No'
+  CreateSslCertificate:
+    Type: String
+    Description: Choose "Yes" if you want to request  AWS Certificate Manager SSL certificate for GitLab domain.
+    AllowedValues: [ 'Yes', 'No' ]
+    Default: 'No'  
+  CreateEmailDomain:
+    Type: String
+    Description: Choose "Yes" if you want to create Amazon Simple Email Service domain to send out GitLab notification email messages.
+    AllowedValues: [ 'Yes', 'No' ]
+    Default: 'No'
+
+# GitLab Helm chart Parameters
+  HelmChartNamespace:
+    Type: String
+    Description: Kubernetes namespace to deploy GitLab chart to.
+    Default: default
+  HelmChartName:
+    Type: String
+    Description: Name of Helm GitLab deployment.
+    Default: gitlab
+  HelmChartVersion:
+    Type: String
+    Description: Version of GitLab Helm chart GitLab for deployment.
+    Default: '4.5.1'
+  NumberOfGitalyReplicas:
+    Type: Number
+    Default: 2
+    Description: Number of Gitaly replicas to deploy in GitLab cluster. The replicas will be distributed across Availability Zones selected.
+
+
+# Object Storage Parameters
+  ObjectStorageSSEAlgorithm:
+    Type: String
+    Description: Encryption algorithm for GitLab object storage artifacts.
+    AllowedValues: [ 'AES256', 'aws:kms' ]
+    Default: AES256
+  ObjectStorageKMSKeyID:
+    Type: String
+    Description: Provide KMS key ID to be used for encryption if KMS encryption is selected. 
+    Default: none
+  BackupSchedule:
+    Type: String
+    Description: cron expression that is used to run GitLab backup jobs (default is daily at 1am).
+    Default: '0 1 * * *'
+
+# Quickstart location parameters
+  QSS3BucketName:
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
+      letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
+      (-).
+    Default: aws-quickstart
+    Description: S3 bucket name for the Quick Start assets. This string can include
+      numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start
+      or end with a hyphen (-).
+    Type: String
+  QSS3BucketRegion:
+    Default: 'us-east-1'
+    Description: 'The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.'
+    Type: String
+  QSS3KeyPrefix:
+    AllowedPattern: ^[0-9a-zA-Z-/]*$
+    ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
+      uppercase letters, hyphens (-), and forward slash (/).
+    Default: quickstart-examples/
+    Description: S3 key prefix for the Quick Start assets. Quick Start key prefix
+      can include numbers, lowercase letters, uppercase letters, hyphens (-), and
+      forward slash (/).
+    Type: String
+
+Conditions:
+  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+
+Resources:
+
+  GitLabStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-template.yaml'
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        # Quickstart properties
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3KeyPrefix: !Ref QSS3KeyPrefix
+        QSS3BucketRegion: !Ref QSS3BucketRegion
+        # Infra properties
+        DomainName: !Ref DomainName
+        RealDomainName: !Ref RealDomainName
+        CreateHostedZone: !Ref CreateHostedZone
+        CreateEmailDomain: !Ref CreateEmailDomain
+        CreateSslCertificate: !Ref CreateSslCertificate
+        # Network properties
+        VPCID: !Ref VPCID
+        VPCCIDR: !Ref VPCCIDR
+        PrivateSubnet1ID: !Ref PrivateSubnet1ID
+        PrivateSubnet2ID: !Ref PrivateSubnet2ID
+        # Cluster properties
+        KubeClusterName: !Ref EKSClusterName 
+        ConfigureContainerInsights: !Ref ConfigureContainerInsights
+        # Database properties
+        DBName: !Ref DBName
+        DBPraefectName: !Ref DBPraefectName
+        DBUserName: !Ref DBUserName
+        DBUserPassword: !Ref DBUserPassword
+        DBPort: !Ref DBPort
+        # Object storage properties
+        ObjectStorageSSEAlgorithm: !Ref ObjectStorageSSEAlgorithm
+        ObjectStorageKMSKeyID: !Ref ObjectStorageKMSKeyID
+        # Chart properties
+        HelmChartName: !Ref HelmChartName
+        HelmChartNamespace: !Ref HelmChartNamespace
+        HelmChartVersion: !Ref HelmChartVersion
+        BackupSchedule: !Ref BackupSchedule
+        NumberOfGitalyReplicas: !Ref NumberOfGitalyReplicas
