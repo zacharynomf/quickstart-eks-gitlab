@@ -266,8 +266,8 @@ Parameters:
 # Bastion parameters
   ProvisionBastionHost:
     Type: String
-    AllowedValues: [ 'Yes', 'No' ]
-    Default: 'No'
+    AllowedValues: [Enabled, Disabled]
+    Default: Disabled
     Description: Choose "Yes" to provision a bastion host to access EKS cluster instances.
 
 # Cluster parameters
