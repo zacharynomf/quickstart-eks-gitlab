@@ -82,7 +82,7 @@ Resources:
               SSEAlgorithm: !Ref SSEAlgorithm
               KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref 'AWS::NoValue']
 
-  BuckupBucket:
+  BackupBucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketEncryption:
@@ -91,7 +91,7 @@ Resources:
               SSEAlgorithm: !Ref SSEAlgorithm
               KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref 'AWS::NoValue']
 
-  BuckupTempBucket:
+  BackupTempBucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketEncryption:
@@ -121,8 +121,8 @@ Resources:
               - !Sub "arn:${AWS::Partition}:s3:::${TerraformBucket}"
               - !Sub "arn:${AWS::Partition}:s3:::${PseudonymizerBucket}"
               - !Sub "arn:${AWS::Partition}:s3:::${RegistryBucket}"
-              - !Sub "arn:${AWS::Partition}:s3:::${BuckupBucket}"
-              - !Sub "arn:${AWS::Partition}:s3:::${BuckupTempBucket}"
+              - !Sub "arn:${AWS::Partition}:s3:::${BackupBucket}"
+              - !Sub "arn:${AWS::Partition}:s3:::${BackupTempBucket}"
           - Effect: Allow
             Action:
               - s3:*Object
@@ -134,8 +134,8 @@ Resources:
               - !Sub "arn:${AWS::Partition}:s3:::${TerraformBucket}/*"
               - !Sub "arn:${AWS::Partition}:s3:::${PseudonymizerBucket}/*"
               - !Sub "arn:${AWS::Partition}:s3:::${RegistryBucket}/*"
-              - !Sub "arn:${AWS::Partition}:s3:::${BuckupBucket}/*"
-              - !Sub "arn:${AWS::Partition}:s3:::${BuckupTempBucket}/*"
+              - !Sub "arn:${AWS::Partition}:s3:::${BackupBucket}/*"
+              - !Sub "arn:${AWS::Partition}:s3:::${BackupTempBucket}/*"
           # Additional registry & backup permissions below
           - Effect: Allow
             Action:
@@ -143,16 +143,16 @@ Resources:
               - s3:ListBucketMultipartUploads
             Resource: 
               - !Sub "arn:${AWS::Partition}:s3:::${RegistryBucket}"
-              - !Sub "arn:${AWS::Partition}:s3:::${BuckupBucket}"
-              - !Sub "arn:${AWS::Partition}:s3:::${BuckupTempBucket}"
+              - !Sub "arn:${AWS::Partition}:s3:::${BackupBucket}"
+              - !Sub "arn:${AWS::Partition}:s3:::${BackupTempBucket}"
           - Effect: Allow
             Action:
               - s3:ListMultipartUploadParts
               - s3:AbortMultipartUpload
             Resource: 
               - !Sub "arn:${AWS::Partition}:s3:::${RegistryBucket}/*"
-              - !Sub "arn:${AWS::Partition}:s3:::${BuckupBucket}/*"
-              - !Sub "arn:${AWS::Partition}:s3:::${BuckupTempBucket}/*"
+              - !Sub "arn:${AWS::Partition}:s3:::${BackupBucket}/*"
+              - !Sub "arn:${AWS::Partition}:s3:::${BackupTempBucket}/*"
 
   GitLabObjectStorageUser:
     Type: AWS::IAM::User
@@ -229,14 +229,14 @@ Resources:
     Properties:
       Type: String
       Name: /quickstart/gitlab/storage/buckets/backup
-      Value: !Ref BuckupBucket
+      Value: !Ref BackupBucket
 
   BackupTmpBucketParameter:
     Type: AWS::SSM::Parameter
     Properties:
       Type: String
       Name: /quickstart/gitlab/storage/buckets/backup-tmp
-      Value: !Ref BuckupTempBucket
+      Value: !Ref BackupTempBucket
 
 Outputs:
   ArtifactsBucket: 
@@ -253,10 +253,10 @@ Outputs:
     Value: !Ref PseudonymizerBucket
   RegistryBucket:
     Value: !Ref RegistryBucket
-  BuckupBucket: 
-    Value: !Ref BuckupBucket
-  BuckupTempBucket: 
-    Value: !Ref BuckupTempBucket
+  BackupBucket: 
+    Value: !Ref BackupBucket
+  BackupTempBucket: 
+    Value: !Ref BackupTempBucket
 
   CredentialsSecretName:
     Value: !Ref CredentialsSecretName

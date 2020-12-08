@@ -135,7 +135,75 @@ Resources:
       HostedZoneName: !Sub "${DomainName}."
       # The Route53RecordSets attribute specifies all DNS records needed:
       RecordSets: !GetAtt SESDomain.Route53RecordSets
-      
+
+# 6. SMTP Password and user
+  SmtpGroup:
+    Type: AWS::IAM::Group
+    Condition: EmailDomainRequested
+    Properties:
+      Path: /quickstart/gitlab/
+      Policies:
+      - PolicyName: sesAccess
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+              - ses:SendRawEmail
+            Resource: '*'
+
+  SmtpUser:
+    Type: AWS::IAM::User
+    Condition: EmailDomainRequested
+    Properties:
+      Path: /quickstart/gitlab/
+      Groups: 
+        - !Ref SmtpGroup
+
+  SmtpKeys:
+    Type: AWS::IAM::AccessKey
+    Condition: EmailDomainRequested
+    Properties:
+      Status: Active
+      UserName:
+        Ref: SmtpUser
+
+  SmtpPasswordGeneratorFunction:
+    Type: AWS::Lambda::Function
+    Condition: EmailDomainRequested
+    Properties:
+      Handler: handler.handler
+      Runtime: python3.8
+      Role: !GetAtt SmtpPasswordGeneratorRole.Arn
+      Code:
+        S3Bucket: !Ref FunctionsBucketName
+        S3Key: !Sub '${QSS3KeyPrefix}functions/packages/SmtpPasswordGenerator/lambda.zip'
+
+  SmtpPasswordGeneratorRole:
+    Type: AWS::IAM::Role
+    Condition: EmailDomainRequested
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Sid: AssumeLambdaExecutionRole
+          Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action: sts:AssumeRole
+      ManagedPolicyArns:
+        # (allows logging)
+        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+
+  SmtpPasswordGenerator:
+    Type: Custom::SMTPPassword
+    Condition: EmailDomainRequested
+    Properties:
+      ServiceToken: !GetAtt SmtpPasswordGeneratorFunction.Arn
+      Region: !Ref 'AWS::Region'
+      Secret: !GetAtt SmtpKeys.SecretAccessKey
+
+# SSM Parameters    
   DomainNameParameter:
     Type: AWS::SSM::Parameter
     Properties:
@@ -166,6 +234,14 @@ Resources:
       Type: String
       Name: /quickstart/gitlab/infra/certificate-arn
       Value: !Ref SslCertificate
+
+  SmtpCredentialsSecret:
+    Type: 'AWS::SecretsManager::Secret'
+    Condition: EmailDomainRequested
+    Properties:
+      Name: /quickstart/gitlab/infra/smtp-credentials
+      Description: "GitLab SMTP credentials"
+      SecretString: !Sub '{"username": "${SmtpKeys}", "password": "${SmtpPasswordGenerator.Password}"}'
 
 Outputs:
   DatabaseSecurityGroupID: 

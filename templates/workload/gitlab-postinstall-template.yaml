@@ -58,7 +58,6 @@ Resources:
       Namespace: !Ref HelmChartNamespace
       Name: !Sub 'service/${HelmChartName}-nginx-ingress-controller'
       JsonPath: '{.status.loadBalancer.ingress[0].hostname}'
-
   LoadBalancerParameter:
     Type: AWS::SSM::Parameter
     Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }

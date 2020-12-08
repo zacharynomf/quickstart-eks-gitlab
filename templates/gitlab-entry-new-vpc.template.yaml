@@ -73,10 +73,18 @@ Metadata:
           - DomainName
           - CreateHostedZone
           - CreateSslCertificate
+      - Label:
+          default: GitLab SMTP configuration
+        Parameters:
           - CreateEmailDomain
+          - SMTPHostName
+          - SMTPPort
+          - SMTPUsername
+          - SMTPPassword
       - Label:
           default: GitLab Helm chart configuration
         Parameters:
+          - HelmChartNamespaceCreate
           - HelmChartNamespace
           - HelmChartName
           - HelmChartVersion
@@ -87,6 +95,7 @@ Metadata:
           - ObjectStorageSSEAlgorithm
           - ObjectStorageKMSKeyID
           - BackupSchedule
+          - BackupVolumeSize
       - Label:
           default: AWS Quick Start configuration
         Parameters:
@@ -158,9 +167,20 @@ Metadata:
         default: Create Route 53 hosted zone
       CreateSslCertificate: 
         default: Request AWS Certificate Manager SSL certificate
+    # GitLab SMTP configuration
       CreateEmailDomain:
         default: Create Amazon Simple Email Service domain
+      SMTPHostName:
+        default: SMTP server host name
+      SMTPPort:
+        default: SMTP server port
+      SMTPUsername:
+        default: SMTP server user name
+      SMTPPassword:
+        default: SMTP server password
     # GitLab Helm chart configuration
+      HelmChartNamespaceCreate: 
+        default: Kubernetes namespace creation mode
       HelmChartNamespace: 
         default: Kubernetes namespace for GitLab Helm chart
       HelmChartName:
@@ -176,6 +196,8 @@ Metadata:
         default: KMS key ID
       BackupSchedule:
         default: Object storage backup schedule
+      BackupVolumeSize:
+        default: Object storage backup volume capacity
     # AWS Quick Start configuration
       QSS3BucketName:
         default: Quick Start S3 bucket name
@@ -353,10 +375,6 @@ Parameters:
   DomainName:
     Type: String
     Description: The domain name for the GitLab server.
-  RealDomainName:
-    Type: String
-    AllowedValues: [ 'Yes', 'No' ]
-    Default: 'No'
   CreateHostedZone:
     Type: String
     Description: Choose "Yes" if you want to create Amazon Route 53 to manage DNS for GitLab domain.
@@ -367,17 +385,40 @@ Parameters:
     Description: Choose "Yes" if you want to request  AWS Certificate Manager SSL certificate for GitLab domain.
     AllowedValues: [ 'Yes', 'No' ]
     Default: 'No'  
+
+# SMTP Parameters
   CreateEmailDomain:
     Type: String
     Description: Choose "Yes" if you want to create Amazon Simple Email Service domain to send out GitLab notification email messages.
     AllowedValues: [ 'Yes', 'No' ]
-    Default: 'No'
+    Default: 'Yes'
+  SMTPHostName:
+    Type: String
+    Description: 'If you chose not to use Amazon Simple Email Service above, provide SMTP server host name.'
+    Default: ''
+  SMTPPort:
+    Type: Number
+    Description: 'If you chose not to use Amazon Simple Email Service above, provide SMTP server port.'
+    Default: ''
+  SMTPUsername:
+    Type: String
+    Description: 'If you chose not to use Amazon Simple Email Service above, provide SMTP server username.'
+    Default: ''
+  SMTPPassword:
+    Type: String
+    Description: 'If you chose not to use Amazon Simple Email Service above, provide SMTP server password.'
+    Default: ''
 
 # GitLab Helm chart Parameters
+  HelmChartNamespaceCreate:
+    Type: String
+    Description: Create new or use exicting Kubernetes namespace for GitLab chart deployment.
+    AllowedValues: [ 'CreateNew', 'UseExisting' ]
+    Default: CreateNew
   HelmChartNamespace:
     Type: String
     Description: Kubernetes namespace to deploy GitLab chart to.
-    Default: default
+    Default: gitlab
   HelmChartName:
     Type: String
     Description: Name of Helm GitLab deployment.
@@ -405,6 +446,11 @@ Parameters:
     Type: String
     Description: cron expression that is used to run GitLab backup jobs (default is daily at 1am).
     Default: '0 1 * * *'
+  BackupVolumeSize:
+    Type: Number
+    Default: 10
+    MinValue: 10
+    Description: Capacity of EBS volume used for GitLab backups, in Gb. 
 
 # Quickstart location parameters
   QSS3BucketName:
@@ -507,7 +553,6 @@ Resources:
         QSS3BucketRegion: !Ref QSS3BucketRegion
         # Infra properties
         DomainName: !Ref DomainName
-        RealDomainName: !Ref RealDomainName
         CreateHostedZone: !Ref CreateHostedZone
         CreateEmailDomain: !Ref CreateEmailDomain
         CreateSslCertificate: !Ref CreateSslCertificate
@@ -529,8 +574,10 @@ Resources:
         ObjectStorageSSEAlgorithm: !Ref ObjectStorageSSEAlgorithm
         ObjectStorageKMSKeyID: !Ref ObjectStorageKMSKeyID
         # Chart properties
-        HelmChartName: !Ref HelmChartName
+        HelmChartNamespaceCreate: !Ref HelmChartNamespaceCreate
         HelmChartNamespace: !Ref HelmChartNamespace
+        HelmChartName: !Ref HelmChartName
         HelmChartVersion: !Ref HelmChartVersion
         BackupSchedule: !Ref BackupSchedule
+        BackupVolumeSize: !Ref BackupVolumeSize
         NumberOfGitalyReplicas: !Ref NumberOfGitalyReplicas

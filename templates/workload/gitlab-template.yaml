@@ -5,13 +5,7 @@ Parameters:
 # Infra Parameters
   DomainName:
     Type: String
-  RealDomainName:
-    Type: String
-    AllowedValues: [ 'Yes', 'No' ]
   CreateHostedZone:
-    Type: String
-    AllowedValues: [ 'Yes', 'No' ]
-  CreateEmailDomain:
     Type: String
     AllowedValues: [ 'Yes', 'No' ]
   CreateSslCertificate:
@@ -72,15 +66,36 @@ Parameters:
   ObjectStorageKMSKeyID:
     Type: String
 
-# GitLab Parameters
-  HelmChartName:
+# SMTP Parameters
+  CreateEmailDomain:
     Type: String
+    AllowedValues: [ 'Yes', 'No' ]
+  SMTPHostName:
+    Type: String
+  SMTPPort:
+    Type: Number
+  SMTPUsername:
+    Type: String
+  SMTPPassword:
+    Type: String
+  DefaultSESPort:
+    Type: Number
+    Default: 587
+
+# GitLab Parameters
+  HelmChartNamespaceCreate:
+    Type: String
+    AllowedValues: [ 'CreateNew', 'UseExisting' ]
   HelmChartNamespace:
+    Type: String
+  HelmChartName:
     Type: String
   HelmChartVersion:
     Type: String
   BackupSchedule:
     Type: String
+  BackupVolumeSize:
+    Type: Number
   NumberOfGitalyReplicas:
     Type: Number
 
@@ -100,7 +115,8 @@ Parameters:
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
   TelemetryRequired: !Equals [!Ref ConfigureContainerInsights, 'Yes']
-  # RealDomainNameProvided: !Equals [!Ref RealDomainName, 'Yes']
+  CreateEmailDomain: !Equals [!Ref CreateEmailDomain, 'Yes']
+  HelmChartNamespaceCreate: !Equals [!Ref HelmChartNamespaceCreate, 'CreateNew']
 
 Resources:
 
@@ -210,10 +226,31 @@ Resources:
         StorageAccessKeyId: !Sub "{{resolve:secretsmanager:${ObjectStorage.Outputs.CredentialsSecretName}:SecretString:accessKeyId}}"
         StorageSecretAccessKey: !Sub "{{resolve:secretsmanager:${ObjectStorage.Outputs.CredentialsSecretName}:SecretString:secretAccessKey}}"
         RegistryBucket: !GetAtt ObjectStorage.Outputs.RegistryBucket
+        SmtpPassword: !If
+          - CreateEmailDomain
+          - {{resolve:secretsmanager:/quickstart/gitlab/infra/smtp-credentials:SecretString:password}}
+          - !Ref SMTPPassword
+
+  ChartNamespace:
+    Type: AWSQS::Kubernetes::Resource
+    Condition: HelmChartNamespaceCreate
+    # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Resource
+    Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
+    Properties:
+      ClusterName: !Ref KubeClusterName
+      Manifest: !Sub |
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: ${HelmChartNamespace}
+          labels:
+            name: ${HelmChartNamespace}
 
   Chart:
     Type: AWSQS::Kubernetes::Helm   
-    DependsOn: PraefectDatabase
+    DependsOn: 
+      - PraefectDatabase
+      - !If [HelmChartNamespaceCreate, ChartNamespace, !Ref 'AWS::NoValue']
     # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Helm
     Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
@@ -229,6 +266,29 @@ Resources:
 
         # domain name
         global.hosts.domain: !Ref DomainName
+
+        # email configuration
+        global.email.display_name: GitLab
+        global.email.from: !Sub 'gitlab@${DomainName}'
+        global.email.reply_to: !Sub 'noreply@${DomainName}'
+        global.smtp.enabled: true
+        global.smtp.domain: !Ref DomainName
+        global.smtp.starttls_auto: true
+        global.smtp.authentication: login
+        global.smtp.address: !If
+          - CreateEmailDomain
+          - !Sub 'email-smtp.${AWS::Region}.amazonaws.com'
+          - !Ref SMTPHostName
+        global.smtp.port: !If
+          - CreateEmailDomain
+          - !Ref DefaultSESPort
+          - !Ref SMTPPort
+        global.smtp.user_name: !If 
+          - CreateEmailDomain
+          - {{resolve:secretsmanager:/quickstart/gitlab/infra/smtp-credentials:SecretString:username}}
+          - !Ref SMTPUsername
+        global.smtp.password.secret: !GetAtt KubeSecrets.Outputs.SmtpSecretName
+        global.smtp.password.key: !GetAtt KubeSecrets.Outputs.SmtpSecretKey
 
         # runner configuration
         gitlab-runner.install: false
@@ -264,16 +324,23 @@ Resources:
         global.appConfig.packages.bucket: !GetAtt ObjectStorage.Outputs.PackagesBucket
         global.appConfig.terraformState.bucket: !GetAtt ObjectStorage.Outputs.TerraformBucket
         global.appConfig.pseudonymizer.bucket: !GetAtt ObjectStorage.Outputs.PseudonymizerBucket
-        global.appConfig.backups.bucket: !GetAtt ObjectStorage.Outputs.BuckupBucket
-        global.appConfig.backups.tmpBucket: !GetAtt ObjectStorage.Outputs.BuckupTempBucket
+        global.appConfig.backups.bucket: !GetAtt ObjectStorage.Outputs.BackupBucket
+        global.appConfig.backups.tmpBucket: !GetAtt ObjectStorage.Outputs.BackupTempBucket
         ## registry
         global.registry.bucket: !GetAtt ObjectStorage.Outputs.RegistryBucket
         registry.storage.secret: !GetAtt KubeSecrets.Outputs.ObjectStorageKubeSecretName
         registry.storage.key: !GetAtt KubeSecrets.Outputs.RegistrySecretKey
 
         # backups, see https://docs.gitlab.com/charts/backup-restore/backup.html
+        gitlab.task-runner.persistance.enabled: true
+        gitlab.task-runner.persistance.storageClass: gp2
+        gitlab.task-runner.persistance.size: !Sub '${BackupVolumeSize}Gi'
         gitlab.task-runner.backups.cron.enabled: true
         gitlab.task-runner.backups.cron.schedule: !Sub '${BackupSchedule}'
+        gitlab.task-runner.backups.cron.extraArgs: '--skip registry --skip uploads --skip artifacts --skip lfs --skip packages --skip terraform_state'
+        gitlab.task-runner.backups.cron.persistance.enabled: true
+        gitlab.task-runner.backups.cron.persistance.storageClass: gp2
+        gitlab.task-runner.backups.cron.persistance.size: !Sub '${BackupVolumeSize}Gi'
         gitlab.task-runner.backups.objectStorage.config.secret: !GetAtt KubeSecrets.Outputs.ObjectStorageKubeSecretName
         gitlab.task-runner.backups.objectStorage.config.key: !GetAtt KubeSecrets.Outputs.BackupSecretKey
 
