@@ -525,6 +525,11 @@ Resources:
         # Object storage properties
         ObjectStorageSSEAlgorithm: !Ref ObjectStorageSSEAlgorithm
         ObjectStorageKMSKeyID: !Ref ObjectStorageKMSKeyID
+        # SMTP properties
+        SMTPHostName: !Ref SMTPHostName
+        SMTPPort: !Ref SMTPPort
+        SMTPUsername: !Ref SMTPUsername
+        SMTPPassword: !Ref SMTPPassword
         # Chart properties
         HelmChartNamespaceCreate: !Ref HelmChartNamespaceCreate
         HelmChartNamespace: !Ref HelmChartNamespace
