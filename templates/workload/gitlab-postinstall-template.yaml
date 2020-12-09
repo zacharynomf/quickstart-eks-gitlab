@@ -5,10 +5,8 @@ Parameters:
     Type: String
   HelmChartNamespace:
     Type: String
-    Default: default
   HelmChartName:
     Type: String
-    Default: gitlab
 
 Resources:
 
