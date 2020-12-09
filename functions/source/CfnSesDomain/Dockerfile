@@ -1,9 +1,7 @@
 FROM lambci/lambda:build-python3.7
 
-COPY . .
+COPY aws-cfn-ses-domain ./
 
-RUN rm Dockerfile && \
-    find . -exec touch -t 202007010000.00 {} + && \
-    zip -X -r -j lambda.zip ./aws-cfn-ses-domain/aws_cfn_ses_domain/
+RUN zip -X -r lambda.zip ./aws_cfn_ses_domain/ index.py
 
 CMD mkdir -p /output/ && mv lambda.zip /output/

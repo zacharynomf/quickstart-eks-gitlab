@@ -373,7 +373,7 @@ Parameters:
   SMTPPort:
     Type: Number
     Description: 'If you chose not to use Amazon Simple Email Service above, provide SMTP server port.'
-    Default: ''
+    Default: 587
   SMTPUsername:
     Type: String
     Description: 'If you chose not to use Amazon Simple Email Service above, provide SMTP server username.'

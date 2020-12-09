@@ -42,7 +42,9 @@ Parameters:
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
   HostedZoneRequested: !Equals  [!Ref CreateHostedZone, 'Yes']
-  EmailDomainRequested: !Equals [!Ref CreateEmailDomain, 'Yes']
+  EmailDomainRequested: !And
+    - !Equals [!Ref CreateEmailDomain, 'Yes']
+    - !Condition HostedZoneRequested
   CertificateRequested: !And
     - !Equals [!Ref CreateSslCertificate, 'Yes']
     - !Condition HostedZoneRequested

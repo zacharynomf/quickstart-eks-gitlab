@@ -169,7 +169,7 @@ Parameters:
     Type: AWS::EC2::Subnet::Id
     Description: ID of the private subnet in Availability Zone 1 of your existing VPC (e.g., subnet-fe9a8b32).
   PrivateSubnet2ID:
-    Type: String
+    Type: AWS::EC2::Subnet::Id
     Description: ID of the private subnet in Availability Zone 2 of your existing VPC (e.g., subnet-be8b01ea).
     Default: ""
 
@@ -252,7 +252,7 @@ Parameters:
   SMTPPort:
     Type: Number
     Description: 'If you chose not to use Amazon Simple Email Service above, provide SMTP server port.'
-    Default: ''
+    Default: 587
   SMTPUsername:
     Type: String
     Description: 'If you chose not to use Amazon Simple Email Service above, provide SMTP server username.'
