@@ -162,7 +162,6 @@ Parameters:
   VPCCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
-    Default: 10.0.0.0/16
     Description: CIDR block for the VPC.
     Type: String       
   PrivateSubnet1ID:
@@ -171,7 +170,6 @@ Parameters:
   PrivateSubnet2ID:
     Type: AWS::EC2::Subnet::Id
     Description: ID of the private subnet in Availability Zone 2 of your existing VPC (e.g., subnet-be8b01ea).
-    Default: ""
 
 # Cluster parameters
   EKSClusterName: 

@@ -1,4 +1,3 @@
----
 AWSTemplateFormatVersion: '2010-09-09'
 Description: This master template creates a VPC infrastructure for a multi-AZ, multi-tier
   deployment of a workload on AWS. It deploys a VPC with bastions and a workload cluster
@@ -236,32 +235,26 @@ Parameters:
   VPCCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
-    Default: 10.0.0.0/16
     Description: CIDR block for the VPC.
     Type: String       
   PublicSubnet1ID:
-    Type: String
+    Type: AWS::EC2::Subnet::Id
     Description: ID of the public subnet in Availability Zone 1 of your existing VPC (e.g., subnet-a0246ccd).
-    Default: ""
   PublicSubnet2ID:
-    Type: String
+    Type: AWS::EC2::Subnet::Id
     Description: ID of the public subnet in Availability Zone 2 of your existing VPC (e.g., subnet-b1236eea).
-    Default: ""
   PublicSubnet3ID:
-    Type: String
+    Type: AWS::EC2::Subnet::Id
     Description: ID of the public subnet in Availability Zone 3 of your existing VPC (e.g., subnet-c3456aba).
-    Default: ""
   PrivateSubnet1ID:
     Type: AWS::EC2::Subnet::Id
     Description: ID of the private subnet in Availability Zone 1 of your existing VPC (e.g., subnet-fe9a8b32).
   PrivateSubnet2ID:
-    Type: String
+    Type: AWS::EC2::Subnet::Id
     Description: ID of the private subnet in Availability Zone 2 of your existing VPC (e.g., subnet-be8b01ea).
-    Default: ""
   PrivateSubnet3ID:
-    Type: String
+    Type: AWS::EC2::Subnet::Id
     Description: ID of the private subnet in Availability Zone 3 of your existing VPC (e.g., subnet-abd39039).
-    Default: ""
 
 # Bastion parameters
   ProvisionBastionHost:

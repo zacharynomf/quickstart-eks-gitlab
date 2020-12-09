@@ -1,7 +1,8 @@
 This Quick Start provides three deployment options:
 
-* *Deploy GitLab into a new VPC (end-to-end deployment)*. This option builds a new AWS environment consisting of the VPC, subnets, NAT gateways, security groups, bastion hosts, and other infrastructure components, then deploys Amazon EKS into this new VPC and installs GitLab Helm chart.
-* *Deploy GitLab into an existing VPC*. This option provisions Amazon EKS in your existing AWS infrastructure.
+* *Deploy GitLab into a new VPC (end-to-end deployment)*. This option builds a new GitLab environment consisting of the VPC, subnets, NAT gateways, security groups, bastion hosts, and other infrastructure components, then deploys Amazon EKS into this new VPC and installs GitLab Helm chart.
+* *Deploy GitLab into an existing VPC*. This option provisions GitLab in your existing AWS infrastructure.
+* *Deploy GitLab into an existing EKS cluster*. This option provisions GitLab in your existing AWS infrastructure.
 
 NOTE: Many advanced or optional configuration items must be configured by launching the https://fwd.aws/zwGDB[advanced configuration stack^] before launching one of the deployment options.
 

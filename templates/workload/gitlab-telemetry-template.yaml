@@ -38,7 +38,7 @@ Resources:
               - 'logs:CreateLogStream'
               - 'logs:CreateLogGroup'
           - Effect: Allow
-            Resource: 'arn:aws:ssm:*:*:parameter/AmazonCloudWatch-*'
+            Resource: !Sub 'arn:${AWS::Partition}:ssm:*:*:parameter/AmazonCloudWatch-*'
             Action:
               - 'ssm:GetParameter'
       Roles:
