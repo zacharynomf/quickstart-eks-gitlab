@@ -38,9 +38,11 @@ Metadata:
         Parameters:
           - EKSClusterName
           - ConfigureContainerInsights
+          - ConfigureGrafana
       - Label:
           default: Amazon Aurora Postgres configuration
         Parameters:
+          - DBInstanceClass
           - DBName
           - DBPraefectName
           - DBUserName
@@ -52,10 +54,11 @@ Metadata:
           - DomainName
           - CreateHostedZone
           - CreateSslCertificate
+          - SslCertificateIssuerEmail
       - Label:
           default: GitLab SMTP configuration
         Parameters:
-          - CreateEmailDomain
+          - SMTPDomain
           - SMTPHostName
           - SMTPPort
           - SMTPUsername
@@ -67,7 +70,12 @@ Metadata:
           - HelmChartNamespace
           - HelmChartName
           - HelmChartVersion
+      - Label: 
+          default: GitLab Git repository storage configuration
+        Parameters:
+          - NumberOfPraefectReplicas
           - NumberOfGitalyReplicas
+          - GitalyVolumeSize
       - Label:
           default: GitLab object storage configuration
         Parameters:
@@ -92,11 +100,15 @@ Metadata:
       PrivateSubnet2ID:
         default: Private subnet 2 ID
     # Amazon EKS cluster configuration
-      ConfigureContainerInsights:
-        default: Configure Container Insights
       EKSClusterName:
         default: EKS cluster name
+      ConfigureContainerInsights:
+        default: Configure Container Insights
+      ConfigureGrafana:
+        default: Configure Grafana
     # Amazon Aurora Postgres configuration
+      DBInstanceClass:
+        default: GitLab database instance class
       DBName:
         default: GitLab database name
       DBPraefectName:
@@ -114,9 +126,11 @@ Metadata:
         default: Create Route 53 hosted zone
       CreateSslCertificate: 
         default: Request AWS Certificate Manager SSL certificate
+      SslCertificateIssuerEmail:
+        default: Email address for SSL certificate registration
     # GitLab SMTP configuration
-      CreateEmailDomain:
-        default: Create Amazon Simple Email Service domain
+      SMTPDomain:
+        default: Outgoing SMTP domain
       SMTPHostName:
         default: SMTP server host name
       SMTPPort:
@@ -134,8 +148,13 @@ Metadata:
         default: GitLab Helm chart name
       HelmChartVersion:
         default: GitLab Helm chart version
+    # GitLab Git repository storage configuration
+      NumberOfPraefectReplicas: 
+        default: Number of Praefect replicas
       NumberOfGitalyReplicas:
         default: Number of Gitaly replicas
+      GitalyVolumeSize: 
+        default: Gitaly volume capacity
     # GitLab object storage configuration
       ObjectStorageSSEAlgorithm: 
         default: Object storage encryption algorithm
@@ -180,8 +199,32 @@ Parameters:
     AllowedValues: [ 'Yes', 'No' ]
     Default: 'No'
     Description: Choose "Yes" to enable integration with CloudWatch Container Insights.
+  ConfigureGrafana:
+    Type: String
+    AllowedValues: [ 'Yes', 'No' ]
+    Default: 'No'
+    Description: Choose "Yes" to enable integration with Grafana.
 
 # Databse Parameters
+  DBInstanceClass:
+    Description: The name of the compute and memory capacity class of the database instance.
+    Default: db.r5.large
+    AllowedValues:
+      - db.r5.large
+      - db.r5.xlarge
+      - db.r5.2xlarge
+      - db.r5.4xlarge
+      - db.r5.12xlarge
+      - db.r5.24xlarge
+      - db.r4.large
+      - db.r4.xlarge
+      - db.r4.2xlarge
+      - db.r4.4xlarge
+      - db.r4.8xlarge
+      - db.r4.16xlarge
+      - db.t3.medium
+      - db.t3.large
+    Type: String
   DBName: 
     AllowedPattern: "[a-zA-Z0-9]*"
     Description: "Name of the GitLab Postgres database."
@@ -236,28 +279,32 @@ Parameters:
     Description: Choose "Yes" if you want to request  AWS Certificate Manager SSL certificate for GitLab domain.
     AllowedValues: [ 'Yes', 'No' ]
     Default: 'No'  
+  SslCertificateIssuerEmail:
+    Type: String
+    Description: Email address to register GitLab TLS certificates. Required if you skip certificate creation.
+    Default: ''  
 
 # SMTP Parameters
-  CreateEmailDomain:
+  SMTPDomain: 
     Type: String
-    Description: Choose "Yes" if you want to create Amazon Simple Email Service domain to send out GitLab notification email messages.
-    AllowedValues: [ 'Yes', 'No' ]
-    Default: 'Yes'
+    AllowedValues: [ 'Disabled', 'CreateNew', 'UseExisting' ]
+    Description: Choose "CreateNew" if you want to create Amazon Simple Email Service domain to send out GitLab notification email messages.
+    Default: 'Disabled'
   SMTPHostName:
     Type: String
-    Description: 'If you chose not to use Amazon Simple Email Service above, provide SMTP server host name.'
+    Description: 'If you chose to use existing SMTP domain above, provide SMTP server host name.'
     Default: ''
   SMTPPort:
     Type: Number
-    Description: 'If you chose not to use Amazon Simple Email Service above, provide SMTP server port.'
+    Description: 'If you chose to use existing SMTP domain above, provide SMTP server port.'
     Default: 587
   SMTPUsername:
     Type: String
-    Description: 'If you chose not to use Amazon Simple Email Service above, provide SMTP server username.'
+    Description: 'If you chose to use existing SMTP domain above, provide SMTP server username.'
     Default: ''
   SMTPPassword:
     Type: String
-    Description: 'If you chose not to use Amazon Simple Email Service above, provide SMTP server password.'
+    Description: 'If you chose to use existing SMTP domain above, provide SMTP server password.'
     Default: ''
 
 # GitLab Helm chart Parameters
@@ -277,12 +324,24 @@ Parameters:
   HelmChartVersion:
     Type: String
     Description: Version of GitLab Helm chart GitLab for deployment.
-    Default: '4.5.1'
+    Default: '4.7.0'
+
+# Gitaly Storage Parameters
+  NumberOfPraefectReplicas: 
+    Type: Number
+    Default: 3
+    MinValue: 3
+    Description: Number of Praefect replicas to deploy in GitLab cluster. The replicas will be distributed across Availability Zones selected.
   NumberOfGitalyReplicas:
     Type: Number
-    Default: 2
+    Default: 3
+    MinValue: 3
     Description: Number of Gitaly replicas to deploy in GitLab cluster. The replicas will be distributed across Availability Zones selected.
-
+  GitalyVolumeSize: 
+    Type: Number
+    Default: 50
+    MinValue: 50
+    Description: Capacity of EBS volume used by Gitaly replicas (Git repository storage), in Gb. 
 
 # Object Storage Parameters
   ObjectStorageSSEAlgorithm:
@@ -329,6 +388,15 @@ Parameters:
       forward slash (/).
     Type: String
 
+Rules:
+  SSLParameters:
+    RuleCondition: !Or
+      - !Equals [!Ref CreateSslCertificate, 'No']
+      - !Equals [!Ref CreateHostedZone, 'No'] 
+    Assertions:
+      - Assert: !Not [!Equals [!Ref SslCertificateIssuerEmail, '']]
+        AssertDescription: "You must provide email address for SSL certificate registration if you skip certificate creation."
+
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
 
@@ -349,8 +417,8 @@ Resources:
         # Infra properties
         DomainName: !Ref DomainName
         CreateHostedZone: !Ref CreateHostedZone
-        CreateEmailDomain: !Ref CreateEmailDomain
         CreateSslCertificate: !Ref CreateSslCertificate
+        SslCertificateIssuerEmail: !Ref SslCertificateIssuerEmail
         # Network properties
         VPCID: !Ref VPCID
         VPCCIDR: !Ref VPCCIDR
@@ -359,7 +427,9 @@ Resources:
         # Cluster properties
         KubeClusterName: !Ref EKSClusterName 
         ConfigureContainerInsights: !Ref ConfigureContainerInsights
+        ConfigureGrafana: !Ref ConfigureGrafana
         # Database properties
+        DBInstanceClass: !Ref DBInstanceClass
         DBName: !Ref DBName
         DBPraefectName: !Ref DBPraefectName
         DBUserName: !Ref DBUserName
@@ -368,7 +438,10 @@ Resources:
         # Object storage properties
         ObjectStorageSSEAlgorithm: !Ref ObjectStorageSSEAlgorithm
         ObjectStorageKMSKeyID: !Ref ObjectStorageKMSKeyID
+        BackupSchedule: !Ref BackupSchedule
+        BackupVolumeSize: !Ref BackupVolumeSize
         # SMTP properties
+        SMTPDomain: !Ref SMTPDomain
         SMTPHostName: !Ref SMTPHostName
         SMTPPort: !Ref SMTPPort
         SMTPUsername: !Ref SMTPUsername
@@ -378,6 +451,7 @@ Resources:
         HelmChartNamespace: !Ref HelmChartNamespace
         HelmChartName: !Ref HelmChartName
         HelmChartVersion: !Ref HelmChartVersion
-        BackupSchedule: !Ref BackupSchedule
-        BackupVolumeSize: !Ref BackupVolumeSize
+        # Git repository storage properties
+        NumberOfPraefectReplicas: !Ref NumberOfPraefectReplicas
         NumberOfGitalyReplicas: !Ref NumberOfGitalyReplicas
+        GitalyVolumeSize: !Ref GitalyVolumeSize
