@@ -342,6 +342,14 @@ Resources:
         gitlab.task-runner.backups.objectStorage.config.secret: !GetAtt KubeSecrets.Outputs.ObjectStorageKubeSecretName
         gitlab.task-runner.backups.objectStorage.config.key: !GetAtt KubeSecrets.Outputs.BackupSecretKey
 
+        # Enable large project imports
+        # https://gitlab.com/gitlab-org/charts/gitlab/-/issues/2151
+        gitlab.webservice.enabled: true
+        gitlab.webservice.ingress.enabled: true
+        gitlab.webservice.ingress.proxyBodySize: 1024m
+        gitlab.webservice.ingress.annotations.nginx.ingress.kubernetes.io/proxy-body-size: 1024m
+        gitlab.webservice.ingress.annotations.ingress.kubernetes.io/proxy-body-size: 1024m
+
   PostInstall: 
     Type: AWS::CloudFormation::Stack
     DependsOn: Chart
