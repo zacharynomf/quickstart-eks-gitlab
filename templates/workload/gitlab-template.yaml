@@ -71,9 +71,9 @@ Parameters:
     Type: String
 
 # SMTP Parameters
-  CreateEmailDomain:
+  SMTPDomain: 
     Type: String
-    AllowedValues: [ 'Yes', 'No' ]
+    AllowedValues: [ 'Disabled', 'CreateNew', 'UseExisting' ]    
   SMTPHostName:
     Type: String
   SMTPPort:
@@ -124,8 +124,9 @@ Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
   ConfigureContainerInsights: !Equals [!Ref ConfigureContainerInsights, 'Yes']
   ConfigureGrafana: !Equals [!Ref ConfigureGrafana, 'Yes']
-  TelemetryRequired: !Equals [!Ref ConfigureContainerInsights, 'Yes']
-  CreateEmailDomain: !Equals [!Ref CreateEmailDomain, 'Yes']
+  OutgoingEmailEnabled: !Not [!Equals [!Ref SMTPDomain, 'Disabled']]
+  CreateEmailDomain: !Equals [!Ref SMTPDomain, 'CreateNew']
+  AcmIngressConfigured: !And [!Equals [!Ref CreateHostedZone, 'Yes'], !Equals [!Ref CreateSslCertificate, 'Yes']] 
   HelmChartNamespaceCreate: !Equals [!Ref HelmChartNamespaceCreate, 'CreateNew']
 
 Resources:
@@ -165,7 +166,7 @@ Resources:
         DBAccessCIDR: !Ref VPCCIDR
         DomainName: !Ref DomainName
         CreateHostedZone: !Ref CreateHostedZone
-        CreateEmailDomain: !Ref CreateEmailDomain
+        CreateEmailDomain: !If [CreateEmailDomain, 'Yes', 'No'] 
         CreateSslCertificate: !Ref CreateSslCertificate
         FunctionsBucketName: !GetAtt Functions.Outputs.FunctionsBucketName
         QSS3BucketName: !Ref QSS3BucketName
@@ -283,7 +284,7 @@ Resources:
         global.email.display_name: GitLab
         global.email.from: !Sub 'gitlab@${DomainName}'
         global.email.reply_to: !Sub 'noreply@${DomainName}'
-        global.smtp.enabled: true
+        global.smtp.enabled: !If [OutgoingEmailEnabled, true, false] 
         global.smtp.domain: !Ref DomainName
         global.smtp.starttls_auto: true
         global.smtp.authentication: login
