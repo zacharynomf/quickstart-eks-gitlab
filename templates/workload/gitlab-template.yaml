@@ -98,7 +98,11 @@ Parameters:
     Type: String
   BackupVolumeSize:
     Type: Number
+  NumberOfPraefectReplicas: 
+    Type: Number
   NumberOfGitalyReplicas:
+    Type: Number
+  GitalyVolumeSize: 
     Type: Number
 
 # Quickstart location Parameters
@@ -302,14 +306,20 @@ Resources:
         global.psql.password.secret: !GetAtt KubeSecrets.Outputs.DatabaseKubeSecretName
         global.psql.password.key: !GetAtt KubeSecrets.Outputs.DatabaseSecretKey
 
-        # Gitaly configuration
+        # Praefect/Gitaly configuration
+        # https://docs.gitlab.com/charts/charts/gitlab/praefect/
         global.praefect.enabled: true
+        gitlab.praefect.replicas: !Ref NumberOfPraefectReplicas
         global.praefect.gitalyReplicas: !Ref NumberOfGitalyReplicas
         global.praefect.dbSecret.secret: !GetAtt KubeSecrets.Outputs.DatabaseKubeSecretName
         global.praefect.dbSecret.key: !GetAtt KubeSecrets.Outputs.DatabaseSecretKey
         global.praefect.psql.host: !GetAtt Database.Outputs.RDSEndPointAddress
         global.praefect.psql.user: !Ref DBUserName
         global.praefect.psql.dbName: !Ref DBPraefectName
+        # https://docs.gitlab.com/charts/charts/gitlab/gitaly/ 
+        gitlab.gitaly.persistence.enabled: true
+        gitlab.gitaly.persistence.storageClass: gp2
+        gitlab.gitaly.persistence.size: !Sub '${GitalyVolumeSize}Gi'
 
         # S3 storage configuration
         ## object storage
