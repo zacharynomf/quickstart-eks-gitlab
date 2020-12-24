@@ -11,6 +11,8 @@ Parameters:
   CreateSslCertificate:
     Type: String
     AllowedValues: [ 'Yes', 'No' ]
+  SslCertificateIssuerEmail:
+    Type: String
 
 # Network Parameters
   VPCID: 
@@ -128,6 +130,13 @@ Conditions:
   CreateEmailDomain: !Equals [!Ref SMTPDomain, 'CreateNew']
   AcmIngressConfigured: !And [!Equals [!Ref CreateHostedZone, 'Yes'], !Equals [!Ref CreateSslCertificate, 'Yes']] 
   HelmChartNamespaceCreate: !Equals [!Ref HelmChartNamespaceCreate, 'CreateNew']
+
+Mappings: 
+  PartitionMap: 
+    aws:
+      IngressImageRepository: k8s.gcr.io
+    aws-cn:
+      IngressImageRepository: registry.aliyuncs.com/google_containers
 
 Resources:
 
@@ -271,11 +280,24 @@ Resources:
       Name: !Ref HelmChartName
       Version: !Ref HelmChartVersion
       Values:
-        certmanager-issuer.email: kolomiets@gmail.com
-        # certmanager.install: false
 
         # domain name
         global.hosts.domain: !Ref DomainName
+
+        # SSL support
+        certmanager-issuer.email: !If [AcmIngressConfigured, !Ref 'AWS::NoValue', !Ref SslCertificateIssuerEmail]
+        certmanager.install: !If [AcmIngressConfigured, false, true]
+        global.ingress.enabled: !If [AcmIngressConfigured, false, true]
+        global.ingress.configureCertmanager: !If [AcmIngressConfigured, false, true]        
+        nginx-ingress.defaultBackend.image.repository: !Sub
+          - ${DockerRepo}/defaultbackend
+          - DockerRepo: !FindInMap [PartitionMap, !Ref 'AWS::Partition', IngressImageRepository]
+        nginx-ingress.controller.service.annotations.service.beta.kubernetes.io/aws-load-balancer-ssl-ports: 
+          !If [AcmIngressConfigured, '443', !Ref 'AWS::NoValue']
+        nginx-ingress.controller.service.annotations.service.beta.kubernetes.io/aws-load-balancer-backend-protocol:
+          !If [AcmIngressConfigured, 'ssl', !Ref 'AWS::NoValue']
+        nginx-ingress.controller.service.annotations.service.beta.kubernetes.io/aws-load-balancer-ssl-cert: 
+          !If [AcmIngressConfigured, !GetAtt Infrastructure.Outputs.SslCertificateArn, !Ref 'AWS::NoValue']
 
         # telemetry configuration
         global.grafana.enabled: !If [ConfigureGrafana, true, false]
@@ -328,7 +350,7 @@ Resources:
         gitlab.gitaly.persistence.enabled: true
         gitlab.gitaly.persistence.storageClass: gp2
         gitlab.gitaly.persistence.size: !Sub '${GitalyVolumeSize}Gi'
-
+  
         # S3 storage configuration
         ## object storage
         global.minio.enabled: false
