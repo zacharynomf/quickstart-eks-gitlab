@@ -58,6 +58,8 @@ Parameters:
     Type: Number
     MinValue: 1150
     MaxValue: 65535
+  DBInstanceClass:
+    Type: String
 
 # Object Storage Parameters
   ObjectStorageSSEAlgorithm:
@@ -173,6 +175,7 @@ Resources:
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
         DBEngineVersion: 11.7 # GitLab requires >= 11
+        DBInstanceClass: !Ref DBInstanceClass
         DBName: !Ref DBName
         DBMasterUsername: !Ref DBUserName
         DBMasterUserPassword: !Ref DBUserPassword
