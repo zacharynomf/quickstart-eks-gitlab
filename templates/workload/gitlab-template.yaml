@@ -29,7 +29,9 @@ Parameters:
   ConfigureContainerInsights:
     Type: String
     AllowedValues: [ 'Yes', 'No' ]
-    Default: 'No'
+  ConfigureGrafana:
+    Type: String
+    AllowedValues: [ 'Yes', 'No' ]
 
 # Databse Parameters
   DBName: 
@@ -120,6 +122,8 @@ Parameters:
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+  ConfigureContainerInsights: !Equals [!Ref ConfigureContainerInsights, 'Yes']
+  ConfigureGrafana: !Equals [!Ref ConfigureGrafana, 'Yes']
   TelemetryRequired: !Equals [!Ref ConfigureContainerInsights, 'Yes']
   CreateEmailDomain: !Equals [!Ref CreateEmailDomain, 'Yes']
   HelmChartNamespaceCreate: !Equals [!Ref HelmChartNamespaceCreate, 'CreateNew']
@@ -139,7 +143,7 @@ Resources:
 
   Telemetry: 
     Type: AWS::CloudFormation::Stack
-    Condition: TelemetryRequired
+    Condition: ConfigureContainerInsights
     Properties: 
       TemplateURL: !Sub
         - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-telemetry-template.yaml'
@@ -271,6 +275,9 @@ Resources:
 
         # domain name
         global.hosts.domain: !Ref DomainName
+
+        # telemetry configuration
+        global.grafana.enabled: !If [ConfigureGrafana, true, false]
 
         # email configuration
         global.email.display_name: GitLab
