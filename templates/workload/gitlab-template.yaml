@@ -134,9 +134,9 @@ Conditions:
 Mappings: 
   PartitionMap: 
     aws:
-      IngressImageRepository: k8s.gcr.io
+      IngressImageRepository: k8s.gcr.io/defaultbackend-amd64
     aws-cn:
-      IngressImageRepository: registry.aliyuncs.com/google_containers
+      IngressImageRepository: registry.aliyuncs.com/google_containers/defaultbackend
 
 Resources:
 
@@ -247,9 +247,24 @@ Resources:
           labels:
             name: ${HelmChartNamespace}
 
+  NewChartNamespaceWaitHandle: 
+    Type: AWS::CloudFormation::WaitConditionHandle
+    Condition: HelmChartNamespaceCreate
+    DependsOn: ChartNamespace
+
+  ExistingChartNamespaceWaitHandle: 
+    Type: AWS::CloudFormation::WaitConditionHandle
+
+  ChartNamespaceWaitCondition: 
+    Type: AWS::CloudFormation::WaitCondition
+    Properties: 
+      Handle: !If [HelmChartNamespaceCreate, !Ref NewChartNamespaceWaitHandle, !Ref ExistingChartNamespaceWaitHandle]
+      Timeout: '1'
+      Count: 0
+
   KubeSecrets:
     Type: AWS::CloudFormation::Stack
-    DependsOn: Database
+    DependsOn: [Database, ChartNamespaceWaitCondition]
     Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }
     Properties:
       TemplateURL: !Sub
@@ -275,7 +290,7 @@ Resources:
     Metadata: { cfn-lint: { config: { ignore_checks: [E3001, E1010] } } }
     Properties:
       ClusterID: !Ref KubeClusterName 
-      Namespace: !If [HelmChartNamespaceCreate, !GetAtt ChartNamespace.Name, !Ref HelmChartNamespace]  
+      Namespace: !Ref HelmChartNamespace  
       Repository: https://charts.gitlab.io/
       Chart: gitlab/gitlab 
       Name: !Ref HelmChartName
@@ -289,11 +304,10 @@ Resources:
         certmanager.install: !If [AcmIngressConfigured, false, true]
         certmanager-issuer.email: !If [AcmIngressConfigured, !Ref 'AWS::NoValue', !Ref SslCertificateIssuerEmail]
         global.ingress.configureCertmanager: !If [AcmIngressConfigured, false, true]
-        
+
         global.ingress.enabled: !If [AcmIngressConfigured, false, true]
-        nginx-ingress.defaultBackend.image.repository: !Sub
-          - ${DockerRepo}/defaultbackend
-          - DockerRepo: !FindInMap [PartitionMap, !Ref 'AWS::Partition', IngressImageRepository]
+        nginx-ingress.defaultBackend.image.repository: 
+          !FindInMap [PartitionMap, !Ref 'AWS::Partition', IngressImageRepository]
         nginx-ingress.controller.service.annotations.service.beta.kubernetes.io/aws-load-balancer-ssl-ports: 
           !If [AcmIngressConfigured, '443', !Ref 'AWS::NoValue']
         nginx-ingress.controller.service.annotations.service.beta.kubernetes.io/aws-load-balancer-backend-protocol:
