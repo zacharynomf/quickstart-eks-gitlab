@@ -247,13 +247,13 @@ Parameters:
     Type: AWS::EC2::KeyPair::KeyName 
   PerAccountSharedResources:
     Type: String
-    AllowedValues: ['Yes', 'No']
-    Default: 'Yes'
+    AllowedValues: ['AutoDetect', 'Yes', 'No']
+    Default: 'AutoDetect'
     Description: Choose "No" if you already deployed another EKS Quick Start stack in your AWS account.
   PerRegionSharedResources:
     Type: String
-    AllowedValues: ['Yes', 'No']
-    Default: 'Yes'
+    AllowedValues: ['AutoDetect', 'Yes', 'No']
+    Default: 'AutoDetect'
     Description: Choose "No" if you already deployed another EKS Quick Start stack in your Region.
 
 # VPC parameters

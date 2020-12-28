@@ -251,3 +251,6 @@ Outputs:
   SslCertificateArn: 
     Condition: CertificateRequested
     Value: !Ref SslCertificate
+  SmtpCredentialsSecretName:
+    Condition: EmailDomainRequested
+    Value: !Ref SmtpCredentialsSecret    

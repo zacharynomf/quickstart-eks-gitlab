@@ -232,26 +232,6 @@ Resources:
         SSEAlgorithm: !Ref ObjectStorageSSEAlgorithm
         KMSKeyID: !Ref ObjectStorageKMSKeyID
 
-  KubeSecrets:
-    Type: AWS::CloudFormation::Stack
-    DependsOn: Database
-    Properties:
-      TemplateURL: !Sub
-        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-secrets-template.yaml'
-        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
-          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-      Parameters:
-        KubeClusterName: !Ref KubeClusterName
-        HelmChartNamespace: !Ref HelmChartNamespace
-        DatabasePassword: !Ref DBUserPassword
-        StorageAccessKeyId: !Sub '{{resolve:secretsmanager:${ObjectStorage.Outputs.CredentialsSecretName}:SecretString:accessKeyId}}'
-        StorageSecretAccessKey: !Sub '{{resolve:secretsmanager:${ObjectStorage.Outputs.CredentialsSecretName}:SecretString:secretAccessKey}}'
-        RegistryBucket: !GetAtt ObjectStorage.Outputs.RegistryBucket
-        SmtpPassword: !If
-          - CreateEmailDomain
-          - !Sub '{{resolve:secretsmanager:/quickstart/gitlab/infra/smtp-credentials:SecretString:password}}'
-          - !Ref SMTPPassword
-
   ChartNamespace:
     Type: AWSQS::Kubernetes::Resource
     Condition: HelmChartNamespaceCreate
@@ -266,6 +246,27 @@ Resources:
           name: ${HelmChartNamespace}
           labels:
             name: ${HelmChartNamespace}
+
+  KubeSecrets:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: Database
+    Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }
+    Properties:
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-secrets-template.yaml'
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        KubeClusterName: !Ref KubeClusterName
+        HelmChartNamespace: !Ref HelmChartNamespace
+        DatabasePassword: !Ref DBUserPassword
+        StorageAccessKeyId: !Sub '{{resolve:secretsmanager:${ObjectStorage.Outputs.CredentialsSecretName}:SecretString:accessKeyId}}'
+        StorageSecretAccessKey: !Sub '{{resolve:secretsmanager:${ObjectStorage.Outputs.CredentialsSecretName}:SecretString:secretAccessKey}}'
+        RegistryBucket: !GetAtt ObjectStorage.Outputs.RegistryBucket
+        SmtpPassword: !If
+          - CreateEmailDomain
+          - !Sub '{{resolve:secretsmanager:${Infrastructure.Outputs.SmtpCredentialsSecretName}:SecretString:password}}'
+          - !If [OutgoingEmailEnabled, !Ref SMTPPassword, 'dummy-smtp-password']
 
   Chart:
     Type: AWSQS::Kubernetes::Helm   
@@ -285,10 +286,11 @@ Resources:
         global.hosts.domain: !Ref DomainName
 
         # SSL support
-        certmanager-issuer.email: !If [AcmIngressConfigured, !Ref 'AWS::NoValue', !Ref SslCertificateIssuerEmail]
         certmanager.install: !If [AcmIngressConfigured, false, true]
+        certmanager-issuer.email: !If [AcmIngressConfigured, !Ref 'AWS::NoValue', !Ref SslCertificateIssuerEmail]
+        global.ingress.configureCertmanager: !If [AcmIngressConfigured, false, true]
+        
         global.ingress.enabled: !If [AcmIngressConfigured, false, true]
-        global.ingress.configureCertmanager: !If [AcmIngressConfigured, false, true]        
         nginx-ingress.defaultBackend.image.repository: !Sub
           - ${DockerRepo}/defaultbackend
           - DockerRepo: !FindInMap [PartitionMap, !Ref 'AWS::Partition', IngressImageRepository]
@@ -320,7 +322,7 @@ Resources:
           - !Ref SMTPPort
         global.smtp.user_name: !If 
           - CreateEmailDomain
-          - !Sub '{{resolve:secretsmanager:/quickstart/gitlab/infra/smtp-credentials:SecretString:username}}'
+          - !Sub '{{resolve:secretsmanager:${Infrastructure.Outputs.SmtpCredentialsSecretName}:SecretString:username}}'
           - !Ref SMTPUsername
         global.smtp.password.secret: !GetAtt KubeSecrets.Outputs.SmtpSecretName
         global.smtp.password.key: !GetAtt KubeSecrets.Outputs.SmtpSecretKey
@@ -387,11 +389,8 @@ Resources:
 
         # Enable large project imports
         # https://gitlab.com/gitlab-org/charts/gitlab/-/issues/2151
-        gitlab.webservice.enabled: true
-        gitlab.webservice.ingress.enabled: true
         gitlab.webservice.ingress.proxyBodySize: 1024m
         gitlab.webservice.ingress.annotations.nginx.ingress.kubernetes.io/proxy-body-size: 1024m
-        gitlab.webservice.ingress.annotations.ingress.kubernetes.io/proxy-body-size: 1024m
 
   PostInstall: 
     Type: AWS::CloudFormation::Stack
