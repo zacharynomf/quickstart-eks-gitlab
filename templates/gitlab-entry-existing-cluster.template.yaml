@@ -242,7 +242,7 @@ Parameters:
     Type: String
     Description: Choose "Yes" if you want to create Amazon Simple Email Service domain to send out GitLab notification email messages.
     AllowedValues: [ 'Yes', 'No' ]
-    Default: 'Yes'
+    Default: 'No'
   SMTPHostName:
     Type: String
     Description: 'If you chose not to use Amazon Simple Email Service above, provide SMTP server host name.'
