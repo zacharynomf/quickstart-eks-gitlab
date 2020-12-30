@@ -281,7 +281,7 @@ Resources:
         SmtpPassword: !If
           - CreateEmailDomain
           - !Sub '{{resolve:secretsmanager:${Infrastructure.Outputs.SmtpCredentialsSecretName}:SecretString:password}}'
-          - !If [OutgoingEmailEnabled, !Ref SMTPPassword, 'dummy-smtp-password']
+          - !If [OutgoingEmailEnabled, !Ref SMTPPassword, '']
 
   Chart:
     Type: AWSQS::Kubernetes::Helm   
@@ -326,20 +326,16 @@ Resources:
         global.smtp.domain: !Ref DomainName
         global.smtp.starttls_auto: true
         global.smtp.authentication: login
-        global.smtp.address: !If
-          - CreateEmailDomain
-          - !Sub 'email-smtp.${AWS::Region}.amazonaws.com'
-          - !Ref SMTPHostName
-        global.smtp.port: !If
-          - CreateEmailDomain
-          - !Ref DefaultSESPort
-          - !Ref SMTPPort
-        global.smtp.user_name: !If 
-          - CreateEmailDomain
-          - !Sub '{{resolve:secretsmanager:${Infrastructure.Outputs.SmtpCredentialsSecretName}:SecretString:username}}'
-          - !Ref SMTPUsername
-        global.smtp.password.secret: !GetAtt KubeSecrets.Outputs.SmtpSecretName
-        global.smtp.password.key: !GetAtt KubeSecrets.Outputs.SmtpSecretKey
+        global.smtp.address: 
+          !If [CreateEmailDomain, !Sub 'email-smtp.${AWS::Region}.amazonaws.com', !Ref SMTPHostName]
+        global.smtp.port: 
+          !If [CreateEmailDomain, !Ref DefaultSESPort, !Ref SMTPPort]
+        global.smtp.user_name: 
+          !If [CreateEmailDomain, !Sub '{{resolve:secretsmanager:${Infrastructure.Outputs.SmtpCredentialsSecretName}:SecretString:username}}', !Ref SMTPUsername]
+        global.smtp.password.secret: 
+          !If [OutgoingEmailEnabled, !GetAtt KubeSecrets.Outputs.SmtpSecretName, !Ref 'AWS::NoValue'] 
+        global.smtp.password.key: 
+          !If [OutgoingEmailEnabled, !GetAtt KubeSecrets.Outputs.SmtpSecretKey, !Ref 'AWS::NoValue'] 
 
         # runner configuration
         gitlab-runner.install: false
