@@ -27,6 +27,10 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups: 
       - Label:
+          default: Basic configuration
+        Parameters:
+          - EnvironmentName
+      - Label:
           default: VPC network configuration
         Parameters:
           - VPCID
@@ -82,6 +86,9 @@ Metadata:
           - QSS3KeyPrefix
           - QSS3BucketRegion
     ParameterLabels:
+    # Basic configuration
+      EnvironmentName:
+        default: Environment name    
     # VPC network configuration    
       VPCID:
         default: VPC ID
@@ -154,6 +161,12 @@ Metadata:
         default: Quick Start S3 key prefix
 
 Parameters:
+
+# Basic Configuration
+  EnvironmentName: 
+    Type: String
+    Default: ''
+    Description: Name of the GitLab environment. Leave empty to use dynamically generated name.
 
 # VPC parameters
   VPCID:
@@ -331,6 +344,7 @@ Parameters:
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+  EmptyEnvironmentName: !Equals [!Ref EnvironmentName, '']
 
 Resources:
 
@@ -351,6 +365,7 @@ Resources:
         CreateHostedZone: !Ref CreateHostedZone
         CreateEmailDomain: !Ref CreateEmailDomain
         CreateSslCertificate: !Ref CreateSslCertificate
+        EnvironmentName: !If [EmptyEnvironmentName, !Ref 'AWS::StackName', !Ref EnvironmentName]
         # Network properties
         VPCID: !Ref VPCID
         VPCCIDR: !Ref VPCCIDR

@@ -30,6 +30,7 @@ Metadata:
       - Label:
           default: Basic configuration
         Parameters:
+          - EnvironmentName
           - RemoteAccessCIDR
           - KeyPairName
           - PerAccountSharedResources
@@ -104,6 +105,8 @@ Metadata:
           - QSS3BucketRegion
     ParameterLabels:
     # Basic configuration
+      EnvironmentName:
+        default: Environment name
       RemoteAccessCIDR:
         default: Allowed bastion external access CIDR
       KeyPairName:
@@ -207,6 +210,10 @@ Metadata:
 Parameters:
 
 # Basic Configuration
+  EnvironmentName: 
+    Type: String
+    Default: ''
+    Description: Name of the GitLab environment. Leave empty to use dynamically generated name.
   RemoteAccessCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
@@ -446,6 +453,7 @@ Parameters:
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+  EmptyEnvironmentName: !Equals [!Ref EnvironmentName, '']
 
 Resources:
 
@@ -501,6 +509,7 @@ Resources:
         CreateHostedZone: !Ref CreateHostedZone
         CreateEmailDomain: !Ref CreateEmailDomain
         CreateSslCertificate: !Ref CreateSslCertificate
+        EnvironmentName: !If [EmptyEnvironmentName, !Ref 'AWS::StackName', !Ref EnvironmentName]
         # Network properties
         VPCID: !Ref VPCID
         VPCCIDR: !Ref VPCCIDR

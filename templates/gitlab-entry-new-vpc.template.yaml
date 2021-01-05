@@ -29,6 +29,7 @@ Metadata:
       - Label:
           default: Basic configuration
         Parameters:
+          - EnvironmentName
           - AvailabilityZones
           - RemoteAccessCIDR
           - KeyPairName
@@ -104,6 +105,8 @@ Metadata:
           - QSS3BucketRegion
     ParameterLabels:
     # Basic configuration
+      EnvironmentName:
+        default: Environment name
       AvailabilityZones:
         default: Availability Zones
       RemoteAccessCIDR:
@@ -208,6 +211,10 @@ Metadata:
 
 Parameters:
 # Basic Configuration
+  EnvironmentName: 
+    Type: String
+    Default: ''
+    Description: Name of the GitLab environment. Leave empty to use dynamically generated name.
   AvailabilityZones:
     Description: List of Availability Zones to use for the subnets in the VPC. Only
       two Availability Zones are used for this deployment, and the logical order of
@@ -480,6 +487,7 @@ Parameters:
 Conditions:
   Using3AvailabilityZones:  !Equals [!Ref NumberOfAZs, '3']
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+  EmptyEnvironmentName: !Equals [!Ref EnvironmentName, '']
 
 Resources:
   VPCStack:
@@ -556,6 +564,7 @@ Resources:
         CreateHostedZone: !Ref CreateHostedZone
         CreateEmailDomain: !Ref CreateEmailDomain
         CreateSslCertificate: !Ref CreateSslCertificate
+        EnvironmentName: !If [EmptyEnvironmentName, !Ref 'AWS::StackName', !Ref EnvironmentName]
         # Network properties
         VPCID: !GetAtt VPCStack.Outputs.VPCID
         VPCCIDR: !Ref VPCCIDR
