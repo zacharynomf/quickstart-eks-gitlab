@@ -7,6 +7,8 @@ Parameters:
     Type: String
   HelmChartName:
     Type: String
+  EnvironmentName:
+    Type: String 
 
 Resources:
 
@@ -24,7 +26,7 @@ Resources:
     Type: AWS::SecretsManager::Secret
     Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }
     Properties:
-      Name: /quickstart/gitlab/secrets/rails
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/secrets/rails'
       Description: "GitLab Rails Secret"
       SecretString: !GetAtt RailsSecretQuery.Response
 
@@ -42,7 +44,7 @@ Resources:
     Type: AWS::SecretsManager::Secret
     Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }
     Properties:
-      Name: /quickstart/gitlab/secrets/initial-root-password
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/secrets/initial-root-password'
       Description: "GitLab Initial Root Password"
       SecretString: !GetAtt InitialRootPasswordQuery.Response
 
@@ -61,5 +63,5 @@ Resources:
     Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }
     Properties:
       Type: String
-      Name: /quickstart/gitlab/loadbalancer
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/loadbalancer'
       Value: !GetAtt LoadBalancerQuery.Response

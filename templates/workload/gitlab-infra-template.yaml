@@ -39,6 +39,9 @@ Parameters:
     AllowedPattern: ^[0-9a-zA-Z-/]*$
     Default: quickstart-examples/
 
+  EnvironmentName:
+    Type: String    
+
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
   HostedZoneRequested: !Equals  [!Ref CreateHostedZone, 'Yes']
@@ -210,7 +213,7 @@ Resources:
     Type: AWS::SSM::Parameter
     Properties:
       Type: String
-      Name: /quickstart/gitlab/infra/domain-name
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/domain-name'
       Value: !Ref DomainName
 
   HostedZoneNameParameter:
@@ -218,7 +221,7 @@ Resources:
     Condition: HostedZoneRequested
     Properties:
       Type: String
-      Name: /quickstart/gitlab/infra/hosted-zone-name
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/hosted-zone-name'
       Value: !Sub "${DomainName}."
 
   HostedZoneIdParameter:
@@ -226,7 +229,7 @@ Resources:
     Condition: HostedZoneRequested
     Properties:
       Type: String
-      Name: /quickstart/gitlab/infra/hosted-zone-id
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/hosted-zone-id'
       Value: !Ref HostedZone
 
   CertificateArnParameter:
@@ -234,14 +237,14 @@ Resources:
     Condition: CertificateRequested
     Properties:
       Type: String
-      Name: /quickstart/gitlab/infra/certificate-arn
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/certificate-arn'
       Value: !Ref SslCertificate
 
   SmtpCredentialsSecret:
     Type: 'AWS::SecretsManager::Secret'
     Condition: EmailDomainRequested
     Properties:
-      Name: /quickstart/gitlab/infra/smtp-credentials
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/smtp-credentials'
       Description: "GitLab SMTP credentials"
       SecretString: !Sub '{"username": "${SmtpKeys}", "password": "${SmtpPasswordGenerator.Password}"}'
 

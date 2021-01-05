@@ -29,6 +29,7 @@ Metadata:
       - Label:
           default: Basic configuration
         Parameters:
+          - EnvironmentName
           - AvailabilityZones
           - RemoteAccessCIDR
           - KeyPairName
@@ -113,6 +114,8 @@ Metadata:
           - QSS3BucketRegion
     ParameterLabels:
     # Basic configuration
+      EnvironmentName:
+        default: Environment name
       AvailabilityZones:
         default: Availability Zones
       RemoteAccessCIDR:
@@ -230,6 +233,10 @@ Metadata:
 
 Parameters:
 # Basic Configuration
+  EnvironmentName: 
+    Type: String
+    Default: ''
+    Description: Name of the GitLab environment. Leave empty to use dynamically generated name.
   AvailabilityZones:
     Description: List of Availability Zones to use for the subnets in the VPC. Only
       two Availability Zones are used for this deployment, and the logical order of
@@ -557,6 +564,7 @@ Rules:
 Conditions:
   Using3AvailabilityZones:  !Equals [!Ref NumberOfAZs, '3']
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+  EmptyEnvironmentName: !Equals [!Ref EnvironmentName, '']
 
 Resources:
   VPCStack:
@@ -590,7 +598,7 @@ Resources:
         - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
-        ConfigSetName: !Ref 'AWS::StackName'
+        ConfigSetName: !If [EmptyEnvironmentName, !Ref 'AWS::StackName', !Ref EnvironmentName]
         NodeVolumeSize: !Ref NodeVolumeSize
 
   EKSStack:
@@ -625,7 +633,7 @@ Resources:
         NodeInstanceType: !Ref NodeInstanceType
         NumberOfNodes: !Ref NumberOfNodes
         MaxNumberOfNodes: !Ref MaxNumberOfNodes
-        ConfigSetName: !Ref 'AWS::StackName'
+        ConfigSetName: !If [EmptyEnvironmentName, !Ref 'AWS::StackName', !Ref EnvironmentName]
         # Shared resources
         PerAccountSharedResources: !Ref PerAccountSharedResources
         PerRegionSharedResources: !Ref PerRegionSharedResources
@@ -647,6 +655,7 @@ Resources:
         CreateHostedZone: !Ref CreateHostedZone
         CreateSslCertificate: !Ref CreateSslCertificate
         SslCertificateIssuerEmail: !Ref SslCertificateIssuerEmail
+        EnvironmentName: !If [EmptyEnvironmentName, !Ref 'AWS::StackName', !Ref EnvironmentName]
         # Network properties
         VPCID: !GetAtt VPCStack.Outputs.VPCID
         VPCCIDR: !Ref VPCCIDR

@@ -13,6 +13,8 @@ Parameters:
     AllowedValues: [ 'Yes', 'No' ]
   SslCertificateIssuerEmail:
     Type: String
+  EnvironmentName:
+    Type: String
 
 # Network Parameters
   VPCID: 
@@ -181,6 +183,7 @@ Resources:
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
         QSS3BucketRegion: !Ref QSS3BucketRegion
+        EnvironmentName: !Ref EnvironmentName
 
   Database:
     Type: AWS::CloudFormation::Stack
@@ -231,6 +234,7 @@ Resources:
       Parameters:
         SSEAlgorithm: !Ref ObjectStorageSSEAlgorithm
         KMSKeyID: !Ref ObjectStorageKMSKeyID
+        EnvironmentName: !Ref EnvironmentName
 
   ChartNamespace:
     Type: AWSQS::Kubernetes::Resource
@@ -414,3 +418,4 @@ Resources:
         ClusterName: !Ref KubeClusterName
         HelmChartNamespace: !Ref HelmChartNamespace
         HelmChartName: !Ref HelmChartName
+        EnvironmentName: !Ref EnvironmentName
