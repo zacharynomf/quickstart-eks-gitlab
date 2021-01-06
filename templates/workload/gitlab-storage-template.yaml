@@ -9,9 +9,8 @@ Parameters:
   KMSKeyID:
     Type: String
     Default: ''
-  CredentialsSecretName:
-    Type: String
-    Default: /quickstart/gitlab/storage/credentials
+  EnvironmentName:
+    Type: String 
 
 Conditions:
   UseKMS: !Equals [!Ref KMSKeyID, 'aws:kms']
@@ -171,7 +170,7 @@ Resources:
   GitLabObjectStorageKeysSecret:
     Type: 'AWS::SecretsManager::Secret'
     Properties:
-      Name: !Ref CredentialsSecretName
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/storage/credentials'
       Description: "GitLab Object Storage access keys"
       SecretString: !Sub '{"accessKeyId": "${GitLabObjectStorageKeys}", "secretAccessKey": "${GitLabObjectStorageKeys.SecretAccessKey}"}'
 
@@ -179,63 +178,63 @@ Resources:
     Type: AWS::SSM::Parameter
     Properties:
       Type: String
-      Name: /quickstart/gitlab/storage/buckets/artifacts
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/storage/buckets/artifacts'
       Value: !Ref ArtifactsBucket 
 
   LfsBucketBucketParameter:
     Type: AWS::SSM::Parameter
     Properties:
       Type: String
-      Name: /quickstart/gitlab/storage/buckets/lfs
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/storage/buckets/lfs'
       Value: !Ref LfsBucket 
 
   UploadsBucketParameter:
     Type: AWS::SSM::Parameter
     Properties:
       Type: String
-      Name: /quickstart/gitlab/storage/buckets/uploads
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/storage/buckets/uploads'
       Value: !Ref UploadsBucket
 
   PackagesBucketParameter:
     Type: AWS::SSM::Parameter
     Properties:
       Type: String
-      Name: /quickstart/gitlab/storage/buckets/packages
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/storage/buckets/packages'
       Value: !Ref PackagesBucket
 
   TerraformBucketParameter:
     Type: AWS::SSM::Parameter
     Properties:
       Type: String
-      Name: /quickstart/gitlab/storage/buckets/terraform
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/storage/buckets/terraform'
       Value: !Ref TerraformBucket
 
   PseudonymizerBucketParameter:
     Type: AWS::SSM::Parameter
     Properties:
       Type: String
-      Name: /quickstart/gitlab/storage/buckets/pseudonymizer
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/storage/buckets/pseudonymizer'
       Value: !Ref PseudonymizerBucket
 
   RegistryBucketParameter:
     Type: AWS::SSM::Parameter
     Properties:
       Type: String
-      Name: /quickstart/gitlab/storage/buckets/registry
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/storage/buckets/registry'
       Value: !Ref RegistryBucket
 
   BackupBucketParameter:
     Type: AWS::SSM::Parameter
     Properties:
       Type: String
-      Name: /quickstart/gitlab/storage/buckets/backup
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/storage/buckets/backup'
       Value: !Ref BackupBucket
 
   BackupTmpBucketParameter:
     Type: AWS::SSM::Parameter
     Properties:
       Type: String
-      Name: /quickstart/gitlab/storage/buckets/backup-tmp
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/storage/buckets/backup-tmp'
       Value: !Ref BackupTempBucket
 
 Outputs:
@@ -259,4 +258,4 @@ Outputs:
     Value: !Ref BackupTempBucket
 
   CredentialsSecretName:
-    Value: !Ref CredentialsSecretName
+    Value: !Ref GitLabObjectStorageKeysSecret

@@ -11,6 +11,8 @@ Parameters:
   CreateSslCertificate:
     Type: String
     AllowedValues: [ 'Yes', 'No' ]
+  EnvironmentName:
+    Type: String
 
 # Network Parameters
   VPCID: 
@@ -161,6 +163,7 @@ Resources:
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
         QSS3BucketRegion: !Ref QSS3BucketRegion
+        EnvironmentName: !Ref EnvironmentName
 
   Database:
     Type: AWS::CloudFormation::Stack
@@ -210,6 +213,7 @@ Resources:
       Parameters:
         SSEAlgorithm: !Ref ObjectStorageSSEAlgorithm
         KMSKeyID: !Ref ObjectStorageKMSKeyID
+        EnvironmentName: !Ref EnvironmentName
 
   KubeSecrets:
     Type: AWS::CloudFormation::Stack
@@ -234,6 +238,8 @@ Resources:
   ChartNamespace:
     Type: AWSQS::Kubernetes::Resource
     Condition: HelmChartNamespaceCreate
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
     # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Resource
     Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
@@ -269,7 +275,7 @@ Resources:
         global.email.display_name: GitLab
         global.email.from: !Sub 'gitlab@${DomainName}'
         global.email.reply_to: !Sub 'noreply@${DomainName}'
-        global.smtp.enabled: true
+        global.smtp.enabled: !If [CreateEmailDomain, true, false] 
         global.smtp.domain: !Ref DomainName
         global.smtp.starttls_auto: true
         global.smtp.authentication: login
@@ -354,3 +360,4 @@ Resources:
         ClusterName: !Ref KubeClusterName
         HelmChartNamespace: !Ref HelmChartNamespace
         HelmChartName: !Ref HelmChartName
+        EnvironmentName: !Ref EnvironmentName 

@@ -74,6 +74,8 @@ Resources:
 
   PraefectDatabase:
     Type: Custom::CreatePraefectDatabase
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
     Properties:
       Host: !Ref DBHost
       DBName: !Ref DBName      
