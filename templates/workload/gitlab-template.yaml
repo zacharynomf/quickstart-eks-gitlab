@@ -238,6 +238,8 @@ Resources:
   ChartNamespace:
     Type: AWSQS::Kubernetes::Resource
     Condition: HelmChartNamespaceCreate
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
     # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Resource
     Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
@@ -273,7 +275,7 @@ Resources:
         global.email.display_name: GitLab
         global.email.from: !Sub 'gitlab@${DomainName}'
         global.email.reply_to: !Sub 'noreply@${DomainName}'
-        global.smtp.enabled: true
+        global.smtp.enabled: !If [CreateEmailDomain, true, false] 
         global.smtp.domain: !Ref DomainName
         global.smtp.starttls_auto: true
         global.smtp.authentication: login
