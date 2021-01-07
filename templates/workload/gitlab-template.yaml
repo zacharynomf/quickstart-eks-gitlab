@@ -239,6 +239,8 @@ Resources:
   ChartNamespace:
     Type: AWSQS::Kubernetes::Resource
     Condition: HelmChartNamespaceCreate
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
     # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Resource
     Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:

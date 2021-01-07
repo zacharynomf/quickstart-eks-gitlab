@@ -31,6 +31,10 @@ Metadata:
         Parameters:
           - EnvironmentName
       - Label:
+          default: Basic configuration
+        Parameters:
+          - EnvironmentName
+      - Label:
           default: VPC network configuration
         Parameters:
           - VPCID
