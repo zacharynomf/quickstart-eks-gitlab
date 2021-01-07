@@ -170,7 +170,7 @@ Resources:
   GitLabObjectStorageKeysSecret:
     Type: 'AWS::SecretsManager::Secret'
     Properties:
-      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/storage/credentials'
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/storage/credentials' 
       Description: "GitLab Object Storage access keys"
       SecretString: !Sub '{"accessKeyId": "${GitLabObjectStorageKeys}", "secretAccessKey": "${GitLabObjectStorageKeys.SecretAccessKey}"}'
 

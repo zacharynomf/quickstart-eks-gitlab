@@ -21,6 +21,7 @@ tests:
       ProvisionBastionHost: Disabled
       DBUserPassword: 'Ae6ii5fcckj4ddi0t!'
       DomainName: devops.$[taskcat_random-string].com
+      SslCertificateIssuerEmail: gitlab@$[taskcat_random-string].com
     regions:
     - eu-west-1
     - us-east-1

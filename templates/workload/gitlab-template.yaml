@@ -11,6 +11,8 @@ Parameters:
   CreateSslCertificate:
     Type: String
     AllowedValues: [ 'Yes', 'No' ]
+  SslCertificateIssuerEmail:
+    Type: String
   EnvironmentName:
     Type: String
 
@@ -31,7 +33,9 @@ Parameters:
   ConfigureContainerInsights:
     Type: String
     AllowedValues: [ 'Yes', 'No' ]
-    Default: 'No'
+  ConfigureGrafana:
+    Type: String
+    AllowedValues: [ 'Yes', 'No' ]
 
 # Databse Parameters
   DBName: 
@@ -60,6 +64,8 @@ Parameters:
     Type: Number
     MinValue: 1150
     MaxValue: 65535
+  DBInstanceClass:
+    Type: String
 
 # Object Storage Parameters
   ObjectStorageSSEAlgorithm:
@@ -69,9 +75,9 @@ Parameters:
     Type: String
 
 # SMTP Parameters
-  CreateEmailDomain:
+  SMTPDomain: 
     Type: String
-    AllowedValues: [ 'Yes', 'No' ]
+    AllowedValues: [ 'Disabled', 'CreateNew', 'UseExisting' ]    
   SMTPHostName:
     Type: String
   SMTPPort:
@@ -98,7 +104,11 @@ Parameters:
     Type: String
   BackupVolumeSize:
     Type: Number
+  NumberOfPraefectReplicas: 
+    Type: Number
   NumberOfGitalyReplicas:
+    Type: Number
+  GitalyVolumeSize: 
     Type: Number
 
 # Quickstart location Parameters
@@ -116,9 +126,19 @@ Parameters:
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
-  TelemetryRequired: !Equals [!Ref ConfigureContainerInsights, 'Yes']
-  CreateEmailDomain: !Equals [!Ref CreateEmailDomain, 'Yes']
+  ConfigureContainerInsights: !Equals [!Ref ConfigureContainerInsights, 'Yes']
+  ConfigureGrafana: !Equals [!Ref ConfigureGrafana, 'Yes']
+  OutgoingEmailEnabled: !Not [!Equals [!Ref SMTPDomain, 'Disabled']]
+  CreateEmailDomain: !Equals [!Ref SMTPDomain, 'CreateNew']
+  AcmIngressConfigured: !And [!Equals [!Ref CreateHostedZone, 'Yes'], !Equals [!Ref CreateSslCertificate, 'Yes']] 
   HelmChartNamespaceCreate: !Equals [!Ref HelmChartNamespaceCreate, 'CreateNew']
+
+Mappings: 
+  PartitionMap: 
+    aws:
+      IngressImageRepository: k8s.gcr.io/defaultbackend-amd64
+    aws-cn:
+      IngressImageRepository: registry.aliyuncs.com/google_containers/defaultbackend
 
 Resources:
 
@@ -135,7 +155,7 @@ Resources:
 
   Telemetry: 
     Type: AWS::CloudFormation::Stack
-    Condition: TelemetryRequired
+    Condition: ConfigureContainerInsights
     Properties: 
       TemplateURL: !Sub
         - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-telemetry-template.yaml'
@@ -157,7 +177,7 @@ Resources:
         DBAccessCIDR: !Ref VPCCIDR
         DomainName: !Ref DomainName
         CreateHostedZone: !Ref CreateHostedZone
-        CreateEmailDomain: !Ref CreateEmailDomain
+        CreateEmailDomain: !If [CreateEmailDomain, 'Yes', 'No'] 
         CreateSslCertificate: !Ref CreateSslCertificate
         FunctionsBucketName: !GetAtt Functions.Outputs.FunctionsBucketName
         QSS3BucketName: !Ref QSS3BucketName
@@ -176,6 +196,7 @@ Resources:
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
         DBEngineVersion: 11.7 # GitLab requires >= 11
+        DBInstanceClass: !Ref DBInstanceClass
         DBName: !Ref DBName
         DBMasterUsername: !Ref DBUserName
         DBMasterUserPassword: !Ref DBUserPassword
@@ -215,26 +236,6 @@ Resources:
         KMSKeyID: !Ref ObjectStorageKMSKeyID
         EnvironmentName: !Ref EnvironmentName
 
-  KubeSecrets:
-    Type: AWS::CloudFormation::Stack
-    DependsOn: Database
-    Properties:
-      TemplateURL: !Sub
-        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-secrets-template.yaml'
-        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
-          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-      Parameters:
-        KubeClusterName: !Ref KubeClusterName
-        HelmChartNamespace: !Ref HelmChartNamespace
-        DatabasePassword: !Ref DBUserPassword
-        StorageAccessKeyId: !Sub '{{resolve:secretsmanager:${ObjectStorage.Outputs.CredentialsSecretName}:SecretString:accessKeyId}}'
-        StorageSecretAccessKey: !Sub '{{resolve:secretsmanager:${ObjectStorage.Outputs.CredentialsSecretName}:SecretString:secretAccessKey}}'
-        RegistryBucket: !GetAtt ObjectStorage.Outputs.RegistryBucket
-        SmtpPassword: !If
-          - CreateEmailDomain
-          - !Sub '{{resolve:secretsmanager:/quickstart/gitlab/infra/smtp-credentials:SecretString:password}}'
-          - !Ref SMTPPassword
-
   ChartNamespace:
     Type: AWSQS::Kubernetes::Resource
     Condition: HelmChartNamespaceCreate
@@ -252,6 +253,42 @@ Resources:
           labels:
             name: ${HelmChartNamespace}
 
+  NewChartNamespaceWaitHandle: 
+    Type: AWS::CloudFormation::WaitConditionHandle
+    Condition: HelmChartNamespaceCreate
+    DependsOn: ChartNamespace
+
+  ExistingChartNamespaceWaitHandle: 
+    Type: AWS::CloudFormation::WaitConditionHandle
+
+  ChartNamespaceWaitCondition: 
+    Type: AWS::CloudFormation::WaitCondition
+    Properties: 
+      Handle: !If [HelmChartNamespaceCreate, !Ref NewChartNamespaceWaitHandle, !Ref ExistingChartNamespaceWaitHandle]
+      Timeout: '1'
+      Count: 0
+
+  KubeSecrets:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: [Database, ChartNamespaceWaitCondition]
+    Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }
+    Properties:
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-secrets-template.yaml'
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        KubeClusterName: !Ref KubeClusterName
+        HelmChartNamespace: !Ref HelmChartNamespace
+        DatabasePassword: !Ref DBUserPassword
+        StorageAccessKeyId: !Sub '{{resolve:secretsmanager:${ObjectStorage.Outputs.CredentialsSecretName}:SecretString:accessKeyId}}'
+        StorageSecretAccessKey: !Sub '{{resolve:secretsmanager:${ObjectStorage.Outputs.CredentialsSecretName}:SecretString:secretAccessKey}}'
+        RegistryBucket: !GetAtt ObjectStorage.Outputs.RegistryBucket
+        SmtpPassword: !If
+          - CreateEmailDomain
+          - !Sub '{{resolve:secretsmanager:${Infrastructure.Outputs.SmtpCredentialsSecretName}:SecretString:password}}'
+          - !If [OutgoingEmailEnabled, !Ref SMTPPassword, '']
+
   Chart:
     Type: AWSQS::Kubernetes::Helm   
     DependsOn: PraefectDatabase
@@ -259,40 +296,52 @@ Resources:
     Metadata: { cfn-lint: { config: { ignore_checks: [E3001, E1010] } } }
     Properties:
       ClusterID: !Ref KubeClusterName 
-      Namespace: !If [HelmChartNamespaceCreate, !GetAtt ChartNamespace.Name, !Ref HelmChartNamespace]  
+      Namespace: !Ref HelmChartNamespace  
       Repository: https://charts.gitlab.io/
       Chart: gitlab/gitlab 
       Name: !Ref HelmChartName
       Version: !Ref HelmChartVersion
       Values:
-        certmanager-issuer.email: kolomiets@gmail.com
-        # certmanager.install: false
 
         # domain name
         global.hosts.domain: !Ref DomainName
+
+        # SSL support
+        certmanager.install: !If [AcmIngressConfigured, false, true]
+        certmanager-issuer.email: !If [AcmIngressConfigured, !Ref 'AWS::NoValue', !Ref SslCertificateIssuerEmail]
+        global.ingress.configureCertmanager: !If [AcmIngressConfigured, false, true]
+
+        global.ingress.enabled: !If [AcmIngressConfigured, false, true]
+        nginx-ingress.defaultBackend.image.repository: 
+          !FindInMap [PartitionMap, !Ref 'AWS::Partition', IngressImageRepository]
+        nginx-ingress.controller.service.annotations.service.beta.kubernetes.io/aws-load-balancer-ssl-ports: 
+          !If [AcmIngressConfigured, '443', !Ref 'AWS::NoValue']
+        nginx-ingress.controller.service.annotations.service.beta.kubernetes.io/aws-load-balancer-backend-protocol:
+          !If [AcmIngressConfigured, 'ssl', !Ref 'AWS::NoValue']
+        nginx-ingress.controller.service.annotations.service.beta.kubernetes.io/aws-load-balancer-ssl-cert: 
+          !If [AcmIngressConfigured, !GetAtt Infrastructure.Outputs.SslCertificateArn, !Ref 'AWS::NoValue']
+
+        # telemetry configuration
+        global.grafana.enabled: !If [ConfigureGrafana, true, false]
 
         # email configuration
         global.email.display_name: GitLab
         global.email.from: !Sub 'gitlab@${DomainName}'
         global.email.reply_to: !Sub 'noreply@${DomainName}'
-        global.smtp.enabled: !If [CreateEmailDomain, true, false] 
+        global.smtp.enabled: !If [OutgoingEmailEnabled, true, false] 
         global.smtp.domain: !Ref DomainName
         global.smtp.starttls_auto: true
         global.smtp.authentication: login
-        global.smtp.address: !If
-          - CreateEmailDomain
-          - !Sub 'email-smtp.${AWS::Region}.amazonaws.com'
-          - !Ref SMTPHostName
-        global.smtp.port: !If
-          - CreateEmailDomain
-          - !Ref DefaultSESPort
-          - !Ref SMTPPort
-        global.smtp.user_name: !If 
-          - CreateEmailDomain
-          - !Sub '{{resolve:secretsmanager:/quickstart/gitlab/infra/smtp-credentials:SecretString:username}}'
-          - !Ref SMTPUsername
-        global.smtp.password.secret: !GetAtt KubeSecrets.Outputs.SmtpSecretName
-        global.smtp.password.key: !GetAtt KubeSecrets.Outputs.SmtpSecretKey
+        global.smtp.address: 
+          !If [CreateEmailDomain, !Sub 'email-smtp.${AWS::Region}.amazonaws.com', !Ref SMTPHostName]
+        global.smtp.port: 
+          !If [CreateEmailDomain, !Ref DefaultSESPort, !Ref SMTPPort]
+        global.smtp.user_name: 
+          !If [CreateEmailDomain, !Sub '{{resolve:secretsmanager:${Infrastructure.Outputs.SmtpCredentialsSecretName}:SecretString:username}}', !Ref SMTPUsername]
+        global.smtp.password.secret: 
+          !If [OutgoingEmailEnabled, !GetAtt KubeSecrets.Outputs.SmtpSecretName, !Ref 'AWS::NoValue'] 
+        global.smtp.password.key: 
+          !If [OutgoingEmailEnabled, !GetAtt KubeSecrets.Outputs.SmtpSecretKey, !Ref 'AWS::NoValue'] 
 
         # runner configuration
         gitlab-runner.install: false
@@ -305,15 +354,21 @@ Resources:
         global.psql.password.secret: !GetAtt KubeSecrets.Outputs.DatabaseKubeSecretName
         global.psql.password.key: !GetAtt KubeSecrets.Outputs.DatabaseSecretKey
 
-        # Gitaly configuration
+        # Praefect/Gitaly configuration
+        # https://docs.gitlab.com/charts/charts/gitlab/praefect/
         global.praefect.enabled: true
+        gitlab.praefect.replicas: !Ref NumberOfPraefectReplicas
         global.praefect.gitalyReplicas: !Ref NumberOfGitalyReplicas
         global.praefect.dbSecret.secret: !GetAtt KubeSecrets.Outputs.DatabaseKubeSecretName
         global.praefect.dbSecret.key: !GetAtt KubeSecrets.Outputs.DatabaseSecretKey
         global.praefect.psql.host: !GetAtt Database.Outputs.RDSEndPointAddress
         global.praefect.psql.user: !Ref DBUserName
         global.praefect.psql.dbName: !Ref DBPraefectName
-
+        # https://docs.gitlab.com/charts/charts/gitlab/gitaly/ 
+        gitlab.gitaly.persistence.enabled: true
+        gitlab.gitaly.persistence.storageClass: gp2
+        gitlab.gitaly.persistence.size: !Sub '${GitalyVolumeSize}Gi'
+  
         # S3 storage configuration
         ## object storage
         global.minio.enabled: false
@@ -348,6 +403,11 @@ Resources:
         gitlab.task-runner.backups.objectStorage.config.secret: !GetAtt KubeSecrets.Outputs.ObjectStorageKubeSecretName
         gitlab.task-runner.backups.objectStorage.config.key: !GetAtt KubeSecrets.Outputs.BackupSecretKey
 
+        # Enable large project imports
+        # https://gitlab.com/gitlab-org/charts/gitlab/-/issues/2151
+        gitlab.webservice.ingress.proxyBodySize: 1024m
+        gitlab.webservice.ingress.annotations.nginx.ingress.kubernetes.io/proxy-body-size: 1024m
+
   PostInstall: 
     Type: AWS::CloudFormation::Stack
     DependsOn: Chart
@@ -360,4 +420,4 @@ Resources:
         ClusterName: !Ref KubeClusterName
         HelmChartNamespace: !Ref HelmChartNamespace
         HelmChartName: !Ref HelmChartName
-        EnvironmentName: !Ref EnvironmentName 
+        EnvironmentName: !Ref EnvironmentName

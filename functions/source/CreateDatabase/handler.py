@@ -34,7 +34,10 @@ def delete(event, context):
     # Connect to PostgreSQL DBMS
     database, cursor = createConnection(event)
 
+    # https://dba.stackexchange.com/questions/11893/force-drop-db-while-others-may-be-connected
+    cursor.execute(f"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '{database}';")
     cursor.execute(f"drop database {database};")
+
     logger.info("Complete Delete")
 
 def createConnection(event):
