@@ -13,7 +13,8 @@ in your AWS account in about 60-90 minutes. The Quick Start automates the follow
 
 You can also use the AWS CloudFormation templates as a starting point for your own implementation.
 
-![Quick Start architecture for Modular and Scalable GitLab Architecture](/docs/images/architecture.png)
+![Quick Start architecture for Modular and Scalable GitLab Architecture](docs/images/architecture_diagram.png)
+
 
 For architectural details, best practices, step-by-step instructions, and customization options, see the [deployment guide](https://aws-quickstart.github.io/quickstart-eks-gitlab/).
 
