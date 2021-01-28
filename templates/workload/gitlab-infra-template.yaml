@@ -256,4 +256,7 @@ Outputs:
     Value: !Ref SslCertificate
   SmtpCredentialsSecretName:
     Condition: EmailDomainRequested
-    Value: !Ref SmtpCredentialsSecret    
+    Value: !Ref SmtpCredentialsSecret  
+  HostedZoneId:
+    Condition: HostedZoneRequested
+    Value: !Ref HostedZone

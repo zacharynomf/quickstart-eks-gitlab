@@ -7,8 +7,15 @@ Parameters:
     Type: String
   HelmChartName:
     Type: String
+  DomainName:
+    Type: String
+  HostedZoneId:
+    Type: String
   EnvironmentName:
     Type: String 
+
+Conditions:
+  RegisterDns: !Not [!Equals [!Ref HostedZoneId, '']]
 
 Resources:
 
@@ -65,3 +72,29 @@ Resources:
       Type: String
       Name: !Sub '/quickstart/gitlab/${EnvironmentName}/loadbalancer'
       Value: !GetAtt LoadBalancerQuery.Response
+
+  # 3. Add DNS records to enable routing to GitLab
+  GitLabDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Condition: RegisterDns
+    Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Comment: DNS name for GitLab Web service.
+      Name: !Sub "gitlab.${DomainName}"
+      Type: CNAME
+      TTL: 900
+      ResourceRecords:
+        - !GetAtt  LoadBalancerQuery.Response
+  RegistryDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Condition: RegisterDns
+    Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Comment: DNS name for GitLab Registry service.
+      Name: !Sub "registry.${DomainName}"
+      Type: CNAME
+      TTL: 900
+      ResourceRecords:
+        - !GetAtt  LoadBalancerQuery.Response
