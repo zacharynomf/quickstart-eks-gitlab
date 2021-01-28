@@ -27,7 +27,7 @@ tests:
     - us-east-1
     - us-west-2
 
-  deploy-in-2-az-with-hostedzone-and-telemetry:
+  deploy-in-2-az-with-optional-features:
     parameters:
       AvailabilityZones: $[taskcat_genaz_2]
       NumberOfAZs: 2
@@ -39,6 +39,7 @@ tests:
       ConfigureContainerInsights: 'Yes'
       ConfigureGrafana: 'Yes'
       CreateHostedZone: 'Yes'
+      CacheMode: External
       SMTPDomain: CreateNew
     regions:
     - eu-central-1

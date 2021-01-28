@@ -1,0 +1,71 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Deploys ElastiCache Redis cluster
+Parameters:
+
+  VPCID: 
+    Type: 'AWS::EC2::VPC::Id'
+  Subnet1ID:
+    Type: 'AWS::EC2::Subnet::Id'
+  Subnet2ID:
+    Type: 'AWS::EC2::Subnet::Id'
+  Subnet3ID:
+    Type: String
+    Default: ''
+
+  IngressSecurityGroupId:
+    Type: String
+    
+  CacheNodes:
+    Type: Number
+    Default: 3
+  CacheEngineVersion:
+    Type: String
+    Default: '5.0.6' # GitLab does not support 6.x redis (https://gitlab.com/gitlab-org/gitlab/-/issues/281683)
+  CacheNodeType:
+    Type: String
+    Default: cache.t3.medium
+
+Conditions:
+  Use3AvailabilityZones:  !Not [!Equals [!Ref Subnet3ID, '']]
+
+Resources:
+
+  CacheSubnetGroup:
+    Type: AWS::ElastiCache::SubnetGroup
+    Properties:
+      Description: Redis cache Subnet Group
+      SubnetIds:
+        - !Ref Subnet1ID
+        - !Ref Subnet2ID   
+        - !If [Use3AvailabilityZones, !Ref Subnet3ID, !Ref AWS::NoValue]
+
+  CacheSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Redis Security Group
+      VpcId: !Ref VPCID
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 6379
+          ToPort: 6379
+          SourceSecurityGroupId: !Ref IngressSecurityGroupId
+
+  CacheReplicationGroup:
+    Type: AWS::ElastiCache::ReplicationGroup
+    Properties:
+      ReplicationGroupDescription: !Ref AWS::StackName
+      MultiAZEnabled: true
+      AtRestEncryptionEnabled: true
+      AutomaticFailoverEnabled: true
+      TransitEncryptionEnabled: false
+      Engine: redis
+      EngineVersion: !Ref CacheEngineVersion
+      CacheNodeType: !Ref CacheNodeType
+      CacheSubnetGroupName: !Ref CacheSubnetGroup
+      CacheParameterGroupName: 'default.redis5.0'
+      NumCacheClusters: !Ref CacheNodes
+      SecurityGroupIds: [ !Ref CacheSecurityGroup ]
+
+Outputs:
+  CacheEndpoint:
+    Value: !GetAtt CacheReplicationGroup.PrimaryEndPoint.Address

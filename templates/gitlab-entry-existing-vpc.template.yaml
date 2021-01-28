@@ -107,6 +107,12 @@ Metadata:
           - BackupSchedule
           - BackupVolumeSize
       - Label:
+          default: GitLab cache configuration
+        Parameters:
+          - CacheMode
+          - CacheNodes
+          - CacheNodeType
+      - Label:
           default: AWS Quick Start configuration
         Parameters:
           - QSS3BucketName
@@ -221,6 +227,13 @@ Metadata:
         default: Object storage backup schedule
       BackupVolumeSize:
         default: Object storage backup volume capacity
+    # Cache configuration
+      CacheMode:
+        default: Cache mode
+      CacheNodes:
+        default: Number of cache replicas
+      CacheNodeType:
+        default: Cache node type
     # AWS Quick Start configuration
       QSS3BucketName:
         default: Quick Start S3 bucket name
@@ -494,6 +507,21 @@ Parameters:
     MinValue: 10
     Description: Capacity of EBS volume used for GitLab backups, in Gb. 
 
+# Cache Parameters
+  CacheMode:
+    Type: String
+    AllowedValues: [ 'BuiltIn', 'External' ]    
+    Default: 'BuiltIn'
+    Description: Use built-in cache or provision external Amazon ElastiCache Redis cluster.
+  CacheNodes:
+    Type: Number
+    Default: 2
+    Description: Provide the number of cache replicas (applicable for both BuiltIn and External cache modes). 
+  CacheNodeType:
+    Type: String
+    Default: cache.t3.medium
+    Description: If you chose to use External cache above, provide cache node type. 
+
 # Quickstart location parameters
   QSS3BucketName:
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
@@ -606,6 +634,7 @@ Resources:
         VPCCIDR: !Ref VPCCIDR
         PrivateSubnet1ID: !Ref PrivateSubnet1ID
         PrivateSubnet2ID: !Ref PrivateSubnet2ID
+        NodeGroupSecurityGroup: !GetAtt EKSStack.Outputs.NodeGroupSecurityGroup
         # Cluster properties
         KubeClusterName: !GetAtt EKSStack.Outputs.EKSClusterName 
         ConfigureContainerInsights: !Ref ConfigureContainerInsights
@@ -622,6 +651,10 @@ Resources:
         ObjectStorageKMSKeyID: !Ref ObjectStorageKMSKeyID
         BackupSchedule: !Ref BackupSchedule
         BackupVolumeSize: !Ref BackupVolumeSize
+        # Cache properties
+        CacheMode: !Ref CacheMode
+        CacheNodes: !Ref CacheNodes
+        CacheNodeType: !Ref CacheNodeType
         # SMTP properties
         SMTPDomain: !Ref SMTPDomain
         SMTPHostName: !Ref SMTPHostName
