@@ -130,6 +130,7 @@ Conditions:
   ConfigureGrafana: !Equals [!Ref ConfigureGrafana, 'Yes']
   OutgoingEmailEnabled: !Not [!Equals [!Ref SMTPDomain, 'Disabled']]
   CreateEmailDomain: !Equals [!Ref SMTPDomain, 'CreateNew']
+  CreateHostedZone: !Equals [!Ref CreateHostedZone, 'Yes']
   AcmIngressConfigured: !And [!Equals [!Ref CreateHostedZone, 'Yes'], !Equals [!Ref CreateSslCertificate, 'Yes']] 
   HelmChartNamespaceCreate: !Equals [!Ref HelmChartNamespaceCreate, 'CreateNew']
 
@@ -420,4 +421,6 @@ Resources:
         ClusterName: !Ref KubeClusterName
         HelmChartNamespace: !Ref HelmChartNamespace
         HelmChartName: !Ref HelmChartName
+        DomainName: !Ref DomainName
+        HostedZoneId: !If [CreateHostedZone, !GetAtt Infrastructure.Outputs.HostedZoneId, '']
         EnvironmentName: !Ref EnvironmentName

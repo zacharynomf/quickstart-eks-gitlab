@@ -26,3 +26,19 @@ tests:
     - eu-west-1
     - us-east-1
     - us-west-2
+
+  deploy-in-2-az-with-hostedzone-and-telemetry:
+    parameters:
+      AvailabilityZones: $[taskcat_genaz_2]
+      NumberOfAZs: 2
+      EKSPublicAccessEndpoint: Disabled
+      ProvisionBastionHost: Enabled
+      DBUserPassword: 'Ae6ii5fcckj4ddi0t!'
+      DomainName: devops.$[taskcat_random-string].com
+      SslCertificateIssuerEmail: gitlab@$[taskcat_random-string].com
+      ConfigureContainerInsights: 'Yes'
+      ConfigureGrafana: 'Yes'
+      CreateHostedZone: 'Yes'
+      SMTPDomain: CreateNew
+    regions:
+    - eu-central-1

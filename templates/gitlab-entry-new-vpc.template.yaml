@@ -488,7 +488,7 @@ Parameters:
   HelmChartVersion:
     Type: String
     Description: Version of GitLab Helm chart GitLab for deployment.
-    Default: '4.7.0'
+    Default: '4.8.1'
 
 # Gitaly Storage Parameters
   NumberOfPraefectReplicas: 
