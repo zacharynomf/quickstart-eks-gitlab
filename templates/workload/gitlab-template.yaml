@@ -214,7 +214,7 @@ Resources:
         Subnet1ID: !Ref PrivateSubnet1ID
         Subnet2ID: !Ref PrivateSubnet2ID
         Subnet3ID: !Ref PrivateSubnet3ID
-        IngressSecurityGroup: !Ref NodeGroupSecurityGroup
+        IngressSecurityGroupId: !Ref NodeGroupSecurityGroup
         CacheNodes: !Ref CacheNodes
         CacheNodeType: !Ref CacheNodeType
 
