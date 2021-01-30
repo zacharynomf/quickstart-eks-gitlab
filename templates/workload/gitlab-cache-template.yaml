@@ -57,7 +57,7 @@ Resources:
       MultiAZEnabled: true
       AtRestEncryptionEnabled: true
       AutomaticFailoverEnabled: true
-      TransitEncryptionEnabled: false
+      TransitEncryptionEnabled: true
       Engine: redis
       EngineVersion: !Ref CacheEngineVersion
       CacheNodeType: !Ref CacheNodeType

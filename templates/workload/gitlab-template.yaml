@@ -385,7 +385,10 @@ Resources:
           !If [CreateCacheCluster, false, true]
         global.redis.host: 
           !If [CreateCacheCluster, !GetAtt Cache.Outputs.CacheEndpoint, !Ref 'AWS::NoValue']
-        global.redis.password.enabled: false
+        global.redis.scheme:
+          !If [CreateCacheCluster, rediss, !Ref 'AWS::NoValue']
+        global.redis.password.enabled: 
+          !If [CreateCacheCluster, false, !Ref 'AWS::NoValue']
         ## built-in redis settings
         redis.cluster.enabled:
           !If [CreateCacheCluster, !Ref 'AWS::NoValue', true]
