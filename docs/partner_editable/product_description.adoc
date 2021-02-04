@@ -3,3 +3,19 @@
 // Include the benefits of using the software on AWS, and provide details on usage scenarios.
 
 <Describe how the software works on AWS.>
+
+GitLab is deployed ek Amazon EKS cluster as a https://docs.gitlab.com/charts/[Helm chart]. 
+
+This Quick Start integrates with the following AWS services:
+
+* https://aws.amazon.com/cloudformation/[AWS CloudFormation] infrastructure as code GitLab deployment
+* Highly Available https://aws.amazon.com/eks/[Amazon EKS] cluster
+* Highly Available https://aws.amazon.com/rds/postgresql/[Amazon RDS Postgres] database cluster
+* Highly Available https://aws.amazon.com/elasticache/redis/[Amazon ElasteCache for Redis] cluster
+* https://aws.amazon.com/s3/[Amazon S3] object storage
+* https://aws.amazon.com/cloudwatch/[Amazon CloudWatch] integration for logs and metrics
+* https://aws.amazon.com/route53/[Amazon Route53] hosted zone for DNS configuration
+* https://aws.amazon.com/certificate-manager/[AWS Certificate Manager] integration for TLS certificates^*^
+* https://aws.amazon.com/ses/[Amazon Simple Email Service] for sending out email notifications ^*^
+
+[.small]#^*^ May not be available in all regions. Check https://aws.amazon.com/about-aws/global-infrastructure/regional-product-services/[AWS Regional Services List]#

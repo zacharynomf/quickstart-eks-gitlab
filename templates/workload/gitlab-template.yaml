@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Gitlab s3 Buckets
+Description: GitLab workload
 
 Parameters:
 # Infra Parameters
@@ -26,6 +26,11 @@ Parameters:
     Type: 'AWS::EC2::Subnet::Id'
   PrivateSubnet2ID:
     Type: 'AWS::EC2::Subnet::Id'
+  PrivateSubnet3ID:
+    Type: String
+    Default: ''
+  NodeGroupSecurityGroup: 
+    Type: AWS::EC2::SecurityGroup::Id
 
 # Cluster Parameters
   KubeClusterName:
@@ -72,6 +77,15 @@ Parameters:
     Type: String
     AllowedValues: [ 'AES256', 'aws:kms' ]
   ObjectStorageKMSKeyID:
+    Type: String
+
+# Cache Parameters
+  CacheMode:
+    Type: String
+    AllowedValues: [ 'BuiltIn', 'External' ]    
+  CacheNodes:
+    Type: Number
+  CacheNodeType:
     Type: String
 
 # SMTP Parameters
@@ -133,6 +147,7 @@ Conditions:
   CreateHostedZone: !Equals [!Ref CreateHostedZone, 'Yes']
   AcmIngressConfigured: !And [!Equals [!Ref CreateHostedZone, 'Yes'], !Equals [!Ref CreateSslCertificate, 'Yes']] 
   HelmChartNamespaceCreate: !Equals [!Ref HelmChartNamespaceCreate, 'CreateNew']
+  CreateCacheCluster: !Equals [!Ref CacheMode, 'External']
 
 Mappings: 
   PartitionMap: 
@@ -185,6 +200,23 @@ Resources:
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
         QSS3BucketRegion: !Ref QSS3BucketRegion
         EnvironmentName: !Ref EnvironmentName
+
+  Cache:
+    Type: AWS::CloudFormation::Stack
+    Condition: CreateCacheCluster
+    Properties:
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-cache-template.yaml'
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        VPCID: !Ref VPCID
+        Subnet1ID: !Ref PrivateSubnet1ID
+        Subnet2ID: !Ref PrivateSubnet2ID
+        Subnet3ID: !Ref PrivateSubnet3ID
+        IngressSecurityGroupId: !Ref NodeGroupSecurityGroup
+        CacheNodes: !Ref CacheNodes
+        CacheNodeType: !Ref CacheNodeType
 
   Database:
     Type: AWS::CloudFormation::Stack
@@ -346,6 +378,22 @@ Resources:
 
         # runner configuration
         gitlab-runner.install: false
+
+        # cache configuration
+        ## external redis settings
+        redis.install: 
+          !If [CreateCacheCluster, false, true]
+        global.redis.host: 
+          !If [CreateCacheCluster, !GetAtt Cache.Outputs.CacheEndpoint, !Ref 'AWS::NoValue']
+        global.redis.scheme:
+          !If [CreateCacheCluster, rediss, !Ref 'AWS::NoValue']
+        global.redis.password.enabled: 
+          !If [CreateCacheCluster, false, !Ref 'AWS::NoValue']
+        ## built-in redis settings
+        redis.cluster.enabled:
+          !If [CreateCacheCluster, !Ref 'AWS::NoValue', true]
+        redis.cluster.slaveCount:
+          !If [CreateCacheCluster, !Ref 'AWS::NoValue', !Ref CacheNodes]
 
         # database configuration
         postgresql.install: false

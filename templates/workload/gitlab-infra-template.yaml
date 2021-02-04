@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Gitlab s3 Buckets
+Description: GitLab infrastructure resources
 Parameters:
   VPCID: 
     Type: 'AWS::EC2::VPC::Id'
