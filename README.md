@@ -15,6 +15,17 @@ You can also use the AWS CloudFormation templates as a starting point for your o
 
 ![Quick Start architecture for Modular and Scalable GitLab Architecture](docs/images/architecture_diagram.png)
 
+This Quick Start integrates GitLab with the following AWS services:
+
+* [AWS CloudFormation](https://aws.amazon.com/cloudformation/) infrastructure as code GitLab deployment
+* [Amazon EKS](https://aws.amazon.com/eks/) HA kubernetes cluster
+* [Amazon RDS Postgres](https://aws.amazon.com/rds/postgresql/) HA database cluster
+* [Amazon ElasteCache for Redis](https://aws.amazon.com/elasticache/redis/) HA cache cluster
+* [Amazon S3](https://aws.amazon.com/s3/) object storage
+* [Amazon CloudWatch](https://aws.amazon.com/cloudwatch/) integration for logs and metrics
+* [Amazon Route53](https://aws.amazon.com/route53/) hosted zone for DNS configuration
+* [Amazon Simple Email Service](https://aws.amazon.com/ses/) for sending out email notifications 
+* [AWS Certificate Manager](https://aws.amazon.com/certificate-manager/) integration for TLS certificates
 
 For architectural details, best practices, step-by-step instructions, and customization options, see the [deployment guide](https://aws-quickstart.github.io/quickstart-eks-gitlab/).
 
