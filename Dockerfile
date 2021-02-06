@@ -1,4 +1,4 @@
-FROM python:3-buster
+FROM python:3.8-buster
 
 RUN apt install gcc
 RUN pip3 install taskcat --upgrade
