@@ -98,3 +98,11 @@ Resources:
       TTL: 900
       ResourceRecords:
         - !GetAtt  LoadBalancerQuery.Response
+
+  # 4. Store cluster name as SSM parameter
+  ClusterNameParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/cluster/name'
+      Value: !Ref ClusterName

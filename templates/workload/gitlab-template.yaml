@@ -139,6 +139,7 @@ Parameters:
     Default: quickstart-examples/
 
 Conditions:
+  Using3AvailabilityZones:  !Not [!Equals [!Ref PrivateSubnet3ID, '']]
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
   ConfigureContainerInsights: !Equals [!Ref ConfigureContainerInsights, 'Yes']
   ConfigureGrafana: !Equals [!Ref ConfigureGrafana, 'Yes']
@@ -452,8 +453,10 @@ Resources:
         gitlab.task-runner.backups.objectStorage.config.secret: !GetAtt KubeSecrets.Outputs.ObjectStorageKubeSecretName
         gitlab.task-runner.backups.objectStorage.config.key: !GetAtt KubeSecrets.Outputs.BackupSecretKey
 
-        # Enable large project imports
-        # https://gitlab.com/gitlab-org/charts/gitlab/-/issues/2151
+        # webservice
+        ## Adjust min replicas to match number of AZs
+        gitlab.webservice.minReplicas: !If [Using3AvailabilityZones, 3, 2]
+        ## Enable large project imports: https://gitlab.com/gitlab-org/charts/gitlab/-/issues/2151
         gitlab.webservice.ingress.proxyBodySize: 1024m
         gitlab.webservice.ingress.annotations.nginx.ingress.kubernetes.io/proxy-body-size: 1024m
 
