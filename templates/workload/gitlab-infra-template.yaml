@@ -10,6 +10,10 @@ Parameters:
   DBAccessCIDR:
     AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
     Type: String
+  PraefectPort:
+    Type: Number
+    MinValue: 1150
+    MaxValue: 65535
 
   DomainName:
     Type: String
@@ -54,7 +58,31 @@ Conditions:
 
 Resources:
 
-# 0. Database security group
+# 0. Database security groups
+
+  PraefectSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: 'Allow access to database port'
+      SecurityGroupEgress: 
+        - CidrIp: 0.0.0.0/0
+          FromPort: -1
+          IpProtocol: '-1'
+          ToPort: -1
+      SecurityGroupIngress:
+        - CidrIp: !Ref DBAccessCIDR 
+          FromPort: !Ref PraefectPort
+          ToPort: !Ref PraefectPort          
+          IpProtocol: tcp
+      VpcId: !Ref VPCID
+  PraefectSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !GetAtt PraefectSecurityGroup.GroupId
+      IpProtocol: '-1'
+      SourceSecurityGroupId: !Ref PraefectSecurityGroup
+      Description: 'Self Reference'
+
   DatabaseSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties: 
@@ -67,8 +95,8 @@ Resources:
       SecurityGroupIngress: 
         - CidrIp: !Ref DBAccessCIDR 
           FromPort: !Ref DBPort
-          IpProtocol: tcp
           ToPort: !Ref DBPort
+          IpProtocol: tcp
       VpcId: !Ref VPCID
       Tags:
       - Key: Name
@@ -87,6 +115,14 @@ Resources:
     Condition: HostedZoneRequested
     Properties: 
       Name: !Sub "${DomainName}."
+  # Always create private hosted zone, even if public is not requested
+  PrivateHostedZone: 
+    Type: AWS::Route53::HostedZone
+    Properties: 
+      Name: !Sub "${DomainName}."
+      VPCs:
+        - VPCId: !Ref VPCID
+          VPCRegion: !Ref 'AWS::Region'
 
 # 2. Request ACM certificate for the domain
   SslCertificate:
@@ -232,6 +268,13 @@ Resources:
       Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/hosted-zone-id'
       Value: !Ref HostedZone
 
+  PrivateHostedZoneIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/private-hosted-zone-id'
+      Value: !Ref PrivateHostedZone
+
   CertificateArnParameter:
     Type: AWS::SSM::Parameter
     Condition: CertificateRequested
@@ -251,6 +294,8 @@ Resources:
 Outputs:
   DatabaseSecurityGroupID: 
     Value: !GetAtt DatabaseSecurityGroup.GroupId
+  PraefectSecurityGroupID: 
+    Value: !GetAtt PraefectSecurityGroup.GroupId
   SslCertificateArn: 
     Condition: CertificateRequested
     Value: !Ref SslCertificate
@@ -260,3 +305,5 @@ Outputs:
   HostedZoneId:
     Condition: HostedZoneRequested
     Value: !Ref HostedZone
+  PrivateHostedZoneId:
+    Value: !Ref PrivateHostedZone

@@ -144,6 +144,10 @@ Upon successful GitLab deployment, the following SSM parameters and Secrets Mana
 |SSM
 |GitLab Route53 hosted zone name
 
+|/quickstart/gitlab/`{env-name}`/cluster/name
+|SSM
+|EKS Cluster name
+
 |/quickstart/gitlab/`{env-name}`/storage/buckets/artifacts
 |SSM
 |S3 Artifacts bucket name 
@@ -179,10 +183,6 @@ Upon successful GitLab deployment, the following SSM parameters and Secrets Mana
 |/quickstart/gitlab/`{env-name}`/storage/buckets/uploads
 |SSM
 |S3 Uploads bucket name 
-
-|/quickstart/gitlab/`{env-name}`/secrets/initial-root-password
-|SSM
-|GitLab load balancer DNS name
 
 |===
 

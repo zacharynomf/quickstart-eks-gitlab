@@ -42,7 +42,7 @@ Parameters:
     Type: String
     AllowedValues: [ 'Yes', 'No' ]
 
-# Databse Parameters
+# Database Parameters
   DBName: 
     AllowedPattern: "[a-zA-Z0-9]*"
     MaxLength: "64"
@@ -125,6 +125,24 @@ Parameters:
   GitalyVolumeSize: 
     Type: Number
 
+  PraefectInstanceType:
+    Type: String
+  GitalyInstanceType:
+    Type: String
+
+  LatestAmazonLinuxAmi:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+  PraefectPort:
+    Type: Number
+    Default: 2305
+  GitalyPort:
+    Type: Number
+    Default: 8075
+  IngressProxyBodySize:
+    Type: String
+    Default: 1024m
+
 # Quickstart location Parameters
   QSS3BucketName:
     Type: String
@@ -170,6 +188,27 @@ Resources:
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
 
+  GitLabVersionMapper:
+    Type: Custom::VersionMapper
+    Properties:
+      ServiceToken: !GetAtt Functions.Outputs.GitLabVersionMapperFunctionArn
+      ChartVersion: !Ref HelmChartVersion
+  GitLabShellToken:
+    Type: Custom::RandomString
+    Properties:
+      ServiceToken: !GetAtt Functions.Outputs.RandomStringFunctionArn
+      Length: 64 # https://docs.gitlab.com/charts/installation/secrets.html#gitlab-shell-secret
+  PraefectInternalToken:
+    Type: Custom::RandomString
+    Properties:
+      ServiceToken: !GetAtt Functions.Outputs.RandomStringFunctionArn
+      Length: 64 # https://docs.gitlab.com/charts/installation/secrets.html#praefect-secret
+  PraefectExternalToken:
+    Type: Custom::RandomString
+    Properties:
+      ServiceToken: !GetAtt Functions.Outputs.RandomStringFunctionArn
+      Length: 64 # https://docs.gitlab.com/charts/installation/secrets.html#praefect-secret
+
   Telemetry: 
     Type: AWS::CloudFormation::Stack
     Condition: ConfigureContainerInsights
@@ -192,6 +231,7 @@ Resources:
         VPCID: !Ref VPCID
         DBPort: !Ref DBPort
         DBAccessCIDR: !Ref VPCCIDR
+        PraefectPort: !Ref PraefectPort
         DomainName: !Ref DomainName
         CreateHostedZone: !Ref CreateHostedZone
         CreateEmailDomain: !If [CreateEmailDomain, 'Yes', 'No'] 
@@ -240,7 +280,7 @@ Resources:
         Subnet2ID: !Ref PrivateSubnet2ID
         CustomDBSecurityGroup: !GetAtt Infrastructure.Outputs.DatabaseSecurityGroupID
 
-  PraefectDatabase:
+  Praefect:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub
@@ -248,13 +288,55 @@ Resources:
         - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
+        DomainName: !Ref DomainName
         DBHost: !GetAtt Database.Outputs.RDSEndPointAddress
+        DBPort: !Ref DBPort
         DBName: !Ref DBPraefectName
         DBUserName: !Ref DBUserName
         DBUserPassword: !Ref DBUserPassword
-        DBPrivateSubnet1ID: !Ref PrivateSubnet1ID
-        DBPrivateSubnet2ID: !Ref PrivateSubnet2ID
+        VPCID: !Ref VPCID
+        DBSubnetIds: !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID ] ]
         DBSecurityGroup: !GetAtt Infrastructure.Outputs.DatabaseSecurityGroupID
+        PraefectSubnetIds: !If 
+          - Using3AvailabilityZones
+          - !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID, !Ref PrivateSubnet3ID ] ]
+          - !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID ] ]
+        PraefectSecurityGroup: !GetAtt Infrastructure.Outputs.PraefectSecurityGroupID
+        GitLabVersion: !GetAtt GitLabVersionMapper.GitLabVersion
+        GitLabShellToken: !GetAtt GitLabShellToken.Value
+        PraefectInternalToken: !GetAtt PraefectInternalToken.Value
+        PraefectExternalToken: !GetAtt PraefectExternalToken.Value
+        PraefectAMIId: !Ref LatestAmazonLinuxAmi
+        PraefectInstanceType: !Ref PraefectInstanceType
+        PraefectReplicasCount: !Ref NumberOfPraefectReplicas
+        PraefectPort: !Ref PraefectPort
+        GitalyPort: !Ref GitalyPort
+        FunctionsBucketName: !GetAtt Functions.Outputs.FunctionsBucketName
+        QSS3KeyPrefix: !Ref QSS3KeyPrefix
+
+  Gitaly:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-gitaly-template.yaml'
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        DomainName: !Ref DomainName
+        PrivateHostedZoneId: !GetAtt Infrastructure.Outputs.PrivateHostedZoneId
+        GitalySubnetIds: !If 
+          - Using3AvailabilityZones
+          - !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID, !Ref PrivateSubnet3ID ] ]
+          - !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID ] ]
+        GitalySecurityGroup: !GetAtt Infrastructure.Outputs.PraefectSecurityGroupID
+        GitLabVersion: !GetAtt GitLabVersionMapper.GitLabVersion
+        GitLabShellToken: !GetAtt GitLabShellToken.Value
+        PraefectInternalToken: !GetAtt PraefectInternalToken.Value
+        GitalyAMIId: !Ref LatestAmazonLinuxAmi
+        GitalyInstanceType: !Ref GitalyInstanceType
+        GitalyReplicasCount: !Ref NumberOfGitalyReplicas
+        GitalyPort: !Ref GitalyPort
+        GitVolumeSize: !Ref GitalyVolumeSize
         FunctionsBucketName: !GetAtt Functions.Outputs.FunctionsBucketName
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
 
@@ -322,10 +404,11 @@ Resources:
           - CreateEmailDomain
           - !Sub '{{resolve:secretsmanager:${Infrastructure.Outputs.SmtpCredentialsSecretName}:SecretString:password}}'
           - !If [OutgoingEmailEnabled, !Ref SMTPPassword, '']
+        GitLabShellSecretValue: !GetAtt GitLabShellToken.Value
+        GitLabGitalySecretValue: !GetAtt PraefectExternalToken.Value
 
   Chart:
     Type: AWSQS::Kubernetes::Helm   
-    DependsOn: PraefectDatabase
     # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Helm
     Metadata: { cfn-lint: { config: { ignore_checks: [E3001, E1010] } } }
     Properties:
@@ -335,8 +418,25 @@ Resources:
       Chart: gitlab/gitlab 
       Name: !Ref HelmChartName
       Version: !Ref HelmChartVersion
-      Values:
 
+      ValueYaml: !Sub |
+        global:
+          gitaly:
+            external:
+              - name: default
+                hostname: ${Praefect.Outputs.LoadBalancerDnsName} 
+                port: ${PraefectPort}
+        gitlab:
+          webservice:
+            ingress:
+              # Enable large project imports: https://gitlab.com/gitlab-org/charts/gitlab/-/issues/2151
+              proxyBodySize: ${IngressProxyBodySize}
+              annotations:
+                nginx.ingress.kubernetes.io/proxy-body-size: ${IngressProxyBodySize}
+                # Gitaly uses HTTP to access the load balancer. An area for improvement.
+                nginx.ingress.kubernetes.io/ssl-redirect: "false"
+
+      Values:
         # domain name
         global.hosts.domain: !Ref DomainName
 
@@ -405,19 +505,7 @@ Resources:
         global.psql.password.key: !GetAtt KubeSecrets.Outputs.DatabaseSecretKey
 
         # Praefect/Gitaly configuration
-        # https://docs.gitlab.com/charts/charts/gitlab/praefect/
-        global.praefect.enabled: true
-        gitlab.praefect.replicas: !Ref NumberOfPraefectReplicas
-        global.praefect.gitalyReplicas: !Ref NumberOfGitalyReplicas
-        global.praefect.dbSecret.secret: !GetAtt KubeSecrets.Outputs.DatabaseKubeSecretName
-        global.praefect.dbSecret.key: !GetAtt KubeSecrets.Outputs.DatabaseSecretKey
-        global.praefect.psql.host: !GetAtt Database.Outputs.RDSEndPointAddress
-        global.praefect.psql.user: !Ref DBUserName
-        global.praefect.psql.dbName: !Ref DBPraefectName
-        # https://docs.gitlab.com/charts/charts/gitlab/gitaly/ 
-        gitlab.gitaly.persistence.enabled: true
-        gitlab.gitaly.persistence.storageClass: gp2
-        gitlab.gitaly.persistence.size: !Sub '${GitalyVolumeSize}Gi'
+        global.gitaly.enabled: false
   
         # S3 storage configuration
         ## object storage
@@ -456,9 +544,6 @@ Resources:
         # webservice
         ## Adjust min replicas to match number of AZs
         gitlab.webservice.minReplicas: !If [Using3AvailabilityZones, 3, 2]
-        ## Enable large project imports: https://gitlab.com/gitlab-org/charts/gitlab/-/issues/2151
-        gitlab.webservice.ingress.proxyBodySize: 1024m
-        gitlab.webservice.ingress.annotations.nginx.ingress.kubernetes.io/proxy-body-size: 1024m
 
   PostInstall: 
     Type: AWS::CloudFormation::Stack
@@ -474,4 +559,5 @@ Resources:
         HelmChartName: !Ref HelmChartName
         DomainName: !Ref DomainName
         HostedZoneId: !If [CreateHostedZone, !GetAtt Infrastructure.Outputs.HostedZoneId, '']
+        PrivateHostedZoneId: !GetAtt Infrastructure.Outputs.PrivateHostedZoneId
         EnvironmentName: !Ref EnvironmentName
