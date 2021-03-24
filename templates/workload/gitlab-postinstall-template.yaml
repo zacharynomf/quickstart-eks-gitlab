@@ -103,6 +103,17 @@ Resources:
       TTL: 900
       ResourceRecords:
         - !GetAtt  LoadBalancerQuery.Response
+  RegistryPrivateDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }
+    Properties:
+      HostedZoneId: !Ref PrivateHostedZoneId
+      Comment: DNS name for GitLab Registry service.
+      Name: !Sub "registry.${DomainName}"
+      Type: CNAME
+      TTL: 900
+      ResourceRecords:
+        - !GetAtt  LoadBalancerQuery.Response
   RegistryDNSRecord:
     Type: AWS::Route53::RecordSet
     Condition: RegisterDns

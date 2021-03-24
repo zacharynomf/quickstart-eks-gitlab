@@ -173,7 +173,7 @@ Resources:
     Type: AWS::Route53::RecordSetGroup
     Condition: EmailDomainRequested
     Properties:
-      HostedZoneName: !Sub "${DomainName}."
+      HostedZoneId: !Ref HostedZone
       # The Route53RecordSets attribute specifies all DNS records needed:
       RecordSets: !GetAtt SESDomain.Route53RecordSets
 
