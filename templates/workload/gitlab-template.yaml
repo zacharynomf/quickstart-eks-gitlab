@@ -322,6 +322,7 @@ Resources:
         - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
+        EnvironmentName: !Ref EnvironmentName
         DomainName: !Ref DomainName
         PrivateHostedZoneId: !GetAtt Infrastructure.Outputs.PrivateHostedZoneId
         GitalySubnetIds: !If 

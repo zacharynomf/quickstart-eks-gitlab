@@ -3,6 +3,8 @@ Description: 'Gitaly EC2 Nodes GitLab Template'
 
 Parameters:
   # Infrastructure
+  EnvironmentName:
+    Type: String
   DomainName:
     Type: String
   PrivateHostedZoneId:
@@ -50,6 +52,9 @@ Parameters:
     Type: Number
     Default: 250
 
+  GitalyEnvironmentTagName:
+    Type: String
+    Default: quickstart:gitaly:environment
   GitalyReplicaTagName:
     Type: String
     Default: quickstart:gitaly:replica
@@ -143,6 +148,8 @@ Resources:
         TagSpecifications:
           - ResourceType: instance
             Tags:
+              - Key: !Ref GitalyEnvironmentTagName
+                Value: !Ref EnvironmentName
               - Key: !Ref GitalyReplicaTagName
                 Value: ''
 
@@ -343,6 +350,8 @@ Resources:
         Variables:
           HOSTED_ZONE_NAME: !Ref DomainName
           HOSTED_ZONE_ID: !Ref PrivateHostedZoneId
+          ENVIRONMENT_NAME: !Ref EnvironmentName
+          ENVIRONMENT_TAG_NAME: !Ref GitalyEnvironmentTagName
           REPLICA_TAG_NAME: !Ref GitalyReplicaTagName
           MAX_REPLICAS: !Ref GitalyReplicasCount
       Handler: handler.lambda_handler

@@ -5,6 +5,8 @@ autoscaling = boto3.client('autoscaling')
 
 HOSTED_ZONE_ID = os.environ['HOSTED_ZONE_ID']
 HOSTED_ZONE_NAME = os.environ['HOSTED_ZONE_NAME']
+ENVIRONMENT_NAME = os.environ['ENVIRONMENT_NAME']
+ENVIRONMENT_TAG_NAME = os.environ['ENVIRONMENT_TAG_NAME']
 REPLICA_TAG_NAME = os.environ['REPLICA_TAG_NAME']
 MAX_REPLICAS = int(os.environ['MAX_REPLICAS'])
 ALL_REPLICAS = { str(r) for r in range(0, MAX_REPLICAS) }
@@ -38,6 +40,7 @@ def get_free_replica_number():
   response = ec2.describe_instances(
     Filters=[
       { 'Name': 'instance-state-name', 'Values': [ 'running' ] },
+      { 'Name': f'tag:{ENVIRONMENT_TAG_NAME}', 'Values': [ ENVIRONMENT_NAME ] },
       { 'Name': 'tag-key', 'Values': [ REPLICA_TAG_NAME ] }
     ]
   )
