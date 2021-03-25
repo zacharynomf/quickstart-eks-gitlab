@@ -1,0 +1,407 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Gitaly EC2 Nodes GitLab Template'
+
+Parameters:
+  # Infrastructure
+  EnvironmentName:
+    Type: String
+  DomainName:
+    Type: String
+  PrivateHostedZoneId:
+    Type: String
+
+  # Network
+  GitalySubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+  GitalySecurityGroup:
+    Type: String
+
+  # GitLab
+  GitLabVersion:
+    Type: String
+  GitLabShellToken:
+    Type: String
+    NoEcho: "True"
+  PraefectInternalToken:
+    Type: String
+    NoEcho: "True"
+
+  # Gitaly
+  GitalyAMIId:
+    Type: String
+  GitalyInstanceType:
+    Type: String
+  GitalyReplicasCount: 
+    Type: Number
+  GitalyPort:
+    Type: Number
+#  CMKArn:
+#    Type: String
+
+  # Storage
+  RootDeviceName:
+    Type: String
+    Default: "/dev/xvda"
+  RootVolumeSize:
+    Type: Number
+    Default: 50
+  GitDeviceName:
+    Type: String
+    Default: "/dev/sdg"
+  GitVolumeSize:
+    Type: Number
+    Default: 250
+
+  GitalyEnvironmentTagName:
+    Type: String
+    Default: quickstart:gitaly:environment
+  GitalyReplicaTagName:
+    Type: String
+    Default: quickstart:gitaly:replica
+
+  # Quickstart
+  FunctionsBucketName:
+    Type: String
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+  QSS3KeyPrefix:
+    Type: String
+    AllowedPattern: ^[0-9a-zA-Z-/]*$
+
+Resources:
+
+  GitalyLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub gitaly-${AWS::StackName}
+      RetentionInDays: 30
+
+  EC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+      - !Ref EC2Role
+
+  EC2Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com   
+            - ssm.amazonaws.com         
+          Action:
+          - sts:AssumeRole
+      ManagedPolicyArns:
+        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonEC2RoleforSSM'
+      Policies:
+      - PolicyName: S3Access
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          # - Effect: Allow
+          #   Action:
+          #   - kms:Decrypt
+          #   - kms:GenerateDataKey
+          #   Resource:
+          #   - !Ref CMKArn
+          - Effect: Allow
+            Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            - logs:DescribeLogStreams
+            Resource: 
+            - !Sub 'arn:${AWS::Partition}:logs:*:${AWS::AccountId}:*'
+
+  GitalyLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+
+    Properties:
+      LaunchTemplateData:
+        InstanceType: !Ref GitalyInstanceType
+        ImageId: !Ref GitalyAMIId
+        SecurityGroupIds: 
+          - !Ref GitalySecurityGroup
+        IamInstanceProfile:
+          Arn: !GetAtt EC2InstanceProfile.Arn
+        BlockDeviceMappings: 
+        - DeviceName: !Ref RootDeviceName
+          Ebs:
+            VolumeSize: !Ref RootVolumeSize
+        - DeviceName: !Ref GitDeviceName
+          Ebs:
+            VolumeSize: !Ref GitVolumeSize
+            VolumeType: gp2
+            Encrypted: true
+            # KmsKeyId: !Ref CMKArn
+        UserData:
+          "Fn::Base64": !Sub |
+            #!/bin/bash
+            /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource "GitalyAutoScalingGroup" --region ${AWS::Region} --configsets install_all
+            
+            gitlab-ctl reconfigure
+            
+            /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource "GitalyAutoScalingGroup" --region ${AWS::Region}
+        TagSpecifications:
+          - ResourceType: instance
+            Tags:
+              - Key: !Ref GitalyEnvironmentTagName
+                Value: !Ref EnvironmentName
+              - Key: !Ref GitalyReplicaTagName
+                Value: ''
+
+  GitalyAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          install_all:
+          - 01_setup_cloud_watch_logs
+          - 02_prereqs
+          - 03_install_gitaly
+
+        01_setup_cloud_watch_logs:
+          files:
+            /etc/awslogs/awslogs.conf:
+              content: !Sub |
+                [general]
+                state_file = /var/awslogs/state/agent-state
+
+                [/var/log/cfn-init.log]
+                file = /var/log/cfn-init.log
+                log_group_name = ${GitalyLogGroup}
+                log_stream_name = {instance_id}/cfn-init.log
+                datetime_format = %Y-%m-%d %H:%M:%S
+
+                [/var/log/cfn-hup.log]
+                file = /var/log/cfn-wire.log
+                log_group_name = ${GitalyLogGroup}
+                log_stream_name = {instance_id}/cfn-wire.log
+                datetime_format = %Y-%m-%d %H:%M:%S
+
+                [/var/log/gitlab/gitaly/current]
+                file = /var/log/gitlab/gitaly/current
+                log_group_name = ${GitalyLogGroup}
+                log_stream_name = {instance_id}/current
+                datetime_format = %Y-%m-%d %H:%M:%S
+
+                [/var/log/gitlab/gitaly/gitaly_ruby_json.log]
+                file = /var/log/gitlab/gitaly/gitaly_ruby_json.log
+                log_group_name = ${GitalyLogGroup}
+                log_stream_name = {instance_id}/gitaly_hooks.log
+                datetime_format = %Y-%m-%d %H:%M:%S
+
+                [/var/log/gitlab/alertmanager/current ]
+                file = /var/log/gitlab/alertmanager/current
+                log_group_name = ${GitalyLogGroup}
+                log_stream_name = {instance_id}/gitaly_hooks.log
+                datetime_format = %Y-%m-%d %H:%M:%S
+                
+              mode: "000444"
+              owner: root
+              group: root
+          commands:
+            100_download_awslogs:
+              command: wget https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py
+              cwd: /root
+
+            200_setup_etc_issue_file:
+              command: sed -i '1 i\Amazon Linux AMI' /etc/issue
+
+            300_install_awslogs:
+              command: !Sub python awslogs-agent-setup.py -n -r ${AWS::Region} -c /etc/awslogs/awslogs.conf
+              cwd: /root
+
+        02_prereqs:
+          packages:
+            yum:
+              wget: []
+              python3: []
+              python3-pip: []
+              python2-pip: []
+          commands:
+            100_gitlab_yum_repo:
+              command:  curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh | bash
+            
+            200_update_yum:
+              command: yum update -y --exclude=gitlab-ee*
+
+        03_install_gitaly:
+          packages:
+            yum:
+              gitlab-ee:
+                - !Ref GitLabVersion
+
+          files:
+            /etc/gitlab/gitlab.rb:
+              content: !Sub |
+                postgresql['enable'] = false
+                redis['enable'] = false
+                nginx['enable'] = false
+                prometheus['enable'] = false
+                puma['enable'] = false
+                unicorn['enable'] = false
+                sidekiq['enable'] = false
+                gitlab_workhorse['enable'] = false
+                gitaly['enable'] = true
+                grafana['enable'] = false
+                
+                ## Prevent database connections during 'gitlab-ctl reconfigure'
+                gitlab_rails['rake_cache_clear'] = false
+                gitlab_rails['auto_migrate'] = false
+
+                gitlab_rails['internal_api_url'] = 'http://gitlab.${DomainName}'
+
+                gitaly['listen_addr'] = "0.0.0.0:${GitalyPort}"
+
+                gitaly['auth_token'] = '${PraefectInternalToken}'
+                gitlab_shell['secret_token'] = '${GitLabShellToken}'
+                
+                git_data_dirs({
+                  "gitaly-0" => {
+                    "path" => "/gitlab-data"
+                  },
+                  "gitaly-1" => {
+                    "path" => "/gitlab-data"
+                  },
+                  "gitaly-2" => {
+                    "path" => "/gitlab-data"
+                  }
+                })
+
+              mode: "000700"
+              owner: root
+              group: root
+
+            /etc/gitlab/mount_gitaly_volume.sh: 
+              content: |
+                ### Mount data volume
+                mkfs -t ext4 /dev/sdg
+                mkdir -p /gitlab-data
+                chmod 777 /gitlab-data
+                mount /dev/sdg /gitlab-data
+                echo "/dev/sdg /gitlab-data ext4 defaults 0 0" >> /etc/fstab
+                chown -R git:git /gitlab-data/
+                
+              mode: "000700"
+              owner: root
+              group: root
+                
+          commands:
+            01_mount_gitaly_volume:
+              command: source /etc/gitlab/mount_gitaly_volume.sh
+
+    Properties:
+      VPCZoneIdentifier: !Ref GitalySubnetIds
+      LaunchTemplate:
+        LaunchTemplateId: !Ref GitalyLaunchTemplate
+        Version: !GetAtt GitalyLaunchTemplate.LatestVersionNumber
+      MinSize: !Ref GitalyReplicasCount
+      MaxSize: !Ref GitalyReplicasCount
+      LifecycleHookSpecificationList:
+        - LifecycleTransition: "autoscaling:EC2_INSTANCE_LAUNCHING"
+          LifecycleHookName: "LaunchingHook"
+          HeartbeatTimeout: 600
+          NotificationTargetARN: !GetAtt DnsManagementQueue.Arn
+          RoleARN: !GetAtt NotificationsRole.Arn
+        - LifecycleTransition: "autoscaling:EC2_INSTANCE_TERMINATING"
+          LifecycleHookName: "TerminatingHook"
+          HeartbeatTimeout: 600
+          NotificationTargetARN: !GetAtt DnsManagementQueue.Arn
+          RoleARN: !GetAtt NotificationsRole.Arn
+    CreationPolicy:
+      ResourceSignal:
+        Count: !Ref GitalyReplicasCount
+        Timeout: PT30M
+
+  NotificationsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Sid: AssumeAutoscalingNotificationsRole
+          Effect: Allow
+          Principal:
+            Service: autoscaling.amazonaws.com
+          Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AutoScalingNotificationAccessRole'
+
+  DnsManagementQueue: 
+    Type: AWS::SQS::Queue
+    Properties: 
+      VisibilityTimeout: 180
+
+  DnsManagementFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Updates Route53 records for Gitaly instances.
+      Role: !GetAtt DnsManagementFunctionRole.Arn
+      ReservedConcurrentExecutions: 1
+      MemorySize: 256
+      Runtime: python3.8
+      Timeout: 30
+      Environment:
+        Variables:
+          HOSTED_ZONE_NAME: !Ref DomainName
+          HOSTED_ZONE_ID: !Ref PrivateHostedZoneId
+          ENVIRONMENT_NAME: !Ref EnvironmentName
+          ENVIRONMENT_TAG_NAME: !Ref GitalyEnvironmentTagName
+          REPLICA_TAG_NAME: !Ref GitalyReplicaTagName
+          MAX_REPLICAS: !Ref GitalyReplicasCount
+      Handler: handler.lambda_handler
+      Code:
+        S3Bucket: !Ref FunctionsBucketName
+        S3Key: !Sub '${QSS3KeyPrefix}functions/packages/UpdateDnsRecord/lambda.zip'
+
+  DnsManagementFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+      Policies:
+        - PolicyName: LambdaRole
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - autoscaling:CompleteLifecycleAction
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ec2:DescribeInstances
+                  - ec2:CreateTags
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - route53:ChangeResourceRecordSets
+                Resource: !Sub 'arn:${AWS::Partition}:route53:::hostedzone/${PrivateHostedZoneId}'
+              - Effect: Allow
+                Action:
+                  - sqs:GetQueueAttributes
+                  - sqs:DeleteMessage
+                  - sqs:ReceiveMessage
+                Resource: !GetAtt DnsManagementQueue.Arn
+
+  SQSTrigger:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      Enabled: true
+      BatchSize: 1
+      EventSourceArn: !GetAtt DnsManagementQueue.Arn
+      FunctionName: !Ref DnsManagementFunction

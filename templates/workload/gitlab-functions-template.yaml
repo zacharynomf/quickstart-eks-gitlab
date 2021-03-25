@@ -26,7 +26,81 @@ Resources:
         - functions/packages/CfnSesDomain/lambda.zip
         - functions/packages/CreateDatabase/lambda.zip
         - functions/packages/SmtpPasswordGenerator/lambda.zip
+        - functions/packages/UpdateDnsRecord/lambda.zip
+
+  RandomStringFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: "index.lambda_handler"
+      Timeout: 30
+      Role: !GetAtt TrivialFunctionRole.Arn
+      Runtime: python3.8
+      Code:
+        ZipFile: |
+          import cfnresponse
+          import string, random
+
+          def random_string(length):
+            return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(length))
+
+          def lambda_handler(event, context):
+            rs = ''
+            if event['RequestType'] == 'Create':
+              length = int(event['ResourceProperties']['Length'])
+              rs = random_string(length)
+            else: # Delete / Update
+              rs = event['PhysicalResourceId']
+
+            cfnresponse.send(event, context, cfnresponse.SUCCESS, { 'Value': rs }, rs)
+
+  GitLabVersionMapperFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: "index.lambda_handler"
+      Timeout: 30
+      Role: !GetAtt TrivialFunctionRole.Arn
+      Runtime: python3.8
+      Code:
+        ZipFile: |
+          import cfnresponse
+          versions = {
+            '4.10.0': '13.10.0',
+            '4.9.4': '13.9.4',
+            '4.9.3': '13.9.3',
+            '4.9.2': '13.9.2',
+            '4.9.1': '13.9.1',
+            '4.9.0': '13.9.0',
+            '4.8.6': '13.8.6',
+            '4.8.5': '13.8.5',
+            '4.8.4': '13.8.4',
+            '4.8.3': '13.8.3',
+            '4.8.2': '13.8.2',
+            '4.8.1': '13.8.1',
+            '4.8.0': '13.8.0'
+          }
+          def lambda_handler(event, context):
+            chart_version = event['ResourceProperties'].get('ChartVersion', '')
+            gitlab_version = versions.get(chart_version, '')
+            cfnresponse.send(event, context, cfnresponse.SUCCESS, { 'GitLabVersion': gitlab_version })
+
+  TrivialFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Sid: AssumeLambdaExecutionRole
+          Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
 
 Outputs:
   FunctionsBucketName:
     Value: !Sub ['${Prefix}-lambdazips-${AWS::Region}-${AWS::AccountId}', {Prefix: !FindInMap [Config, EksPrefix, Value]}]
+  RandomStringFunctionArn:
+    Value: !GetAtt RandomStringFunction.Arn
+  GitLabVersionMapperFunctionArn:
+    Value: !GetAtt GitLabVersionMapperFunction.Arn    

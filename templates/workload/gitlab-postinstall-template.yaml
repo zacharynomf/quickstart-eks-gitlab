@@ -11,6 +11,8 @@ Parameters:
     Type: String
   HostedZoneId:
     Type: String
+  PrivateHostedZoneId:
+    Type: String
   EnvironmentName:
     Type: String 
 
@@ -40,6 +42,8 @@ Resources:
   # 1. Retrieve value of root rassword secret and store it in Secrets Manager
   InitialRootPasswordQuery:
     Type: AWSQS::Kubernetes::Get
+    # Dependency to ensure queries are not executed in parallel - seen some errors when they run concurrently
+    DependsOn: RailsSecretQuery
     # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Get
     Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
@@ -58,6 +62,8 @@ Resources:
   # 2. Retrieve load balancer URL and store as SSM parameter
   LoadBalancerQuery:
     Type: AWSQS::Kubernetes::Get
+    # Dependency to ensure queries are not executed in parallel - seen some errors when they run concurrently
+    DependsOn: InitialRootPasswordQuery
     # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Get
     Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
@@ -74,6 +80,17 @@ Resources:
       Value: !GetAtt LoadBalancerQuery.Response
 
   # 3. Add DNS records to enable routing to GitLab
+  GitLabPrivateDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }
+    Properties:
+      HostedZoneId: !Ref PrivateHostedZoneId
+      Comment: DNS name for GitLab Web service.
+      Name: !Sub "gitlab.${DomainName}"
+      Type: CNAME
+      TTL: 900
+      ResourceRecords:
+        - !GetAtt  LoadBalancerQuery.Response
   GitLabDNSRecord:
     Type: AWS::Route53::RecordSet
     Condition: RegisterDns
@@ -82,6 +99,17 @@ Resources:
       HostedZoneId: !Ref HostedZoneId
       Comment: DNS name for GitLab Web service.
       Name: !Sub "gitlab.${DomainName}"
+      Type: CNAME
+      TTL: 900
+      ResourceRecords:
+        - !GetAtt  LoadBalancerQuery.Response
+  RegistryPrivateDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }
+    Properties:
+      HostedZoneId: !Ref PrivateHostedZoneId
+      Comment: DNS name for GitLab Registry service.
+      Name: !Sub "registry.${DomainName}"
       Type: CNAME
       TTL: 900
       ResourceRecords:

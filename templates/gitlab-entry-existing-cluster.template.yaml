@@ -82,6 +82,8 @@ Metadata:
       - Label: 
           default: GitLab Git repository storage configuration
         Parameters:
+          - PraefectInstanceType
+          - GitalyInstanceType
           - NumberOfPraefectReplicas
           - NumberOfGitalyReplicas
           - GitalyVolumeSize
@@ -169,6 +171,10 @@ Metadata:
       HelmChartVersion:
         default: GitLab Helm chart version
     # GitLab Git repository storage configuration
+      PraefectInstanceType:
+        default: Praefect instance type
+      GitalyInstanceType:
+        default: Gitaly instance type
       NumberOfPraefectReplicas: 
         default: Number of Praefect replicas
       NumberOfGitalyReplicas:
@@ -241,7 +247,7 @@ Parameters:
     Default: 'No'
     Description: Choose "Yes" to enable integration with Grafana.
 
-# Databse Parameters
+# Database Parameters
   DBInstanceClass:
     Description: The name of the compute and memory capacity class of the database instance.
     Default: db.r5.large
@@ -360,18 +366,26 @@ Parameters:
   HelmChartVersion:
     Type: String
     Description: Version of GitLab Helm chart GitLab for deployment.
-    Default: '4.8.1'
+    Default: '4.9.4'
 
 # Gitaly Storage Parameters
+  PraefectInstanceType:
+    Type: String
+    Default: t3.medium
+    Description: Praefect EC2 instance type.
+  GitalyInstanceType:
+    Type: String
+    Default: t3.medium
+    Description: Gitaly EC2 instance type.
   NumberOfPraefectReplicas: 
     Type: Number
     Default: 3
-    MinValue: 3
+    AllowedValues: [ 3 ]
     Description: Number of Praefect replicas to deploy in GitLab cluster. The replicas will be distributed across Availability Zones selected.
   NumberOfGitalyReplicas:
     Type: Number
     Default: 3
-    MinValue: 3
+    AllowedValues: [ 3 ]
     Description: Number of Gitaly replicas to deploy in GitLab cluster. The replicas will be distributed across Availability Zones selected.
   GitalyVolumeSize: 
     Type: Number
@@ -510,6 +524,8 @@ Resources:
         HelmChartName: !Ref HelmChartName
         HelmChartVersion: !Ref HelmChartVersion
         # Git repository storage properties
+        PraefectInstanceType: !Ref PraefectInstanceType
+        GitalyInstanceType: !Ref GitalyInstanceType
         NumberOfPraefectReplicas: !Ref NumberOfPraefectReplicas
         NumberOfGitalyReplicas: !Ref NumberOfGitalyReplicas
         GitalyVolumeSize: !Ref GitalyVolumeSize
