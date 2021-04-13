@@ -50,6 +50,7 @@ Metadata:
           default: Bastion host configuration
         Parameters:
           - ProvisionBastionHost
+          - BastionInstanceType
       - Label:
           default: Amazon EKS cluster configuration
         Parameters:
@@ -154,6 +155,8 @@ Metadata:
     # Bastion host configuration
       ProvisionBastionHost:
         default: Provision a bastion host
+      BastionInstanceType:
+        default: Instance type
     # Amazon EKS cluster configuration
       EKSPublicAccessEndpoint:
         default: EKS public access endpoint
@@ -343,6 +346,10 @@ Parameters:
     AllowedValues: [Enabled, Disabled]
     Default: Disabled
     Description: Choose "Enabled" to provision a bastion host to access EKS cluster instances.
+  BastionInstanceType:
+    Default: "t3.micro"
+    Type: String
+    Description: Instance type for the bastion host.
 
 # Cluster parameters
   EKSPublicAccessEndpoint:
@@ -600,7 +607,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub
-        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template'
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template.yaml'
         - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
@@ -629,6 +636,7 @@ Resources:
       Parameters:
         ConfigSetName: !If [EmptyEnvironmentName, !Ref 'AWS::StackName', !Ref EnvironmentName]
         NodeVolumeSize: !Ref NodeVolumeSize
+        BastionInstanceType: !Ref BastionInstanceType
 
   EKSStack:
     Type: AWS::CloudFormation::Stack

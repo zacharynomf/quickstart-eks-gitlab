@@ -50,6 +50,7 @@ Metadata:
           default: Bastion host configuration
         Parameters:
           - ProvisionBastionHost
+          - BastionInstanceType
       - Label:
           default: Amazon EKS cluster configuration
         Parameters:
@@ -152,6 +153,8 @@ Metadata:
     # Bastion host configuration
       ProvisionBastionHost:
         default: Provision a bastion host
+      BastionInstanceType:
+        default: Instance type
     # Amazon EKS cluster configuration
       EKSPublicAccessEndpoint:
         default: EKS public access endpoint
@@ -310,6 +313,10 @@ Parameters:
     AllowedValues: [Enabled, Disabled]
     Default: Disabled
     Description: Choose "Enabled" to provision a bastion host to access EKS cluster instances.
+  BastionInstanceType:
+    Default: "t3.micro"
+    Type: String
+    Description: Instance type for the bastion host.
 
 # Cluster parameters
   EKSPublicAccessEndpoint:
@@ -574,6 +581,7 @@ Resources:
       Parameters:
         ConfigSetName: !Ref 'AWS::StackName'
         NodeVolumeSize: !Ref NodeVolumeSize
+        BastionInstanceType: !Ref BastionInstanceType
 
   EKSStack:
     Type: AWS::CloudFormation::Stack
