@@ -24,6 +24,7 @@ Parameters:
   CacheNodeType:
     Type: String
     Default: cache.t3.medium
+    AllowedPattern: "cache\\.[a-z0-9]*\\.[a-z0-9]*"
 
 Conditions:
   Use3AvailabilityZones:  !Not [!Equals [!Ref Subnet3ID, '']]

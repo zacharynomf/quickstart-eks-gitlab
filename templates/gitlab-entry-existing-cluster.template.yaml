@@ -251,21 +251,7 @@ Parameters:
   DBInstanceClass:
     Description: The name of the compute and memory capacity class of the database instance.
     Default: db.r5.large
-    AllowedValues:
-      - db.r5.large
-      - db.r5.xlarge
-      - db.r5.2xlarge
-      - db.r5.4xlarge
-      - db.r5.12xlarge
-      - db.r5.24xlarge
-      - db.r4.large
-      - db.r4.xlarge
-      - db.r4.2xlarge
-      - db.r4.4xlarge
-      - db.r4.8xlarge
-      - db.r4.16xlarge
-      - db.t3.medium
-      - db.t3.large
+    AllowedPattern: "db\\.[a-z0-9]*\\.[a-z0-9]*"
     Type: String
   DBName: 
     AllowedPattern: "[a-zA-Z0-9]*"
@@ -427,6 +413,7 @@ Parameters:
     Type: String
     Default: cache.t3.medium
     Description: If you chose to use External cache above, provide cache node type. 
+    AllowedPattern: "cache\\.[a-z0-9]*\\.[a-z0-9]*"    
 
 # Quickstart location parameters
   QSS3BucketName:
