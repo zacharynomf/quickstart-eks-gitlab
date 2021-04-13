@@ -427,6 +427,10 @@ Resources:
               - name: default
                 hostname: ${Praefect.Outputs.LoadBalancerDnsName} 
                 port: ${PraefectPort}
+          psql:
+            load_balancing:
+              hosts:
+                - ${Database.Outputs.RDSReadEndPointAddress}
         gitlab:
           webservice:
             ingress:
