@@ -1,0 +1,73 @@
+# https://github.com/awslabs/serverless-application-model/blob/develop/versions/2016-10-31.md
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: GitLab CICD cluster infrastructure
+
+Parameters:
+  ClusterName:
+    Type: String
+  HelmChartNamespace:
+    Type: String
+  HelmChartName:
+    Type: String
+  HelmChartVersion:
+    Type: String
+  DomainName:
+    Type: String
+  RunnerRegistrationToken:
+    Type: String
+    NoEcho: true
+  RunnerImage:
+    Type: String
+  MaximumConcurrentJobs:
+    Type: Number
+  PriviligedMode:
+    Type: String
+    AllowedValues: [ "true", "false" ]
+
+Resources:
+
+  GitLabChart:
+    Type: AWSQS::Kubernetes::Helm
+    
+    # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Helm
+    Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
+    
+    Properties:
+      ClusterID: !Ref ClusterName 
+      Namespace: !Ref HelmChartNamespace  
+      Repository: https://charts.gitlab.io/
+      Chart: gitlab/gitlab-runner
+      Name: !Ref HelmChartName
+      Version: !Ref HelmChartVersion
+      ValueYaml:
+        Fn::Sub: |
+          ## Note HTTP here - we don't have a proper cert for private access
+          gitlabUrl: http://gitlab.${DomainName}/
+          runnerRegistrationToken: ${RunnerRegistrationToken}
+
+          ## Configure the maximum number of concurrent jobs
+          concurrent: ${MaximumConcurrentJobs}
+
+          ## For RBAC support:
+          rbac:
+            create: true
+
+          ## Configuration for the Pods that the runner launches for each new job
+          ##
+          runners:
+            config: |
+              [[runners]]
+                clone_url = "http://gitlab.${DomainName}/"
+
+                [runners.kubernetes]
+                  image = "${RunnerImage}"
+
+                  ## Run all containers with the privileged flag enabled
+                  ## This will allow the docker:stable-dind image to run if you need to run Docker
+                  ## commands. Please read the docs before turning this on:
+                  ## ref: https://docs.gitlab.com/runner/executors/kubernetes.html#using-docker-dind
+                  privileged = ${PriviligedMode}
+
+                  ## Namespace to run Kubernetes jobs
+                  namespace = "${HelmChartNamespace}"
