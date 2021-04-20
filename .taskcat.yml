@@ -41,5 +41,7 @@ tests:
       CreateHostedZone: 'Yes'
       CacheMode: External
       SMTPDomain: CreateNew
+      ConfigureRunner: 'Yes'
+      PriviligedMode: 'Yes'
     regions:
     - eu-central-1
