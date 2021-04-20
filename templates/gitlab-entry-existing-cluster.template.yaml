@@ -101,6 +101,15 @@ Metadata:
           - CacheNodes
           - CacheNodeType
       - Label:
+          default: GitLab Runner configuration
+        Parameters:
+          - ConfigureRunner
+          - RunnerChartName
+          - RunnerChartVersion
+          - RunnerImage
+          - MaximumConcurrentJobs
+          - PriviligedMode
+      - Label:
           default: AWS Quick Start configuration
         Parameters:
           - QSS3BucketName
@@ -197,6 +206,19 @@ Metadata:
         default: Number of cache replicas
       CacheNodeType:
         default: Cache node type
+    # GitLab Runner configuration
+      ConfigureRunner:
+        default: Configure GitLab Runner
+      RunnerChartName:
+        default: GetLab Runner Helm chart name
+      RunnerChartVersion:
+        default: GitLab Runner chart version
+      RunnerImage:
+        default: Default runner image
+      MaximumConcurrentJobs:
+        default: Max number of concurrent jobs
+      PriviligedMode:
+        default: Use proviliged mode
     # AWS Quick Start configuration
       QSS3BucketName:
         default: Quick Start S3 bucket name
@@ -415,6 +437,34 @@ Parameters:
     Description: If you chose to use External cache above, provide cache node type. 
     AllowedPattern: "cache\\.[a-z0-9]*\\.[a-z0-9]*"    
 
+# GitLab Runner Parameters
+  ConfigureRunner:
+    Type: String
+    AllowedValues: [ 'Yes', 'No' ]
+    Default: 'No'
+    Description: Choose "Yes" to enable deployment of test GitLab Runner inside EKS cluster.
+  RunnerChartName:
+    Type: String
+    Default: runner
+    Description: Name of Helm GitLab Runner deployment.
+  RunnerChartVersion:
+    Type: String
+    Default: '0.27.0'
+    Description: Version of GitLab Runner Helm chart for deployment.
+  RunnerImage:
+    Type: String
+    Default: 'ubuntu:20.04'
+    Description: Default GitLab Runner image.
+  MaximumConcurrentJobs:
+    Type: Number
+    Default: 10
+    Description: The maximum number of concurrent jobs.
+  PriviligedMode:
+    Type: String
+    Default: 'No'
+    AllowedValues: [ 'Yes', 'No' ]
+    Description: Choose "Yes" to run all containers with the privileged flag enabled. This will allow the docker:dind image to run if you need to run Docker.
+
 # Quickstart location parameters
   QSS3BucketName:
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
@@ -516,3 +566,9 @@ Resources:
         NumberOfPraefectReplicas: !Ref NumberOfPraefectReplicas
         NumberOfGitalyReplicas: !Ref NumberOfGitalyReplicas
         GitalyVolumeSize: !Ref GitalyVolumeSize
+        # Runner properties
+        ConfigureRunner: !Ref ConfigureRunner
+        RunnerChartName: !Ref RunnerChartName
+        RunnerChartVersion: !Ref RunnerChartVersion
+        RunnerImage: !Ref RunnerImage
+        MaximumConcurrentJobs: !Ref MaximumConcurrentJobs

@@ -143,6 +143,22 @@ Parameters:
     Type: String
     Default: 1024m
 
+# GitLab Runner Parameters
+  ConfigureRunner:
+    Type: String
+    AllowedValues: [ 'Yes', 'No' ]
+  RunnerChartName:
+    Type: String
+  RunnerChartVersion:
+    Type: String
+  RunnerImage:
+    Type: String
+  MaximumConcurrentJobs:
+    Type: Number
+  PriviligedMode:
+    Type: String
+    AllowedValues: [ 'Yes', 'No' ]
+
 # Quickstart location Parameters
   QSS3BucketName:
     Type: String
@@ -167,6 +183,8 @@ Conditions:
   AcmIngressConfigured: !And [!Equals [!Ref CreateHostedZone, 'Yes'], !Equals [!Ref CreateSslCertificate, 'Yes']] 
   HelmChartNamespaceCreate: !Equals [!Ref HelmChartNamespaceCreate, 'CreateNew']
   CreateCacheCluster: !Equals [!Ref CacheMode, 'External']
+  ConfigureRunner: !Equals [!Ref ConfigureRunner, 'Yes']
+  PriviligedMode: !Equals [!Ref PriviligedMode, 'Yes']
 
 Mappings: 
   PartitionMap: 
@@ -208,6 +226,11 @@ Resources:
     Properties:
       ServiceToken: !GetAtt Functions.Outputs.RandomStringFunctionArn
       Length: 64 # https://docs.gitlab.com/charts/installation/secrets.html#praefect-secret
+  RunnerRegistrationToken:
+    Type: Custom::RandomString
+    Properties:
+      ServiceToken: !GetAtt Functions.Outputs.RandomStringFunctionArn
+      Length: 64 # https://docs.gitlab.com/charts/installation/secrets.html#gitlab-runner-secret
 
   Telemetry: 
     Type: AWS::CloudFormation::Stack
@@ -397,6 +420,7 @@ Resources:
       Parameters:
         KubeClusterName: !Ref KubeClusterName
         HelmChartNamespace: !Ref HelmChartNamespace
+        HelmChartName: !Ref HelmChartName
         DatabasePassword: !Ref DBUserPassword
         StorageAccessKeyId: !Sub '{{resolve:secretsmanager:${ObjectStorage.Outputs.CredentialsSecretName}:SecretString:accessKeyId}}'
         StorageSecretAccessKey: !Sub '{{resolve:secretsmanager:${ObjectStorage.Outputs.CredentialsSecretName}:SecretString:secretAccessKey}}'
@@ -407,6 +431,7 @@ Resources:
           - !If [OutgoingEmailEnabled, !Ref SMTPPassword, '']
         GitLabShellSecretValue: !GetAtt GitLabShellToken.Value
         GitLabGitalySecretValue: !GetAtt PraefectExternalToken.Value
+        RunnerTokenSecretValue: !GetAtt RunnerRegistrationToken.Value
 
   Chart:
     Type: AWSQS::Kubernetes::Helm   
@@ -566,3 +591,23 @@ Resources:
         HostedZoneId: !If [CreateHostedZone, !GetAtt Infrastructure.Outputs.HostedZoneId, '']
         PrivateHostedZoneId: !GetAtt Infrastructure.Outputs.PrivateHostedZoneId
         EnvironmentName: !Ref EnvironmentName
+
+  Runner: 
+    Type: AWS::CloudFormation::Stack
+    Condition: ConfigureRunner
+    DependsOn: PostInstall
+    Properties: 
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-runner-template.yaml'
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters: 
+        ClusterName: !Ref KubeClusterName
+        HelmChartNamespace: !Ref HelmChartNamespace
+        HelmChartName: !Ref RunnerChartName
+        HelmChartVersion: !Ref RunnerChartVersion
+        DomainName: !Ref DomainName
+        RunnerRegistrationToken: !GetAtt RunnerRegistrationToken.Value
+        RunnerImage: !Ref RunnerImage
+        MaximumConcurrentJobs: !Ref MaximumConcurrentJobs
+        PriviligedMode: !If [PriviligedMode, 'true', 'false']
