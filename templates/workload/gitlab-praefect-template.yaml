@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: GitLab Praefect instances
+Description: Deploys Praefect instances (qs-1rpegts5h)
 Parameters:
 
   # Infrastructure

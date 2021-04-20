@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Gitlab Kubernetes telemetry integration
+Description: Deploys EKS telemetry integration (qs-1rpegts6f)
 Parameters:
   ClusterName:
     Type: String
