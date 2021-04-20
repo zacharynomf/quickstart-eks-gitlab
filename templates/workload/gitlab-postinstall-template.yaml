@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Gitlab post-install configuration
+Description: Performs Gitlab post-install configuration (qs-1rpegts4t)
 Parameters:
   ClusterName:
     Type: String

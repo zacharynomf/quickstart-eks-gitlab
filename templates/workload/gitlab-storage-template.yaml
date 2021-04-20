@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Gitlab S3 buckets
+Description: Deploys Gitlab S3 buckets (qs-1rpegts5o)
 
 Parameters:
   SSEAlgorithm:

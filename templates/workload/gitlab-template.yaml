@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: GitLab workload
+Description: Deploys GitLab cluster (qs-1rpegts6r)
 
 Parameters:
 # Infra Parameters

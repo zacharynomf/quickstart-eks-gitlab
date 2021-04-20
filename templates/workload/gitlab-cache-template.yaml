@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Deploys ElastiCache Redis cluster
+Description: Deploys ElastiCache Redis cluster (qs-1rpegts33)
 Parameters:
 
   VPCID: 
