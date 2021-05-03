@@ -19,9 +19,11 @@ Parameters:
     NoEcho: true
   RunnerImage:
     Type: String
+  TlsCASecretName:
+    Type: String
   MaximumConcurrentJobs:
     Type: Number
-  PriviligedMode:
+  PrivilegedMode:
     Type: String
     AllowedValues: [ "true", "false" ]
 
@@ -42,12 +44,13 @@ Resources:
       Version: !Ref HelmChartVersion
       ValueYaml:
         Fn::Sub: |
-          ## Note HTTP here - we don't have a proper cert for private access
-          gitlabUrl: http://gitlab.${DomainName}/
+          gitlabUrl: https://gitlab.${DomainName}/
           runnerRegistrationToken: ${RunnerRegistrationToken}
 
           ## Configure the maximum number of concurrent jobs
           concurrent: ${MaximumConcurrentJobs}
+
+          certsSecretName: ${TlsCASecretName}
 
           ## For RBAC support:
           rbac:
@@ -58,7 +61,7 @@ Resources:
           runners:
             config: |
               [[runners]]
-                clone_url = "http://gitlab.${DomainName}/"
+                clone_url = "https://gitlab.${DomainName}/"
 
                 [runners.kubernetes]
                   image = "${RunnerImage}"
@@ -67,7 +70,41 @@ Resources:
                   ## This will allow the docker:stable-dind image to run if you need to run Docker
                   ## commands. Please read the docs before turning this on:
                   ## ref: https://docs.gitlab.com/runner/executors/kubernetes.html#using-docker-dind
-                  privileged = ${PriviligedMode}
+                  privileged = ${PrivilegedMode}
 
                   ## Namespace to run Kubernetes jobs
                   namespace = "${HelmChartNamespace}"
+
+###
+### Example of the pipeline that uses DIND to build and push the image to GitLab registry
+### Note a trick with CA certificate for DIND container. Not needed for real TLS certs. 
+###
+
+# .use-docker-in-docker:
+#   variables:
+#     #DOCKER_BUILDKIT: "1"
+#     #DOCKER_DRIVER: overlay2
+#     DOCKER_HOST: tcp://docker:2375
+#     DOCKER_TLS_CERTDIR: ""
+#     CA_CERTIFICATE: "$CA_CERTIFICATE"
+#   image: docker:19.03.13
+#   services:
+#     # The following trick is needed to ensure that docker trusts self-signed certificate
+#     - name: docker:19.03.13-dind
+#       alias: docker
+#       command:
+#         - /bin/sh
+#         - -c
+#         - echo "$CA_CERTIFICATE" > /usr/local/share/ca-certificates/gitlab-ca.crt && update-ca-certificates && dockerd-entrypoint.sh || exit
+
+# docker-build-master:
+#   extends: [ .use-docker-in-docker ]
+#   stage: build
+#   before_script:
+#     - echo $CA_CERTIFICATE
+#     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+#   script:
+#     - docker build --pull -t "$CI_REGISTRY_IMAGE" .
+#     - docker push "$CI_REGISTRY_IMAGE"
+#   only:
+#     - master

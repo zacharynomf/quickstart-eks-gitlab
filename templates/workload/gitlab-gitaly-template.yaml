@@ -9,6 +9,8 @@ Parameters:
     Type: String
   PrivateHostedZoneId:
     Type: String
+  TlsCA:
+    Type: String
 
   # Network
   GitalySubnetIds:
@@ -237,6 +239,14 @@ Resources:
                 - !Ref GitLabVersion
 
           files:
+
+            /etc/gitlab/trusted-certs/cacert.pem:
+              content: !Ref TlsCA
+              encoding: base64
+              mode: "000700"
+              owner: root
+              group: root
+
             /etc/gitlab/gitlab.rb:
               content: !Sub |
                 postgresql['enable'] = false
@@ -254,7 +264,7 @@ Resources:
                 gitlab_rails['rake_cache_clear'] = false
                 gitlab_rails['auto_migrate'] = false
 
-                gitlab_rails['internal_api_url'] = 'http://gitlab.${DomainName}'
+                gitlab_rails['internal_api_url'] = 'https://gitlab.${DomainName}'
 
                 gitaly['listen_addr'] = "0.0.0.0:${GitalyPort}"
 

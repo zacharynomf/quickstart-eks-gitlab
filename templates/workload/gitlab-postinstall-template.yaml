@@ -15,9 +15,13 @@ Parameters:
     Type: String
   EnvironmentName:
     Type: String 
+  ConfigureGrafana:
+    Type: String
+    AllowedValues: [ 'Yes', 'No' ]
 
 Conditions:
   RegisterDns: !Not [!Equals [!Ref HostedZoneId, '']]
+  ConfigureGrafana: !Equals [!Ref ConfigureGrafana, 'Yes']
 
 Resources:
 
@@ -39,7 +43,7 @@ Resources:
       Description: "GitLab Rails Secret"
       SecretString: !GetAtt RailsSecretQuery.Response
 
-  # 1. Retrieve value of root rassword secret and store it in Secrets Manager
+  # 1. Retrieve value of root password secret and store it in Secrets Manager
   InitialRootPasswordQuery:
     Type: AWSQS::Kubernetes::Get
     # Dependency to ensure queries are not executed in parallel - seen some errors when they run concurrently
@@ -77,9 +81,53 @@ Resources:
     Properties:
       Type: String
       Name: !Sub '/quickstart/gitlab/${EnvironmentName}/loadbalancer'
+      Description: "GitLab load balancer hostname"
       Value: !GetAtt LoadBalancerQuery.Response
 
-  # 3. Add DNS records to enable routing to GitLab
+  # 3. Retrieve TLS CA base64-encoded string and store as SSM parameter
+  RootCAQuery:
+    Type: AWSQS::Kubernetes::Get
+    # Dependency to ensure queries are not executed in parallel - seen some errors when they run concurrently
+    DependsOn: LoadBalancerQuery
+    # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Get
+    Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
+    Properties:
+      ClusterName: !Ref ClusterName
+      Namespace: !Ref HelmChartNamespace
+      Name: !Sub 'secret/${HelmChartName}-wildcard-tls-ca'
+      JsonPath: '{.data.cfssl_ca}'
+  RootCAParameter:
+    Type: AWS::SSM::Parameter
+    Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }
+    Properties:
+      Type: String
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/tls-ca'
+      Description: "GitLab TLS CA"
+      Value: !GetAtt RootCAQuery.Response
+
+  # 4. If Grafana integration enabled - retrieve value of Grafana password and store it in Secrets Manager
+  InitialGrafanaPasswordQuery:
+    Type: AWSQS::Kubernetes::Get
+    Condition: ConfigureGrafana
+    # Dependency to ensure queries are not executed in parallel - seen some errors when they run concurrently
+    DependsOn: RootCAQuery
+    # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Get
+    Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
+    Properties:
+      ClusterName: !Ref ClusterName
+      Namespace: !Ref HelmChartNamespace
+      Name: !Sub 'secret/${HelmChartName}-grafana-initial-password'
+      JsonPath: '{.data.password}'
+  InitialGrafanaPasswordSecret:
+    Type: AWS::SecretsManager::Secret
+    Condition: ConfigureGrafana
+    Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }
+    Properties:
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/secrets/initial-grafana-password'
+      Description: "Grafana Initial Root Password"
+      SecretString: !GetAtt InitialGrafanaPasswordQuery.Response
+
+  # 5. Add DNS records to enable routing to GitLab
   GitLabPrivateDNSRecord:
     Type: AWS::Route53::RecordSet
     Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }
@@ -134,3 +182,9 @@ Resources:
       Type: String
       Name: !Sub '/quickstart/gitlab/${EnvironmentName}/cluster/name'
       Value: !Ref ClusterName
+
+Outputs:
+  RootCA:
+    Value: !GetAtt RootCAQuery.Response
+  RootCASecretName:
+    Value: !Sub '${HelmChartName}-wildcard-tls-ca'
