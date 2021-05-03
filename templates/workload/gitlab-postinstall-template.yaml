@@ -186,5 +186,5 @@ Resources:
 Outputs:
   RootCA:
     Value: !GetAtt RootCAQuery.Response
-  RootCASecretName:
-    Value: !Sub '${HelmChartName}-wildcard-tls-ca'
+  RootCAChainSecretName:
+    Value: !Sub '${HelmChartName}-wildcard-tls-chain'

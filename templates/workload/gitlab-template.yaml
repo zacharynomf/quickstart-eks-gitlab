@@ -480,6 +480,11 @@ Resources:
         # domain name
         global.hosts.domain: !Ref DomainName
 
+        # security
+        # Config that only applies to the defaults on initial install
+        # see for additional details: https://gitlab.com/gitlab-org/gitlab-foss/-/issues/66124
+        global.appConfig.initialDefaults.signupEnabled: false
+
         # Self signed TLS certs by default - see https://docs.gitlab.com/charts/installation/tls.html
         certmanager.install: false
         global.ingress.configureCertmanager: false
@@ -594,6 +599,7 @@ Resources:
         HostedZoneId: !If [CreateHostedZone, !GetAtt Infrastructure.Outputs.HostedZoneId, '']
         PrivateHostedZoneId: !GetAtt Infrastructure.Outputs.PrivateHostedZoneId
         EnvironmentName: !Ref EnvironmentName
+        ConfigureGrafana: !Ref ConfigureGrafana
 
   Runner: 
     Type: AWS::CloudFormation::Stack
@@ -612,6 +618,6 @@ Resources:
         DomainName: !Ref DomainName
         RunnerRegistrationToken: !GetAtt RunnerRegistrationToken.Value
         RunnerImage: !Ref RunnerImage
-        TlsCASecretName: !GetAtt PostInstall.Outputs.RootCASecretName
+        TlsCASecretName: !GetAtt PostInstall.Outputs.RootCAChainSecretName
         MaximumConcurrentJobs: !Ref MaximumConcurrentJobs
         PrivilegedMode: !If [PrivilegedMode, 'true', 'false']

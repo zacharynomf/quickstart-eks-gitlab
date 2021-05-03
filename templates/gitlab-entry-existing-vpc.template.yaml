@@ -594,12 +594,6 @@ Parameters:
       forward slash (/).
     Type: String
 
-Rules:
-  SSLParameters:
-    RuleCondition: !Or
-      - !Equals [!Ref CreateSslCertificate, 'No']
-      - !Equals [!Ref CreateHostedZone, 'No'] 
-
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
   EmptyEnvironmentName: !Equals [!Ref EnvironmentName, '']
