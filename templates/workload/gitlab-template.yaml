@@ -445,27 +445,38 @@ Resources:
       Name: !Ref HelmChartName
       Version: !Ref HelmChartVersion
 
-      ValueYaml: !Sub |
-        global:
-          gitaly:
-            external:
-              - name: default
-                hostname: ${Praefect.Outputs.LoadBalancerDnsName} 
-                port: ${PraefectPort}
-          psql:
-            load_balancing:
-              hosts:
-                - ${Database.Outputs.RDSReadEndPointAddress}
-        gitlab:
-          webservice:
-            ingress:
-              # Enable large project imports: https://gitlab.com/gitlab-org/charts/gitlab/-/issues/2151
-              proxyBodySize: ${IngressProxyBodySize}
-              annotations:
-                nginx.ingress.kubernetes.io/proxy-body-size: ${IngressProxyBodySize}
-                # Gitaly uses HTTP to access the load balancer. An area for improvement.
-                nginx.ingress.kubernetes.io/ssl-redirect: "false"
+      ValueYaml: !Sub
+        - |
+          global:
+            gitaly:
+              external:
+                - name: default
+                  hostname: ${Praefect.Outputs.LoadBalancerDnsName} 
+                  port: ${PraefectPort}
+            psql:
+              load_balancing:
+                hosts:
+                  - ${Database.Outputs.RDSReadEndPointAddress}
+          gitlab:
+            webservice:
+              ingress:
+                # Enable large project imports: https://gitlab.com/gitlab-org/charts/gitlab/-/issues/2151
+                proxyBodySize: ${IngressProxyBodySize}
+                annotations:
+                  nginx.ingress.kubernetes.io/proxy-body-size: ${IngressProxyBodySize}
+                  # Gitaly uses HTTP to access the load balancer. An area for improvement.
+                  nginx.ingress.kubernetes.io/ssl-redirect: "false"
 
+          nginx-ingress:
+            controller:
+              service:
+                annotations:
+                  service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+                  service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "ssl"
+                  service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "${SslCertificateArn}"
+
+        - SslCertificateArn: !If [AcmIngressConfigured, !GetAtt Infrastructure.Outputs.SslCertificateArn, ""]
+          
       Values:
         # domain name
         global.hosts.domain: !Ref DomainName
@@ -478,12 +489,6 @@ Resources:
         global.ingress.enabled: !If [AcmIngressConfigured, false, true]
         nginx-ingress.defaultBackend.image.repository: 
           !FindInMap [PartitionMap, !Ref 'AWS::Partition', IngressImageRepository]
-        nginx-ingress.controller.service.annotations.service.beta.kubernetes.io/aws-load-balancer-ssl-ports: 
-          !If [AcmIngressConfigured, '443', !Ref 'AWS::NoValue']
-        nginx-ingress.controller.service.annotations.service.beta.kubernetes.io/aws-load-balancer-backend-protocol:
-          !If [AcmIngressConfigured, 'ssl', !Ref 'AWS::NoValue']
-        nginx-ingress.controller.service.annotations.service.beta.kubernetes.io/aws-load-balancer-ssl-cert: 
-          !If [AcmIngressConfigured, !GetAtt Infrastructure.Outputs.SslCertificateArn, !Ref 'AWS::NoValue']
 
         # telemetry configuration
         global.grafana.enabled: !If [ConfigureGrafana, true, false]
