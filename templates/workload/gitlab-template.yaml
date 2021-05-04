@@ -463,8 +463,6 @@ Resources:
                 proxyBodySize: ${IngressProxyBodySize}
                 annotations:
                   nginx.ingress.kubernetes.io/proxy-body-size: ${IngressProxyBodySize}
-                  # Gitaly uses HTTP to access the load balancer. An area for improvement.
-                  nginx.ingress.kubernetes.io/ssl-redirect: "false"
 
           nginx-ingress:
             controller:
