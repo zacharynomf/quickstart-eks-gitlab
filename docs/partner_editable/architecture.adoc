@@ -14,13 +14,15 @@ As shown in <<architecture1>>, the Quick Start sets up the following:
 * A VPC configured with public and private subnets, according to AWS
 best practices, to provide you with your own virtual network on AWS.^1^
 * An Amazon EKS cluster, which creates the Kubernetes control plane.^2^
-* S3 buckets for GitLab object storage
+* S3 buckets for GitLab object storage including Git-lfs
 * In the public subnets:
 ** Managed network address translation (NAT) gateways to allow outbound
 internet access for resources in the private subnets.^1^
 * In the private subnets:
 ** A group of Kubernetes EC2 nodes.^2^
 ** An Amazon RDS cluster fot GitLab and Praefect databases.
+** An ASG with Gitaly nodes spread across Availability Zones.
+** An ASG with Praefect nodes spread across Availability Zones.
 * Optionally:
 ** In one public subnet, a Linux bastion host in an Auto Scaling group to allow 
 inbound Secure Shell (SSH) access to Amazon Elastic Compute Cloud (Amazon EC2) 
@@ -37,6 +39,9 @@ the components and prompts you for your existing VPC configuration.#
 [.small]#^2^The template that deploys the Quick Start into an existing EKS cluster skips
 the components and prompts you for your existing EKS configuration.#
 
+=== Security and Internet Egress
+The GitLab Kubernetes endpoint can be private, a bastion host must be deployed in order to do direct cluster management (it will be preloaded with AWS, EKS and Kubernetes management utilities and IAM permissions for cluster management).
+
 === Database Cluster
 GitLab Quickstart deploys Highly Available PostgreSQL database cluster using https://aws.amazon.com/quickstart/architecture/aurora-postgresql/[Amazon Aurora PostgreSQL Quickstart^].
 
@@ -50,6 +55,9 @@ There are two databases deployed to the same cluster:
 Praefect requires a separate tracking database as described in https://docs.gitlab.com/ee/administration/gitaly/praefect.html[Gitaly Cluster documentation^]. 
 
 More about external database configuration in https://docs.gitlab.com/charts/advanced/external-db/[GitLab documentation^].
+
+=== Git repository storage
+* EBS Volumes on Gitaly Cluster instances.
 
 === Object storage
 GitLab Quickstart creates the following S3 buckets:
@@ -80,6 +88,7 @@ Backups include GitLab database snapshot and contents of GitLab projects (Git re
 
 * Contents of these buckets may be very large (pipeline artifacts, docker images, etc.) and that may affect stability and performance of the backup jobs
 * S3 is a https://aws.amazon.com/s3/faqs/#Durability_.26_Data_Protection[durable storage^] 
+* S3 storage policies also enable out of region replication and management of storage class migration to control costs for older data.
 
 If needed, complete backup may be created using backup-utility as described in https://docs.gitlab.com/charts/backup-restore/[GitLab documentation^].
 
