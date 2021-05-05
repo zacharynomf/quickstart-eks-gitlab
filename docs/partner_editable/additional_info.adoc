@@ -5,12 +5,10 @@
 // If steps are required to test the deployment, add them here. If not, remove the heading
 
 == Post-deployment steps
-// If post-deployment steps are required, add them here. If not, remove the heading
+When deployed for production grade implementations, this QuickStart does not setup {partner-product-short-name} Runners for you. To setup runners you can consult the https://docs.gitlab.com/runner/[GitLab Runner Documentation^] or leverage the https://gitlab.com/guided-explorations/aws/gitlab-runner-autoscaling-aws-asg[GitLab HA Scaling Runner Vending Machine for AWS^]
 
 == Best practices for using {partner-product-short-name} on AWS
-// Provide post-deployment best practices for using the technology on AWS, including considerations such as migrating data, backups, ensuring high performance, high availability, etc. Link to software documentation for detailed information.
-
-_Add any best practices for using the software._
+Once {partner-product-short-name} is running on AWS, there are not any practices particular to operating it there. Please consult the https://docs.gitlab.com[GitLab Documentation^] for general operations and usage information.
 
 == Security
 // Provide post-deployment best practices for using the technology on AWS, including considerations such as migrating data, backups, ensuring high performance, high availability, etc. Link to software documentation for detailed information.
