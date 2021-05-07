@@ -2,6 +2,6 @@
 // Identify your target audience and explain how/why they would use this Quick Start.
 //Avoid borrowing text from third-party websites (copying text from AWS service documentation is fine). Also, avoid marketing-speak, focusing instead on the technical aspect.
 
-This guide provides instructions for deploying the {partner-product-short-name} Quick Start reference architecture on the AWS Cloud.
+This guide provides instructions for deploying the {partner-product-short-name} Hybrid Reference Architecture for EKS Quick Start on the AWS Cloud.
 
 This Quick Start is for users who want a repeatable, customizable reference deployment for {partner-product-short-name} using AWS CloudFormation.◊

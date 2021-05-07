@@ -7,15 +7,35 @@
 == Post-deployment steps
 When deployed for production grade implementations, this QuickStart does not setup {partner-product-short-name} Runners for you. To setup runners you can consult the https://docs.gitlab.com/runner/[GitLab Runner Documentation^] or leverage the https://gitlab.com/guided-explorations/aws/gitlab-runner-autoscaling-aws-asg[GitLab HA Scaling Runner Vending Machine for AWS^]
 
-== Best practices for using {partner-product-short-name} on AWS
-Once {partner-product-short-name} is running on AWS, there are not any practices particular to operating it there. Please consult the https://docs.gitlab.com[GitLab Documentation^] for general operations and usage information.
+== SRE practices for using {partner-product-short-name} on AWS
+There are not any specific things to account for in operating {partner-product-short-name} on AWS. When GitLab relies on AWS services like CloudWatch and S3, then the AWS specific practices for those services are applicable - but as long as these services are correctly integrated, they are abstracted in GitLab. Services configuration may also provide benefits that are not anticipated by GitLab.  For instance, using S3 storage policies for replicating backups to another region. 
+
+GitLab has distinctive SRE management concerns that will need to be monitored and adjusted. Aspects of GitLab operations can be impacted by instance size choices, provisioned IOPs and other cloud level implementation decisions.
+
+GitLab provides the https://gitlab.com/gitlab-org/quality/performance[GitLab Performance Tool (gpt)^] and https://gitlab.com/gitlab-org/quality/performance/-/wikis/Benchmarks/Latest[Reference Architecture performance benchmarks^] created by the tool for the reference of GitLab Instance SREs. If your instance will be highly scaled, you should run the gpt tool against it for a baseline performance. This will help with planning scaling.
+
+Please consult the https://docs.gitlab.com[GitLab Documentation^] for general operations and usage information.
+
+==== Log monitoring Using CloudWatch Logs
+
+`aws logs tail --since 1d --follow /aws/log/path`
+
+==== Performance monitoring
+
+===== Using CloudWatch Metrics
+CloudWatch metrics are collected for instances and containers.  These metrics can be used for performance analysis, graphing, alarms and events in AWS CloudWatch. As per standard CloudWatch capabilities alarms and events can interact with many other AWS services for notifications or automated actions.
+
+===== Using Integrated Prometheus
+The QuickStart wires up GitLab to Prometheus deployed to the cluster to expose all GitLab surfaced application metrics. The Grafana deployment option enables "in-instance" grafana capabilities with these metrics.
 
 == Security
-// Provide post-deployment best practices for using the technology on AWS, including considerations such as migrating data, backups, ensuring high performance, high availability, etc. Link to software documentation for detailed information.
+The infrastructure that GitLab is deployed on must be secured according to that infrastructure's security best practices.
 
-_Add any security-related information._
+=== Public Internet Access
+If the GitLab instance will be on the public internet, the industry advised security precautions and due diligences of public Internet services should be applied to it, including, but not limited to, GitLab updates and patching and infrastructure updates and patching. Leveraging AWS hardened services for the front end can help improve the security posture (for example, AWS Load Balancers, DNS and edge network services, SES for SMTP).
 
-== Other useful information
-//Provide any other information of interest to users, especially focusing on areas where AWS or cloud usage differs from on-premises usage.
+The QuickStart does enable a more secure administrative mode by enabling the EKS cluster to be configured without a public endpoint and then configuring the Bastion host. The bastion host used automatically contains all the cluster administration tools like Kubernetes, EKSCTL, AWS CLI and Helm. The SSM agent is also preinstalled and SSM session manager permissions are configured.  This means that even the Bastion host does not need to have a port publicly exposed in order to get a console session - either through the AWS web console or a workstation installation of the AWS CLI with the SSM extensions.
 
-_Add any other details that will help the customer use the software on AWS._
+For production setups, GitLab Runner should not be deployed to the cluster that runs GitLab, *especially in Privileged mode*.
+
+GitLab publishes new releases - including security hotfixing - on the https://about.gitlab.com/releases/categories/releases/["Releases" category of the general blog^].
