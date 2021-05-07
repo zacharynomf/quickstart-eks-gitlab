@@ -1,3 +1,5 @@
+// DONE: 2021-01 by DK
+
 This Quick Start supports the following Regions (regions where Amazon EKS is supported):
 
 * US East

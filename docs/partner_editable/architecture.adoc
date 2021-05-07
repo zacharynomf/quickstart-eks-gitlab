@@ -21,17 +21,19 @@ internet access for resources in the private subnets.^1^
 * In the private subnets:
 ** A group of Kubernetes EC2 nodes.^2^
 ** An Amazon RDS cluster fot GitLab and Praefect databases.
-** An ASG with Gitaly nodes spread across Availability Zones.
-** An ASG with Praefect nodes spread across Availability Zones.
+** An ASG with Gitaly nodes spread across Availability Zones. https://docs.gitlab.com/ee/administration/reference_architectures/10k_users.html#cloud-native-hybrid-reference-architecture-with-helm-charts-alternative[GitLab's Cloud Native Hybrid Reference Architecture^] calls for Gitaly to be implemented on Ec2 Instance compute.
+** An ASG with Praefect nodes spread across Availability Zones. https://docs.gitlab.com/ee/administration/reference_architectures/10k_users.html#cloud-native-hybrid-reference-architecture-with-helm-charts-alternative[GitLab's Cloud Native Hybrid Reference Architecture^] calls for Praefect to be implemented on Ec2 Instance compute.
+** Amazon CloudWatch Container Insights integration.
+** Amazon CloudWatch Agent for Instance compute.
 * Optionally:
 ** In one public subnet, a Linux bastion host in an Auto Scaling group to allow 
 inbound Secure Shell (SSH) access to Amazon Elastic Compute Cloud (Amazon EC2) 
 instances in private subnets. The bastion host is also configured with the Kubernetes 
-`kubectl` command line interface (CLI) for managing the Kubernetes cluster.
-** Amazon Route53 Hosted zone for DNS configuration
-** AWS Certificate Manager TLS certificate
-** Amazon Simple Email Service domain for outgoing email messages
-** Amazon CloudWatch Container Insights integration 
+`kubectl` command line interface (CLI) and the `helm` v3 CLI for managing the Kubernetes 
+cluster as well as the AWS CLI V2 for general AWS management.
+** Amazon Route53 Hosted zone for DNS configuration.
+** AWS Certificate Manager TLS certificate.
+** Amazon Simple Email Service domain for outgoing email messages.
 
 [.small]#^1^The template that deploys the Quick Start into an existing VPC skips 
 the components and prompts you for your existing VPC configuration.#

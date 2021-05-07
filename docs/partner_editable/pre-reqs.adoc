@@ -1,13 +1,12 @@
+
+// DONE: 2021-05 by DJS
+
 // If no preperation is required, remove all content from here
 
 ==== Prepare your AWS account
 
-_Describe any setup required in the AWS account prior to template launch_
+Create an EC2 Keypair in the region you will deploy.
 
 ==== Prepare your {partner-company-name} account
 
-_Describe any setup required in the partner portal/account prior to template launch_
-
-==== Prepare for the deployment
-
-_Describe any preparation required to complete the product build, such as obtaining licenses or placing files in S3_
+Ensure that the target AWS account has sufficient remaining service limit quota for items listed in "Service Limits".  If limits need increasing, make requests using the AWS Service Quotas console and wait until they are all increased before deploying.
