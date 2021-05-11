@@ -29,7 +29,7 @@ CloudWatch metrics are collected for instances and containers.  These metrics ca
 The QuickStart wires up GitLab to Prometheus deployed to the cluster to expose all GitLab surfaced application metrics. The Grafana deployment option enables "in-instance" grafana capabilities with these metrics.
 
 == Security
-The infrastructure that GitLab is deployed on must be secured according to that infrastructure's security best practices.
+The infrastructure that GitLab is deployed on must be secured according to that infrastructure's security best practices. GitLab has reasonable security out of the box, but as with all complex products it can be configured with tighter security. Some practices are outline in https://about.gitlab.com/blog/2020/05/20/gitlab-instance-security-best-practices/[GitLab instance: security best practices^]
 
 === Public Internet Access
 If the GitLab instance will be on the public internet, the industry advised security precautions and due diligences of public Internet services should be applied to it, including, but not limited to, GitLab updates and patching and infrastructure updates and patching. Leveraging AWS hardened services for the front end can help improve the security posture (for example, AWS Load Balancers, DNS and edge network services, SES for SMTP).
