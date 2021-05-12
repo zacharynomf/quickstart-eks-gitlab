@@ -12,16 +12,15 @@ AWS Cloud.
 image::../images/architecture_diagram.png[Architecture,width=100%,height=100%]
 
 === Architecture Details
-.Key to compliance tags
+.Key to architecture and best practice compliance tags
 [cols="^1,7"]
 |===
 |Tag|Meaning
 
-|^[AWS-WA]^|Compliant with **AWS W**ell **A**rchitected - including favoring PaaS to externalize scaling management.
+|^[AWS-WA]^|Compliant with **AWS W**ell **A**rchitected - including favoring PaaS to externalize scaling and availability management and HA / Self-Healing for non-PaaS resources.
 |^[GL-RAR]^|Compliant with a **G**it**L**ab **R**eference **A**rchitecture **R**equirement or **R**ecommendation - only applied to items where the Reference Architectures actually express an opinion.
 |^[IAC-CS]^|**I**nfrastructure **a**s **C**ode **C**omplete **S**olution - sets up everything required to make GitLab operational.
 |===
-
 
 As shown in <<architecture1>>, the Quick Start sets up the following:
 
@@ -36,10 +35,10 @@ internet access for resources in the private subnets.^1^ ^[IAC-CS]^
 * In the private subnets:
 ** A group of AutoScaling Kubernetes EC2 nodes.^2^ ^[AWS-WA]^
 ** An Amazon RDS cluster fot GitLab and Praefect databases. ^[GL-RAR][AWS-WA]^
-** Elasticache for Redis PaaS. [Eliminates 4 Redis related instances](https://docs.gitlab.com/ee/administration/reference_architectures/10k_users.html)) ^[GL-RAR][AWS-WA]^
+** Elasticache for Redis PaaS. ^[GL-RAR][AWS-WA]^
 ** S3 Object storage PaaS for all non-git file systems and git-lfs ^[GL-RAR][AWS-WA]^
-** Uses AWS ELB for internal load balancer - Load balancing PaaS. [Eliminates 1 load balancing related instances](https://docs.gitlab.com/ee/administration/reference_architectures/10k_users.html) ^[GL-RAR][AWS-WA]^
-** AWS ELB Load Balancing PaaS for external access. [Eliminates external load balancer setup](https://docs.gitlab.com/ee/administration/reference_architectures/10k_users.html)) ^[AWS-WA][IAC-CS]^
+** Uses AWS ELB for internal load balancer - Load balancing PaaS. ^[GL-RAR][AWS-WA]^
+** AWS ELB Load Balancing PaaS for external access. ^[AWS-WA][IAC-CS]^
 ** An ASG with Gitaly nodes spread across Availability Zones. https://docs.gitlab.com/ee/administration/reference_architectures/10k_users.html#cloud-native-hybrid-reference-architecture-with-helm-charts-alternative[GitLab's Cloud Native Hybrid Reference Architecture^] calls for Gitaly to be implemented on Ec2 Instance compute and to utilize Non-NFS storage for the file system containing Git repositories. ^[GL-RAR][AWS-WA]^
 ** An ASG with Praefect nodes spread across Availability Zones. https://docs.gitlab.com/ee/administration/reference_architectures/10k_users.html#cloud-native-hybrid-reference-architecture-with-helm-charts-alternative[GitLab's Cloud Native Hybrid Reference Architecture^] calls for Praefect to be implemented on Ec2 Instance compute. ^[GL-RAR][AWS-WA]^
 ** Amazon CloudWatch Container Insights integration. ^[AWS-WA][IAC-CS]^
