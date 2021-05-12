@@ -16,16 +16,16 @@ GitLab provides the https://gitlab.com/gitlab-org/quality/performance[GitLab Per
 
 Please consult the https://docs.gitlab.com[GitLab Documentation^] for general operations and usage information.
 
-==== Log monitoring Using CloudWatch Logs
+=== Log monitoring Using CloudWatch Logs
 
 `aws logs tail --since 1d --follow /aws/log/path`
 
-==== Performance monitoring
+=== Performance monitoring
 
-===== Using CloudWatch Metrics
+==== Using CloudWatch Metrics
 CloudWatch metrics are collected for instances and containers.  These metrics can be used for performance analysis, graphing, alarms and events in AWS CloudWatch. As per standard CloudWatch capabilities alarms and events can interact with many other AWS services for notifications or automated actions.
 
-===== Using Integrated Prometheus
+==== Using Integrated Prometheus
 The QuickStart wires up GitLab to Prometheus deployed to the cluster to expose all GitLab surfaced application metrics. The Grafana deployment option enables "in-instance" grafana capabilities with these metrics.
 
 == Security
