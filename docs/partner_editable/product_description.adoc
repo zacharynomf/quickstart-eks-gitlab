@@ -3,7 +3,7 @@
 // Briefly describe the software. Use consistent and clear branding. 
 // Include the benefits of using the software on AWS, and provide details on usage scenarios.
 
-GitLab is deployed using GitLab's Cloud Native Hybrid Architecture, which puts all container compatible elements of GitLab into an Amazon EKS cluster and anything else that can be, is implemented using AWS Services (PaaS).
+GitLab can be deployed to conform to https://docs.gitlab.com/ee/administration/reference_architectures/10k_users.html#cloud-native-hybrid-reference-architecture-with-helm-charts-alternative[GitLab's Cloud Native Hybrid Architecture] (for any size), which puts all container compatible elements of GitLab into an Amazon EKS cluster and anything else that can be, is implemented using AWS Services (PaaS).
 
 GitLab can be configured to utilize many AWS services directly and has been tested with many of them. GitLab is built using SOA Service Endpoints - this means that as long as an AWS service endpoint conforms to the relevant standards, you can usually wire GitLab up to to it.
 
