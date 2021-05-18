@@ -1,6 +1,20 @@
 // Replace the content in <>
 // Describe or link to specific knowledge requirements; for example: “familiarity with basic concepts in the areas of networking, database operations, and data encryption” or “familiarity with <software>.”
 
-This Quick Start assumes familiarity with <knowledge expectations>.
+=== GitLab Kubernetes Cluster Provisioning on EKS
 
+GitLab can be configured to provision EKS clusters into AWS accounts. https://docs.gitlab.com/ee/user/project/clusters/add_eks_clusters.html#configure-amazon-authentication[EKS integration must be configured^] to accomplish this.
+
+=== GitLab Kubernetes Cluster Integration
+
+A GitLab instance of any type (does not have to be running on Kubernetes) can integrate to a Kubernetes cluster for Review Apps and AutoDevOps to preproduction and production environments.  For production deployments, the cluster containing your GitLab instance should not be used for this purpose due to the level of privileges required to deploy Review Apps and AutoDevOps to the cluster.
+
+=== GitLab Runner Deployment
+
+For a production deployment, the Kubernetes runner chart integrated into the Quick Start should not be deployed because it deploys to the same cluster as GitLab. This can create workload scaling challenges and should never be done with privileged mode enabled because it gives very high privileges to the cluster for any runner job.  However, without privileged mode, AutoDevOps, Review Apps and DinD based container builds will not work (Kaniko based container builds can work).
+
+Runner deployment options include:
+
+. For groups and projects that will be integrated into a Kubernetes cluster dedicated to development and/or production, the https://docs.gitlab.com/ee/user/clusters/applications.html#gitlab-runner[GitLab Runner can be deployed as a Managed App^] or using the https://docs.gitlab.com/runner/install/kubernetes.html[Runner Helm Chart^].
+. For non-Kubernetes integrated groups, projects or for shared runners for the entire instance, the https://gitlab.com/guided-explorations/aws/gitlab-runner-autoscaling-aws-asg[GitLab HA Scaling Runner Vending Machine for AWS^] can be used to deploy runners of all OS types and Runner Executor types using an AWS ASG.
 

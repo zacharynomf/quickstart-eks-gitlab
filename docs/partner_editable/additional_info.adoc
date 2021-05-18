@@ -7,6 +7,10 @@
 == Post-deployment steps
 When deployed for production grade implementations, this Quick Start does not setup {partner-product-short-name} Runners for you. To setup runners you can consult the https://docs.gitlab.com/runner/[GitLab Runner Documentation^] or leverage the https://gitlab.com/guided-explorations/aws/gitlab-runner-autoscaling-aws-asg[GitLab HA Scaling Runner Vending Machine for AWS^]
 
+=== GitLab Kubernetes Cluster Provisioning on EKS
+
+GitLab can be configured to provision EKS clusters into AWS accounts. EKS integration must be configured to accomplish this. Follow https://docs.gitlab.com/ee/user/project/clusters/add_eks_clusters.html#configure-amazon-authentication[these instructions] to add an IAM user with assume role permissions to the accounts where you would like to enable EKS provisioning and enter the keys in the GitLab admin interface.
+
 == SRE practices for using {partner-product-short-name} on AWS
 There are not any specific things to account for in operating {partner-product-short-name} on AWS. When GitLab relies on AWS services like CloudWatch and S3, then the AWS specific practices for those services are applicable - but as long as these services are correctly integrated, they are abstracted in GitLab. Services configuration may also provide benefits that are not anticipated by GitLab.  For instance, using S3 storage policies for replicating backups to another region. 
 

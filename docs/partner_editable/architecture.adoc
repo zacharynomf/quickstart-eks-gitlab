@@ -1,5 +1,4 @@
 // DONE: 2021-05 by DK and DJS
-== Architecture
 Deploying this Quick Start for a new virtual private cloud (VPC) with
 default parameters builds the following {partner-product-short-name} environment in the
 AWS Cloud.
@@ -69,10 +68,16 @@ the components and prompts you for your existing EKS configuration.#
 - Setting "ConfigureGrafana" also deploys and configures Grafana. ^[AWS-WA][IAC-CS]^
 - The container registry is automatically setup at `registry.[subdomain]` ^[AWS-WA][IAC-CS]^
 
-=== Data Security
+=== Security
 
-* Secrets:
+==== Application Secrets
 ** Stores generated secrets in AWS Secrets Manager (e.g. generates a proper initial root password) ^[AWS-WA][IAC-CS]^
+
+==== EKS Cluster Administration
+The GitLab Kubernetes endpoint can be private, a bastion host must be deployed in order to do direct cluster management (it will be preloaded with AWS, EKS and Kubernetes management utilities and IAM permissions for cluster management). The bastion host is setup with SSH keys, but can also be accessed more securely using the preconfigured SSM Session Manager.
+
+==== Data Encryption
+
 * Data in Transit:
 ** SSL for front end http. ^[AWS-WA][IAC-CS]^
 ** SSL for GitLab to S3. ^[AWS-WA][IAC-CS]^
@@ -88,10 +93,7 @@ the components and prompts you for your existing EKS configuration.#
 ** Gitaly EBS Encryption (Git File System) ^[AWS-WA][IAC-CS]^
 ** Praefect Data (PostgreSQL RDS). ^[AWS-WA][IAC-CS]^
 
-=== Security and Internet Egress
-The GitLab Kubernetes endpoint can be private, a bastion host must be deployed in order to do direct cluster management (it will be preloaded with AWS, EKS and Kubernetes management utilities and IAM permissions for cluster management).
-
-=== Database Cluster
+=== Database
 GitLab Quickstart deploys Highly Available PostgreSQL database cluster using https://aws.amazon.com/quickstart/architecture/aurora-postgresql/[Amazon Aurora PostgreSQL Quickstart^].
 
 Depending on the projected size of your GitLab deployment you may want to adjust database instance size using *DBInstanceClass* parameter.
@@ -105,10 +107,12 @@ Praefect requires a separate tracking database as described in https://docs.gitl
 
 More about external database configuration in https://docs.gitlab.com/charts/advanced/external-db/[GitLab documentation^].
 
-=== Git repository storage
-* EBS Volumes on Gitaly Cluster instances.
+=== GitLab Storage
 
-=== Object storage for GitLab storage types.
+==== Git repository storage
+* EBS Volumes on Gitaly Cluster instances. ^[GL-RAR]
+
+==== Object storage for GitLab storage types.
 GitLab Quickstart creates the following S3 buckets:
 
 * ArtifactsBucket
@@ -127,13 +131,13 @@ Contents of the bucket encrypted by default with SSE-S3. Names of the buckets ar
 
 More about external object storage in https://docs.gitlab.com/charts/advanced/external-object-storage/[GitLab documentation^].
 
-=== Backups
+=== GitLab Backups
 
-==== Schedule
+===== Schedule
 
 Backup schedule is controlled by cron expression and default value is `pass:[0 1 * * * *]` (daily at 1am). You can set a different schedule using *BackupSchedule* parameter.
 
-==== Content of the backups
+===== Content of the backups
 
 Backups include GitLab database snapshot and contents of GitLab projects (Git repositories, Wiki pages). Backups do *not* include contents of S3 buckets (see Object storage for a list of buckets). The main reason behind this decision:
 
@@ -143,7 +147,7 @@ Backups include GitLab database snapshot and contents of GitLab projects (Git re
 
 If needed, complete backup may be created using backup-utility as described in https://docs.gitlab.com/charts/backup-restore/[GitLab documentation^].
 
-==== Backup/Restore resources 
+===== Backup/Restore resources 
 
 NOTE: Disk volume required for backups is about *2x larger than backup tarball itself*. This is due to the fact that all resources have to be downloaded first and packaged to tarball file which also stored locally. Consider the size of you GitLab database and projects (mainly Git repositories) to set the size of the underlying EBS volumes appropriately using *BackupVolumeSize* parameter.
 
@@ -153,7 +157,7 @@ For large GitLab deployments you can also adjust CPU and memory requirements for
 
 More about backups in https://docs.gitlab.com/charts/backup-restore/[GitLab documentation^].
 
-=== Telemetry
+=== GitLab Telemetry and Monitoring
 ==== CloudWatch Container Insights
 GitLab Quickstart integrates EKS cluster with https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html[CloudWatch Container Insights^] to collect, aggregate, and summarise metrics and logs if *ConfigureContainerInsights* parameter is set to `Yes`.
 
@@ -185,7 +189,7 @@ Please see the prerequisites for Amazon EKS Console access configuration in http
 image::../images/aws-eks-console.png[AWS EKS Console,width=100%,height=100%]
 
 === Exports
-Upon successful GitLab deployment, the following SSM parameters and Secrets Manages secrtes are exposed: 
+Upon successful GitLab deployment, the following SSM parameters and Secrets Manages secrets are exposed: 
 
 .SSM parameters
 [cols="3,1,2"]
