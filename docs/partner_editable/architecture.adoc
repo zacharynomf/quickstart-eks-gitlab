@@ -74,7 +74,7 @@ the components and prompts you for your existing EKS configuration.#
 ** Stores generated secrets in AWS Secrets Manager (e.g. generates a proper initial root password) ^[AWS-WA][IAC-CS]^
 
 ==== EKS Cluster Administration
-The GitLab Kubernetes endpoint can be private, a bastion host must be deployed in order to do direct cluster management (it will be preloaded with AWS, EKS and Kubernetes management utilities and IAM permissions for cluster management). The bastion host is setup with SSH keys, but can also be accessed more securely using the preconfigured SSM Session Manager.
+The GitLab Kubernetes endpoint can be private, a bastion host must be deployed in order to do direct cluster management (it will be preloaded with AWS, EKS and Kubernetes management utilities and IAM permissions for cluster management). The bastion host is setup with SSH keys, but can also be accessed more securely using the preconfigured SSM Session Manager. Additionally, the bastion host has command audit logging enabled and the log is uploaded to CloudWatch.
 
 ==== Data Encryption
 
