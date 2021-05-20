@@ -71,3 +71,59 @@ ifdef::partner-product-short-name[. Monitor the status of the stack. When the st
 . Use the values displayed in the *Outputs* tab for the stack, as shown in <<cfn_outputs>>, to view the created resources.
 
 NOTE: Deployment takes about {deployment_time} to complete.
+
+=== While The Stack Is Running (Only for "CreateSslCertificate = Yes" )
+
+[WARNING]
+====
+If you did not specify a CreateSslCertificate = Yes, then skip this section.
+====
+
+If you specified "CreateSslCertificate = Yes" *The setup will wait on the SSL Certificate validation because the subdomain is not reachable due to just being created.* It waits for *about 12 hours before proceeding to a failed status.*
+
+This occurs in the stack containing "*...GitLabStack...Infrastructure...*" for a resource called "SslCertificate" 
+
+To resolve this, leave the stack in this waiting state and create the appropriate DNS records to allow the subdomain to be found on public DNS. This is known as DNS Subdomain Nameserver Delegation.
+
+NOTE: You do not have to wait for the stack to get into a wait state to make these changes. The new subdomain is created well ahead of the ACM Certificate. Once the subdomain hosted zone is created in Route53, it's name server records are known and this change can be made in anticipation of the ACM certificate validation.
+
+. In the [*AWS Route53 console*](https://console.aws.amazon.com/route53/v2/hostedzones#), find the new hosted zone's *Public* recordset for the subdomain and **copy it's nameservers list**.
+In the screenshot "qsg.devops4the.win" is the hosted zone created by the QuickStart - copy the "Value/Route traffic to".
+
+image::../images/newhostedzone.png[newhostedzone]
+
+[start=2]
+. Edit the DNS records of the primary domain and add an NS record for the subdomain to point to the DNS servers. This is done in whatever system hosts the domains primary name server records.
+
+NOTE: This article discusses how to do it when the root domain DNS is also in Route53: [Creating a subdomain that uses Amazon Route 53 as the DNS service without migrating the parent domain](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/CreatingNewSubdomain.html)
+
+In the screenshot "devops4the.win" is the root DNS domain and is hosted in Route53.
+
+image::../images/adddnsdelegation.png[adddnsdelegation]
+
+NOTE: Not all domain registrars have the ability to create NS records for hosted zones ("subdomain DNS delegation"). If this is the case for your registrar, then you have the option to redirect the root domain to AWS for DNS and then use Route53 to create the subdomain DNS delegation. 
+
+[start=3]
+.  If your stack is actually waiting on this change, be very patient for DNS to propagate and for AWS ACM to attempt to validate the domain again.  With all possible DNS propagation CloudFormation status update delays, this could take over an hour.
+
+[An issue has been created](https://github.com/aws-quickstart/quickstart-eks-gitlab/issues/37) to improve this experience by allowing a host to be inserted into an existing AWS hosted zone.
+
+==== Setting Client Based Up Name Resolution for Non-Custom Domain Setups
+
+When you do not specify DomainName the QuickStart creates a random subdomain and hosted zone that can be used in your hosts file to access your instance.
+
+. In the *AWS Systems Manager* console and click on *(https://console.aws.amazon.com/systems-manager/parameters/[Parameter Store^])*. 
+. In the search field, type **/infra/domain-name** to locate the parameter and copy the value to a temporary location.
+. In the *AWS Systems Manager* console and click on *(https://console.aws.amazon.com/systems-manager/parameters/[Parameter Store^])*.
+. In the search field, type **/loadbalancer** to locate the parameter and copy the value to a temporary location.
+. Use nslookup in a console to get any one of the load balancer's ip addresses and and copy the value to a temporary location.
+. Edit your local hosts file to add the ip address pointed at the host name (swap out 111.111.111.111 with the IP address from above).  Note "gitlab" added to the beginning. Replace **full.hostname.from.parameterstore** with your value.
+
+----
+111.111.111.111 gitlab.*full.hostname.from.parameterstore*
+----
+
+[WARNING]
+====
+Over the course of time, the load balancer may retire this IP address - if this happens, repeat the last 4 steps to get an active load balancer IP to update the /etc/hosts file with.
+====

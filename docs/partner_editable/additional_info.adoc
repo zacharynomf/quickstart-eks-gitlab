@@ -1,7 +1,7 @@
 // Add steps as necessary for accessing the software, post-configuration, and testing. Don’t include full usage instructions for your software, but add links to your product documentation for that information.
 //Should any sections not be applicable, remove them
 
-=== Retrieving Credentials and Logging In
+=== Retrieving Credentials and Logging In to GitLab
 
 . Go to the https://console.aws.amazon.com/secretsmanager[AWS Secrets manager console^] in the region where GitLab was deployed and click on the secret ending in *initial-root-password*
 . Click the *Retrieve secret value* button.
@@ -19,6 +19,7 @@ echo {base64-encoded-password} | base64 -d | pbcopy
 [Text.Encoding]::Utf8.GetString([Convert]::FromBase64String('{base64-encoded-password}')) | clip
 ----
 
+[start=4]
 . Copy the emitted password (or use your operating system's CLI command to pipe the above command output directly to the clipboard. Bash: `| pbcopy` PowerShell: `| clip`)
 . Use an internet browser to access the GitLab instance URL.
 . Login with the username 'root' and paste the password in.
@@ -30,6 +31,40 @@ echo {base64-encoded-password} | base64 -d | pbcopy
 * If you get the error "This site can't be reached" you are probably not using the actual host name you put in your hosts file.
 * If you get the message "default backend - 404" you probably forgot to prefix the domain with "gitlab." in your hosts file and in your browser.
 ====
+
+=== Accessing Kubernetes
+
+NOTE: Using the bastion host for cluster administration has the following advantages: all the kubernetes utilities preinstalled, it has permissions to the cluster and it is the only way to access the cluster if you setup the QuickStart to not expose a public endpoint for the cluster. If using the bastion host, complete these steps on that machine.
+
+==== Getting a Console on the Bastion Host
+
+. Open the https://console.aws.amazon.com/ec2/v2/home?Instances:[Ec2 Instance Console^] in the region that GitLab was deployed to.
+. Locate the instance whose name is *EKSBastion*
+. Right click it and select *Connect*
+. On the *Connect to instance...* page select the *Session Manager* tab.
+. Click the orange *Connect* button.
+. Wait for several seconds to be placed in a shell console.
+
+==== Configuring kubectl To Access EKS
+These steps work as-is on the bastion host, if you are accessing the EKS end point from another machine, AWS CLI v2 and kubectl will need to be installed.
+
+Session Manager is a much more secure and auditable way to open a console session to the bastion host as it does not open any ports and does not require the bastion to be exposed to the internet.  It can even be used on machines outside of Amazon by https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html[installing the Session Manager plugin for the AWS CLI^].
+
+. In the *AWS Systems Manager* console and click on *(https://console.aws.amazon.com/systems-manager/parameters/[Parameter Store^])*. 
+. In the search field, type **/cluster/name** to locate the parameter.  Copy the value. This can also be found in the EKS console in the region where you deployed.
+. In the list, find the *Kubernetes cluster name* and substitute it into this command line to configure kubectl to point to the cluster.
+
+----
+  aws eks --region us-east-1 update-kubeconfig --name <CLUSTERNAMEFROMCONSOLE>
+----
+
+[start=3]
+. Test with this command:
+
+----
+  kubectl get pods --all-namespaces
+----
+
 
 === Enabling AWS Simple Email Services (SES) Outbound Email
 
@@ -48,30 +83,6 @@ AWS Simple Email Services are purposely created in "sandbox" mode to prevent spa
 . Click **Submit for review**.
 
 NOTE: Notice the new banner near the top containing *Your account details are currently under review*. 
-
-=== Accessing Kubernetes
-
-NOTE: Accessing the bastion host for cluster administration has the following advantages: all the kubernetes utilities preinstalled, it has permissions to the cluster and it is the only way to access the cluster if you setup the QuickStart to not expose a public endpoint for the cluster. If using the bastion host, complete these steps on that machine.
-
-. In the *AWS Systems Manager* console and click on **Parameter Store**. There will be many parameters that contain the string "tCaT-three-az-gitlab-ref-arch-aligned...". In the search field, type **/cluster/name** to locate the parameter.  Copy the value. ([Direct Link to Parameter Store Console in us-east-1](https://console.aws.amazon.com/systems-manager/parameters/?region=us-east-1&tab=Table#)) This can also be found in the EKS console in the region where you deployed.
-. In the list, find the *Kubernetes cluster name* and substitute it into this command line to configure kubectl to point to the cluster.
-
-.Bash or PowerShell command
-[Source]
-----
-aws eks --region us-east-1 update-kubeconfig --name <CLUSTERNAMEFROMCONSOLE>
-----
-
-[start=3]
-. Test with this command:
-
-.Bash or PowerShell command
-[Source]
-----
-kubectl get pods --all-namespaces` 
-----
-
-NOTE: Concerned about the public Kubernetes Control Plane?  Yep it's configurable: [List of Configuration Parameters in top level CF templates](https://gitlab.com/gitlab-com/alliances/aws/sandbox-projects/eks-quickstart/quickstart-eks-gitlab/-/tree/main/templates) In fact you can easily enable Bastion hosts that have all the Kubernetes utilities preinstalled.
 
 === Accessing Grafana
 If you configured Grafana, you can retrieve the admin password to your clipboard by running this command wherever you have kubectl wired up to the cluster:
