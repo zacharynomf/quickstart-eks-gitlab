@@ -117,13 +117,13 @@ When you do not specify DomainName the QuickStart creates a random subdomain and
 . In the *AWS Systems Manager* console and click on *(https://console.aws.amazon.com/systems-manager/parameters/[Parameter Store^])*.
 . In the search field, type **/loadbalancer** to locate the parameter and copy the value to a temporary location.
 . Use nslookup in a console to get any one of the load balancer's ip addresses and and copy the value to a temporary location.
-. Edit your local hosts file to add the ip address pointed at the host name (swap out 111.111.111.111 with the IP address from above).  Note "gitlab" added to the beginning. Replace **full.hostname.from.parameterstore** with your value.
+. Edit your local hosts file to add the ip address pointed at the host name (swap out 111.111.111.111 with the IP address from above).  Note "gitlab" added to the beginning. Replace **full.subdomainname.from.parameterstore** with your value.
 
 ----
-111.111.111.111 gitlab.*full.hostname.from.parameterstore*
+111.111.111.111 gitlab.*full.subdomainname.from.parameterstore*
 ----
 
 [WARNING]
 ====
-Over the course of time, the load balancer may retire this IP address - if this happens, repeat the last 4 steps to get an active load balancer IP to update the /etc/hosts file with.
+Over the course of time, the load balancer may retire this IP address - if this happens, repeat these steps to get an active load balancer IP to update the /etc/hosts file with.
 ====
