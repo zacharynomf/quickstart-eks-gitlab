@@ -17,7 +17,6 @@ Parameters:
     
   CacheNodes:
     Type: Number
-    Default: 3
   CacheEngineVersion:
     Type: String
     Default: '5.0.6' # GitLab does not support 6.x redis (https://gitlab.com/gitlab-org/gitlab/-/issues/281683)

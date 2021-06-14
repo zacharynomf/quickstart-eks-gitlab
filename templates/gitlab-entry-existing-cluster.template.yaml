@@ -27,10 +27,6 @@ Metadata:
         Parameters:
           - EnvironmentName
       - Label:
-          default: Basic configuration
-        Parameters:
-          - EnvironmentName
-      - Label:
           default: VPC network configuration
         Parameters:
           - VPCID
@@ -53,6 +49,12 @@ Metadata:
           - DBUserName
           - DBUserPassword
           - DBPort
+      - Label:
+          default: GitLab cache configuration
+        Parameters:
+          - CacheMode
+          - CacheNodes
+          - CacheNodeType
       - Label:
           default: GitLab infrastructure configuration
         Parameters:
@@ -90,12 +92,6 @@ Metadata:
           - ObjectStorageKMSKeyID
           - BackupSchedule
           - BackupVolumeSize
-      - Label:
-          default: GitLab cache configuration
-        Parameters:
-          - CacheMode
-          - CacheNodes
-          - CacheNodeType
       - Label:
           default: GitLab Runner configuration
         Parameters:
@@ -146,6 +142,13 @@ Metadata:
         default: Database admin password
       DBPort:
         default: Database port
+    # Cache configuration
+      CacheMode:
+        default: Cache mode
+      CacheNodes:
+        default: Number of cache replicas
+      CacheNodeType:
+        default: Cache node type
     # GitLab infrastructure configuration
       DomainName: 
         default: GitLab DNS name
@@ -195,13 +198,6 @@ Metadata:
         default: Object storage backup schedule      
       BackupVolumeSize:
         default: Object storage backup volume capacity
-    # Cache configuration
-      CacheMode:
-        default: Cache mode
-      CacheNodes:
-        default: Number of cache replicas
-      CacheNodeType:
-        default: Cache node type
     # GitLab Runner configuration
       ConfigureRunner:
         default: Configure GitLab Runner
@@ -229,7 +225,10 @@ Parameters:
   EnvironmentName: 
     Type: String
     Default: ''
-    Description: Name of the GitLab environment. Leave empty to use dynamically generated name.
+    Description: |
+      Name of the GitLab environment (leave empty to use dynamically generated name). 
+      Environment name is used to generate unique resource names.
+      Multiple GitLab environments with different names can be deployed in the same region.
 
 # VPC parameters
   VPCID:
@@ -267,7 +266,10 @@ Parameters:
 
 # Database Parameters
   DBInstanceClass:
-    Description: The name of the compute and memory capacity class of the database instance.
+    Description: |
+      The name of the compute and memory capacity class of the database instance.
+      This Quickstart deploys Multi-AZ Postgres replicas in different Availability Zones.
+      The instance class is applied to both primary and standby instances.
     Default: db.r5.large
     AllowedPattern: "db\\.[a-z0-9]*\\.[a-z0-9]*"
     Type: String
@@ -297,8 +299,10 @@ Parameters:
     AllowedPattern: >-
       ^(?=^.{8,255}$)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)((?=.*[^A-Za-z0-9])(?!.*[@/"'])).*$
     ConstraintDescription: >-
-      Min 8 chars. Must include 1 uppercase, 1 lowercase, 1 number, 1 (non / @ " ') symbol
-    Description: "The database admin account password."
+      Minimum 8 characters. Must include 1 uppercase, 1 lowercase, 1 number, 1 (non / @ " ') symbol.
+    Description: |
+      The database admin account password.
+      Minimum 8 characters. Must include 1 uppercase, 1 lowercase, 1 number, 1 (non / @ " ') symbol.
     MaxLength: "64"
     MinLength: "8"
     NoEcho: "True"
@@ -310,6 +314,26 @@ Parameters:
     ConstraintDescription: 'Must be in the range [1115-65535].'
     MinValue: 1150
     MaxValue: 65535
+
+# Cache Parameters
+  CacheMode:
+    Type: String
+    AllowedValues: [ 'BuiltIn', 'External' ]    
+    Default: 'BuiltIn'
+    Description: Use built-in cache or provision external Amazon ElastiCache Redis cluster.
+  CacheNodes:
+    Type: Number
+    Default: 2
+    MinValue: 2
+    Description: |
+      Provide the number of cache replicas (applicable for both BuiltIn and External cache modes).
+      For BuiltIn cache mode this is the number of slave Redis pods (in addition to master pod).
+      For External mode this is the total number of Amazon ElastiCache Redis clusters.
+  CacheNodeType:
+    Type: String
+    Default: cache.t3.medium
+    Description: If you chose to use External cache above, provide cache node type. 
+    AllowedPattern: "cache\\.[a-z0-9]*\\.[a-z0-9]*"    
 
 # Infra Parameters
   DomainName:
@@ -369,8 +393,8 @@ Parameters:
     Default: gitlab
   HelmChartVersion:
     Type: String
-    Description: Version of GitLab Helm chart GitLab for deployment.
-    Default: '4.9.4'
+    Description: Version of GitLab Helm chart GitLab for deployment. See https://docs.gitlab.com/charts/installation/version_mappings.html.
+    Default: '4.12.3'
 
 # Gitaly Storage Parameters
   PraefectInstanceType:
@@ -395,13 +419,18 @@ Parameters:
     Type: Number
     Default: 50
     MinValue: 50
-    Description: Capacity of EBS volume used by Gitaly replicas (Git repository storage), in Gb. 
+    Description: |
+      Capacity of EBS volume used by Gitaly replicas (Git repository storage), in Gb. 
+      Note that this storage is used for Git repositories only. 
+      All other object storage files are stored in S3 buckets.
 
 # Object Storage Parameters
   ObjectStorageSSEAlgorithm:
     Type: String
-    Description: Encryption algorithm for GitLab object storage artifacts.
-    AllowedValues: [ 'AES256', 'aws:kms' ]
+    Description: |
+      GitLab will be configured to use object storage for everything that is capable of using it (artifacts, packages, lfs, etc.).
+      Encryption algorithm for GitLab object storage artifacts.
+    AllowedValues: [ 'AES256' ]
     Default: AES256
   ObjectStorageKMSKeyID:
     Type: String
@@ -416,22 +445,6 @@ Parameters:
     Default: 10
     MinValue: 10
     Description: Capacity of EBS volume used for GitLab backups, in Gb. 
-
-# Cache Parameters
-  CacheMode:
-    Type: String
-    AllowedValues: [ 'BuiltIn', 'External' ]    
-    Default: 'BuiltIn'
-    Description: Use built-in cache or provision external Amazon ElastiCache Redis cluster.
-  CacheNodes:
-    Type: Number
-    Default: 2
-    Description: Provide the number of cache replicas (applicable for both BuiltIn and External cache modes). 
-  CacheNodeType:
-    Type: String
-    Default: cache.t3.medium
-    Description: If you chose to use External cache above, provide cache node type. 
-    AllowedPattern: "cache\\.[a-z0-9]*\\.[a-z0-9]*"    
 
 # GitLab Runner Parameters
   ConfigureRunner:
@@ -459,7 +472,10 @@ Parameters:
     Type: String
     Default: 'No'
     AllowedValues: [ 'Yes', 'No' ]
-    Description: Choose "Yes" to run all containers with the privileged flag enabled. This will allow the docker:dind image to run if you need to run Docker.
+    Description: |
+      Choose "Yes" to run all containers with the privileged flag enabled. 
+      This will allow the docker:dind image to run if you need to run Docker.
+      For test purposes only. Not recommended for production environments.
 
 # Quickstart location parameters
   QSS3BucketName:
@@ -494,6 +510,11 @@ Rules:
     Assertions:
       - Assert: !Not [!Equals [!Ref SslCertificateIssuerEmail, '']]
         AssertDescription: "You must provide email address for SSL certificate registration if you skip certificate creation."
+  SMTPParameters:
+    RuleCondition: !Equals [!Ref SMTPDomain, 'UseExisting']
+    Assertions:
+      - Assert: !Not [!Equals [!Ref SMTPHostName, '']]
+        AssertDescription: "You must provide SMTP host name if you chose to use existing SMTP server."
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
