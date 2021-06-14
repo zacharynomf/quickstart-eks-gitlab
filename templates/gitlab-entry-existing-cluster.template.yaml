@@ -8,8 +8,9 @@ Metadata:
     - Kubernetes
     - Helm
     - Git
+    - Docker
     - GitLab
-    - GitLab Runner
+    - Runner
     - Praefect
     - Gitaly
     - Resource Name
@@ -212,7 +213,7 @@ Metadata:
       ConfigureRunner:
         default: Configure GitLab Runner
       RunnerChartName:
-        default: GetLab Runner Helm chart name
+        default: GitLab Runner Helm chart name
       RunnerChartVersion:
         default: GitLab Runner chart version
       RunnerImage:
@@ -220,7 +221,7 @@ Metadata:
       MaximumConcurrentJobs:
         default: Max number of concurrent jobs
       PriviligedMode:
-        default: Use proviliged mode
+        default: Use privileged mode
     # AWS Quick Start configuration
       QSS3BucketName:
         default: Quick Start S3 bucket name
@@ -390,7 +391,7 @@ Parameters:
 # GitLab Helm chart Parameters
   HelmChartNamespaceCreate:
     Type: String
-    Description: Create new or use exicting Kubernetes namespace for GitLab chart deployment.
+    Description: Create new or use existing Kubernetes namespace for GitLab chart deployment.
     AllowedValues: [ 'CreateNew', 'UseExisting' ]
     Default: CreateNew
   HelmChartNamespace:
@@ -609,3 +610,4 @@ Resources:
         RunnerChartVersion: !Ref RunnerChartVersion
         RunnerImage: !Ref RunnerImage
         MaximumConcurrentJobs: !Ref MaximumConcurrentJobs
+        PriviligedMode: !Ref PriviligedMode
