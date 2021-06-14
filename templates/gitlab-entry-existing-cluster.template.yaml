@@ -7,7 +7,9 @@ Metadata:
   LintSpellExclude:
     - Kubernetes
     - Helm
+    - Git
     - GitLab
+    - GitLab Runner
     - Praefect
     - Gitaly
     - Resource Name
@@ -20,6 +22,11 @@ Metadata:
     - namespace
     - cron
     - vpc
+    - kubectl
+    - dind
+    - Gb
+    - Multi-AZ
+    - External
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
@@ -77,6 +84,7 @@ Metadata:
           - HelmChartNamespace
           - HelmChartName
           - HelmChartVersion
+          - GitLabVersion
       - Label: 
           default: GitLab Git repository storage configuration
         Parameters:
@@ -178,6 +186,8 @@ Metadata:
         default: GitLab Helm chart name
       HelmChartVersion:
         default: GitLab Helm chart version
+      GitLabVersion:
+        default: GitLab application version
     # GitLab Git repository storage configuration
       PraefectInstanceType:
         default: Praefect instance type
@@ -395,6 +405,10 @@ Parameters:
     Type: String
     Description: Version of GitLab Helm chart GitLab for deployment. See https://docs.gitlab.com/charts/installation/version_mappings.html.
     Default: '4.12.3'
+  GitLabVersion:
+    Type: String
+    Description: Version of GitLab application - must correspond to helm chart version above. See https://docs.gitlab.com/charts/installation/version_mappings.html.
+    Default: '13.12.3'
 
 # Gitaly Storage Parameters
   PraefectInstanceType:
@@ -524,6 +538,11 @@ Resources:
 
   GitLabStack:
     Type: AWS::CloudFormation::Stack
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - W9901
     Properties:
       TemplateURL: !Sub
         - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-template.yaml'
@@ -577,6 +596,7 @@ Resources:
         HelmChartNamespace: !Ref HelmChartNamespace
         HelmChartName: !Ref HelmChartName
         HelmChartVersion: !Ref HelmChartVersion
+        GitLabVersion: !Ref GitLabVersion
         # Git repository storage properties
         PraefectInstanceType: !Ref PraefectInstanceType
         GitalyInstanceType: !Ref GitalyInstanceType

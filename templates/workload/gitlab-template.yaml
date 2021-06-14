@@ -114,6 +114,8 @@ Parameters:
     Type: String
   HelmChartVersion:
     Type: String
+  GitLabVersion:
+    Type: String
   BackupSchedule:
     Type: String
   BackupVolumeSize:
@@ -203,11 +205,6 @@ Resources:
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
 
-  GitLabVersionMapper:
-    Type: Custom::VersionMapper
-    Properties:
-      ServiceToken: !GetAtt Functions.Outputs.GitLabVersionMapperFunctionArn
-      ChartVersion: !Ref HelmChartVersion
   GitLabShellToken:
     Type: Custom::RandomString
     Properties:
@@ -322,7 +319,7 @@ Resources:
           - !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID, !Ref PrivateSubnet3ID ] ]
           - !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID ] ]
         PraefectSecurityGroup: !GetAtt Infrastructure.Outputs.PraefectSecurityGroupID
-        GitLabVersion: !GetAtt GitLabVersionMapper.GitLabVersion
+        GitLabVersion: !Ref GitLabVersion
         GitLabShellToken: !GetAtt GitLabShellToken.Value
         PraefectInternalToken: !GetAtt PraefectInternalToken.Value
         PraefectExternalToken: !GetAtt PraefectExternalToken.Value
@@ -350,7 +347,7 @@ Resources:
           - !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID, !Ref PrivateSubnet3ID ] ]
           - !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID ] ]
         GitalySecurityGroup: !GetAtt Infrastructure.Outputs.PraefectSecurityGroupID
-        GitLabVersion: !GetAtt GitLabVersionMapper.GitLabVersion
+        GitLabVersion: !Ref GitLabVersion
         GitLabShellToken: !GetAtt GitLabShellToken.Value
         PraefectInternalToken: !GetAtt PraefectInternalToken.Value
         GitalyAMIId: !Ref LatestAmazonLinuxAmi
