@@ -1,5 +1,15 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Deploys ElastiCache Redis cluster (qs-1rpegts33)
+
+Metadata:
+  cfn-lint:
+    config:
+      ignore_checks:
+        - W9002
+        - W9003
+        - W9004
+        - E0002
+
 Parameters:
 
   VPCID: 
@@ -17,7 +27,6 @@ Parameters:
     
   CacheNodes:
     Type: Number
-    Default: 3
   CacheEngineVersion:
     Type: String
     Default: '5.0.6' # GitLab does not support 6.x redis (https://gitlab.com/gitlab-org/gitlab/-/issues/281683)

@@ -1,5 +1,15 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Performs Gitlab post-install configuration (qs-1rpegts4t)
+
+Metadata:
+  cfn-lint:
+    config:
+      ignore_checks:
+        - W9002
+        - W9003
+        - W9004
+        - E0002
+
 Parameters:
   ClusterName:
     Type: String
