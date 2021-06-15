@@ -369,6 +369,8 @@ Resources:
         SSEAlgorithm: !Ref ObjectStorageSSEAlgorithm
         KMSKeyID: !Ref ObjectStorageKMSKeyID
         EnvironmentName: !Ref EnvironmentName
+        DeleteBucketContentsFunctionArn: !GetAtt Functions.Outputs.DeleteBucketContentsFunctionArn
+        DeleteBucketContentsRoleName: !GetAtt Functions.Outputs.DeleteBucketContentsRoleName
 
   ChartNamespace:
     Type: AWSQS::Kubernetes::Resource

@@ -11,93 +11,212 @@ Parameters:
     Default: ''
   EnvironmentName:
     Type: String 
+  RetainOnDelete:
+    Type: String
+    Default: 'No'
+    AllowedValues: [ 'Yes', 'No' ]
+  DeleteBucketContentsFunctionArn:
+    Type: String
+  DeleteBucketContentsRoleName:
+    Type: String
 
 Conditions:
   UseKMS: !Equals [!Ref KMSKeyID, 'aws:kms']
+  RetainOnDelete: !Equals [!Ref RetainOnDelete, 'Yes']
+  CleanupOnDelete: !Equals [!Ref RetainOnDelete, 'No']
 
 Resources:
 
   ArtifactsBucket:
     Type: AWS::S3::Bucket
+    DeletionPolicy:  !If [RetainOnDelete, Retain, !Ref 'AWS::NoValue']
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
               KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref 'AWS::NoValue']
+  DeleteArtifactsBucketContents:
+    Type: Custom::DeleteBucketContents
+    DependsOn: DeleteBucketContentsRolePolicy
+    Condition: CleanupOnDelete
+    Properties:
+      ServiceToken: !Ref DeleteBucketContentsFunctionArn
+      Bucket: !Ref ArtifactsBucket
 
   LfsBucket:
     Type: AWS::S3::Bucket
+    DeletionPolicy:  !If [RetainOnDelete, Retain, !Ref 'AWS::NoValue']
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
               KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref 'AWS::NoValue']
-
+  DeleteLfsBucketContents:
+    Type: Custom::DeleteBucketContents
+    DependsOn: DeleteBucketContentsRolePolicy
+    Condition: CleanupOnDelete
+    Properties:
+      ServiceToken: !Ref DeleteBucketContentsFunctionArn
+      Bucket: !Ref LfsBucket
 
   UploadsBucket:
     Type: AWS::S3::Bucket
+    DeletionPolicy:  !If [RetainOnDelete, Retain, !Ref 'AWS::NoValue']
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
               KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref 'AWS::NoValue']
+  DeleteUploadsBucketContents:
+    Type: Custom::DeleteBucketContents
+    DependsOn: DeleteBucketContentsRolePolicy
+    Condition: CleanupOnDelete
+    Properties:
+      ServiceToken: !Ref DeleteBucketContentsFunctionArn
+      Bucket: !Ref UploadsBucket
 
   PackagesBucket:
     Type: AWS::S3::Bucket
+    DeletionPolicy:  !If [RetainOnDelete, Retain, !Ref 'AWS::NoValue']
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
               KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref 'AWS::NoValue']
+  DeletePackagesBucketContents:
+    Type: Custom::DeleteBucketContents
+    DependsOn: DeleteBucketContentsRolePolicy
+    Condition: CleanupOnDelete
+    Properties:
+      ServiceToken: !Ref DeleteBucketContentsFunctionArn
+      Bucket: !Ref PackagesBucket
 
   TerraformBucket:
     Type: AWS::S3::Bucket
+    DeletionPolicy:  !If [RetainOnDelete, Retain, !Ref 'AWS::NoValue']
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
               KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref 'AWS::NoValue']
+  DeleteTerraformBucketContents:
+    Type: Custom::DeleteBucketContents
+    DependsOn: DeleteBucketContentsRolePolicy
+    Condition: CleanupOnDelete
+    Properties:
+      ServiceToken: !Ref DeleteBucketContentsFunctionArn
+      Bucket: !Ref TerraformBucket
 
   PseudonymizerBucket:
     Type: AWS::S3::Bucket
+    DeletionPolicy:  !If [RetainOnDelete, Retain, !Ref 'AWS::NoValue']
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
               KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref 'AWS::NoValue']
+  DeletePseudonymizerBucketContents:
+    Type: Custom::DeleteBucketContents
+    DependsOn: DeleteBucketContentsRolePolicy
+    Condition: CleanupOnDelete
+    Properties:
+      ServiceToken: !Ref DeleteBucketContentsFunctionArn
+      Bucket: !Ref PseudonymizerBucket
 
   RegistryBucket:
     Type: AWS::S3::Bucket
+    DeletionPolicy:  !If [RetainOnDelete, Retain, !Ref 'AWS::NoValue']
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
               KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref 'AWS::NoValue']
+  DeleteRegistryBucketContents:
+    Type: Custom::DeleteBucketContents
+    DependsOn: DeleteBucketContentsRolePolicy
+    Condition: CleanupOnDelete
+    Properties:
+      ServiceToken: !Ref DeleteBucketContentsFunctionArn
+      Bucket: !Ref RegistryBucket
 
   BackupBucket:
     Type: AWS::S3::Bucket
+    DeletionPolicy:  !If [RetainOnDelete, Retain, !Ref 'AWS::NoValue']
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
               KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref 'AWS::NoValue']
+  DeleteBackupBucketContents:
+    Type: Custom::DeleteBucketContents
+    DependsOn: DeleteBucketContentsRolePolicy
+    Condition: CleanupOnDelete
+    Properties:
+      ServiceToken: !Ref DeleteBucketContentsFunctionArn
+      Bucket: !Ref BackupBucket
 
   BackupTempBucket:
     Type: AWS::S3::Bucket
+    DeletionPolicy:  !If [RetainOnDelete, Retain, !Ref 'AWS::NoValue']
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
               KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref 'AWS::NoValue']
+  DeleteBackupTempBucketContents:
+    Type: Custom::DeleteBucketContents
+    DependsOn: DeleteBucketContentsRolePolicy
+    Condition: CleanupOnDelete
+    Properties:
+      ServiceToken: !Ref DeleteBucketContentsFunctionArn
+      Bucket: !Ref BackupTempBucket
+
+  # IAM resources
+
+  DeleteBucketContentsRolePolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      Roles:
+        - !Ref DeleteBucketContentsRoleName
+      PolicyName: !Sub '${EnvironmentName}-delete-bucket-contents'
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action: 's3:ListBucketVersions'
+            Resource:
+              - !Sub "arn:${AWS::Partition}:s3:::${ArtifactsBucket}"
+              - !Sub "arn:${AWS::Partition}:s3:::${LfsBucket}"
+              - !Sub "arn:${AWS::Partition}:s3:::${UploadsBucket}"
+              - !Sub "arn:${AWS::Partition}:s3:::${PackagesBucket}"
+              - !Sub "arn:${AWS::Partition}:s3:::${TerraformBucket}"
+              - !Sub "arn:${AWS::Partition}:s3:::${PseudonymizerBucket}"
+              - !Sub "arn:${AWS::Partition}:s3:::${RegistryBucket}"
+              - !Sub "arn:${AWS::Partition}:s3:::${BackupBucket}"
+              - !Sub "arn:${AWS::Partition}:s3:::${BackupTempBucket}"
+          - Effect: Allow
+            Action: 
+              - 's3:DeleteObject'
+              - 's3:DeleteObjectVersion'
+            Resource:
+              - !Sub "arn:${AWS::Partition}:s3:::${ArtifactsBucket}/*"
+              - !Sub "arn:${AWS::Partition}:s3:::${LfsBucket}/*"
+              - !Sub "arn:${AWS::Partition}:s3:::${UploadsBucket}/*"
+              - !Sub "arn:${AWS::Partition}:s3:::${PackagesBucket}/*"
+              - !Sub "arn:${AWS::Partition}:s3:::${TerraformBucket}/*"
+              - !Sub "arn:${AWS::Partition}:s3:::${PseudonymizerBucket}/*"
+              - !Sub "arn:${AWS::Partition}:s3:::${RegistryBucket}/*"
+              - !Sub "arn:${AWS::Partition}:s3:::${BackupBucket}/*"
+              - !Sub "arn:${AWS::Partition}:s3:::${BackupTempBucket}/*"
 
   ObjectStorageGroup:
     Type: AWS::IAM::Group
