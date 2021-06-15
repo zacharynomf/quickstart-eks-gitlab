@@ -493,7 +493,7 @@ Parameters:
     MinValue: 2
     Description: |
       Provide the number of cache replicas (applicable for both BuiltIn and External cache modes).
-      For BuiltIn cache mode this is the number of slave Redis pods (in addition to primary pod).
+      For BuiltIn cache mode this is the number of replica Redis pods (in addition to primary pod).
       For External mode this is the total number of Amazon ElastiCache Redis clusters.
   CacheNodeType:
     Type: String
