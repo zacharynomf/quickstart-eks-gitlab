@@ -1,4 +1,0 @@
-templates:
-- templates/gitlab-entry-new-vpc.template.yaml
-append_rules:
-- scripts/qs-cfn-lint-rules/qs_cfn_lint_rules/

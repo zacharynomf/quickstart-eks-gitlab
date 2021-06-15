@@ -1,6 +1,15 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Deploys GitLab cluster (qs-1rpegts6r)
 
+Metadata:
+  cfn-lint:
+    config:
+      ignore_checks:
+        - W9002
+        - W9003
+        - W9004
+        - E0002
+
 Parameters:
 # Infra Parameters
   DomainName:

@@ -1,5 +1,15 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Deploys EKS telemetry integration (qs-1rpegts6f)
+
+Metadata:
+  cfn-lint:
+    config:
+      ignore_checks:
+        - W9002
+        - W9003
+        - W9004
+        - E0002
+        
 Parameters:
   ClusterName:
     Type: String
@@ -21,6 +31,13 @@ Resources:
   # see https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-prerequisites.html
   CloudWatchAccessPolicy:
     Type: AWS::IAM::Policy
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - EIAMPolicyWildcardResource
+          ignore_reasons:
+            EIAMPolicyWildcardResource: This is exact clone of CloudWatchAgentServerPolicy managed policy - see https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-prerequisites.html
     Properties:
       PolicyName: !Sub CloudWatchAgentServerPolicy-${AWS::StackName}
       PolicyDocument:
