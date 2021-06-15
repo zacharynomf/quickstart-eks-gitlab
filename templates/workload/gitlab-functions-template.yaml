@@ -1,5 +1,15 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Deploys Lambda functions required for the AWS GitLab Quick Start (qs-1rpegts3l)
+
+Metadata:
+  cfn-lint:
+    config:
+      ignore_checks:
+        - W9002
+        - W9003
+        - W9004
+        - E0002
+
 Parameters:
   QSS3BucketName:
     Type: String
@@ -53,36 +63,6 @@ Resources:
 
             cfnresponse.send(event, context, cfnresponse.SUCCESS, { 'Value': rs }, rs)
 
-  GitLabVersionMapperFunction:
-    Type: AWS::Lambda::Function
-    Properties:
-      Handler: "index.lambda_handler"
-      Timeout: 30
-      Role: !GetAtt TrivialFunctionRole.Arn
-      Runtime: python3.8
-      Code:
-        ZipFile: |
-          import cfnresponse
-          versions = {
-            '4.10.0': '13.10.0',
-            '4.9.4': '13.9.4',
-            '4.9.3': '13.9.3',
-            '4.9.2': '13.9.2',
-            '4.9.1': '13.9.1',
-            '4.9.0': '13.9.0',
-            '4.8.6': '13.8.6',
-            '4.8.5': '13.8.5',
-            '4.8.4': '13.8.4',
-            '4.8.3': '13.8.3',
-            '4.8.2': '13.8.2',
-            '4.8.1': '13.8.1',
-            '4.8.0': '13.8.0'
-          }
-          def lambda_handler(event, context):
-            chart_version = event['ResourceProperties'].get('ChartVersion', '')
-            gitlab_version = versions.get(chart_version, '')
-            cfnresponse.send(event, context, cfnresponse.SUCCESS, { 'GitLabVersion': gitlab_version })
-
   TrivialFunctionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -102,5 +82,3 @@ Outputs:
     Value: !Sub ['${Prefix}-lambdazips-${AWS::Region}-${AWS::AccountId}', {Prefix: !FindInMap [Config, EksPrefix, Value]}]
   RandomStringFunctionArn:
     Value: !GetAtt RandomStringFunction.Arn
-  GitLabVersionMapperFunctionArn:
-    Value: !GetAtt GitLabVersionMapperFunction.Arn    

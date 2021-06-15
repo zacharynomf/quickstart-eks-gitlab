@@ -1,5 +1,15 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Deploys GitLab infrastructure resources (qs-1rpegts4g)
+
+Metadata:
+  cfn-lint:
+    config:
+      ignore_checks:
+        - W9002
+        - W9003
+        - W9004
+        - E0002
+
 Parameters:
   VPCID: 
     Type: 'AWS::EC2::VPC::Id'
