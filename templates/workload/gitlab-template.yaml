@@ -20,8 +20,6 @@ Parameters:
   CreateSslCertificate:
     Type: String
     AllowedValues: [ 'Yes', 'No' ]
-  SslCertificateIssuerEmail:
-    Type: String
   EnvironmentName:
     Type: String
 
@@ -169,7 +167,7 @@ Parameters:
     Type: String
   MaximumConcurrentJobs:
     Type: Number
-  PriviligedMode:
+  PrivilegedMode:
     Type: String
     AllowedValues: [ 'Yes', 'No' ]
 
@@ -195,7 +193,7 @@ Conditions:
   HelmChartNamespaceCreate: !Equals [!Ref HelmChartNamespaceCreate, 'CreateNew']
   CreateCacheCluster: !Equals [!Ref CacheMode, 'External']
   ConfigureRunner: !Equals [!Ref ConfigureRunner, 'Yes']
-  PriviligedMode: !Equals [!Ref PriviligedMode, 'Yes']
+  PrivilegedMode: !Equals [!Ref PrivilegedMode, 'Yes']
 
 Mappings: 
   PartitionMap: 
@@ -354,6 +352,7 @@ Resources:
         EnvironmentName: !Ref EnvironmentName
         DomainName: !Ref DomainName
         PrivateHostedZoneId: !GetAtt Infrastructure.Outputs.PrivateHostedZoneId
+        TlsCA: !GetAtt PostInstall.Outputs.RootCA
         GitalySubnetIds: !If 
           - Using3AvailabilityZones
           - !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID, !Ref PrivateSubnet3ID ] ]
@@ -473,8 +472,6 @@ Resources:
                 proxyBodySize: ${IngressProxyBodySize}
                 annotations:
                   nginx.ingress.kubernetes.io/proxy-body-size: ${IngressProxyBodySize}
-                  # Gitaly uses HTTP to access the load balancer. An area for improvement.
-                  nginx.ingress.kubernetes.io/ssl-redirect: "false"
 
           nginx-ingress:
             controller:
@@ -490,10 +487,14 @@ Resources:
         # domain name
         global.hosts.domain: !Ref DomainName
 
-        # SSL support
-        certmanager.install: !If [AcmIngressConfigured, false, true]
-        certmanager-issuer.email: !If [AcmIngressConfigured, !Ref 'AWS::NoValue', !Ref SslCertificateIssuerEmail]
-        global.ingress.configureCertmanager: !If [AcmIngressConfigured, false, true]
+        # security
+        # Config that only applies to the defaults on initial install
+        # see for additional details: https://gitlab.com/gitlab-org/gitlab-foss/-/issues/66124
+        global.appConfig.initialDefaults.signupEnabled: false
+
+        # Self signed TLS certs by default - see https://docs.gitlab.com/charts/installation/tls.html
+        certmanager.install: false
+        global.ingress.configureCertmanager: false
 
         global.ingress.enabled: !If [AcmIngressConfigured, false, true]
         nginx-ingress.defaultBackend.image.repository: 
@@ -605,6 +606,7 @@ Resources:
         HostedZoneId: !If [CreateHostedZone, !GetAtt Infrastructure.Outputs.HostedZoneId, '']
         PrivateHostedZoneId: !GetAtt Infrastructure.Outputs.PrivateHostedZoneId
         EnvironmentName: !Ref EnvironmentName
+        ConfigureGrafana: !Ref ConfigureGrafana
 
   Runner: 
     Type: AWS::CloudFormation::Stack
@@ -623,5 +625,6 @@ Resources:
         DomainName: !Ref DomainName
         RunnerRegistrationToken: !GetAtt RunnerRegistrationToken.Value
         RunnerImage: !Ref RunnerImage
+        TlsCASecretName: !GetAtt PostInstall.Outputs.RootCAChainSecretName
         MaximumConcurrentJobs: !Ref MaximumConcurrentJobs
-        PriviligedMode: !If [PriviligedMode, 'true', 'false']
+        PrivilegedMode: !If [PrivilegedMode, 'true', 'false']

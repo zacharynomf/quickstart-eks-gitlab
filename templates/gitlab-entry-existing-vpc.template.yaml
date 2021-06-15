@@ -90,7 +90,6 @@ Metadata:
           - DomainName
           - CreateHostedZone
           - CreateSslCertificate
-          - SslCertificateIssuerEmail
       - Label:
           default: GitLab SMTP configuration
         Parameters:
@@ -131,7 +130,7 @@ Metadata:
           - RunnerChartVersion
           - RunnerImage
           - MaximumConcurrentJobs
-          - PriviligedMode
+          - PrivilegedMode
       - Label:
           default: AWS Quick Start configuration
         Parameters:
@@ -216,8 +215,6 @@ Metadata:
         default: Create Route 53 hosted zone
       CreateSslCertificate: 
         default: Request AWS Certificate Manager SSL certificate
-      SslCertificateIssuerEmail:
-        default: Email address for SSL certificate registration
     # GitLab SMTP configuration
       SMTPDomain:
         default: Outgoing SMTP domain
@@ -273,7 +270,7 @@ Metadata:
         default: Default runner image
       MaximumConcurrentJobs:
         default: Max number of concurrent jobs
-      PriviligedMode:
+      PrivilegedMode:
         default: Use privileged mode
     # AWS Quick Start configuration
       QSS3BucketName:
@@ -487,10 +484,6 @@ Parameters:
     Description: Choose "Yes" if you want to request  AWS Certificate Manager SSL certificate for GitLab domain.
     AllowedValues: [ 'Yes', 'No' ]
     Default: 'No'  
-  SslCertificateIssuerEmail:
-    Type: String
-    Description: Email address to register GitLab TLS certificates. Required if you skip certificate creation.
-    Default: ''  
 
 # SMTP Parameters
   SMTPDomain: 
@@ -614,7 +607,7 @@ Parameters:
     Type: Number
     Default: 10
     Description: The maximum number of concurrent jobs.
-  PriviligedMode:
+  PrivilegedMode:
     Type: String
     Default: 'No'
     AllowedValues: [ 'Yes', 'No' ]
@@ -658,14 +651,8 @@ Parameters:
     Default: 'AutoDetect'
     Description: Choose "No" if you already deployed another EKS Quick Start stack in your Region.
 
+
 Rules:
-  SSLParameters:
-    RuleCondition: !Or
-      - !Equals [!Ref CreateSslCertificate, 'No']
-      - !Equals [!Ref CreateHostedZone, 'No'] 
-    Assertions:
-      - Assert: !Not [!Equals [!Ref SslCertificateIssuerEmail, '']]
-        AssertDescription: "You must provide email address for SSL certificate registration if you skip certificate creation."
   SMTPParameters:
     RuleCondition: !Equals [!Ref SMTPDomain, 'UseExisting']
     Assertions:
@@ -769,7 +756,6 @@ Resources:
         DomainName: !Ref DomainName
         CreateHostedZone: !Ref CreateHostedZone
         CreateSslCertificate: !Ref CreateSslCertificate
-        SslCertificateIssuerEmail: !Ref SslCertificateIssuerEmail
         EnvironmentName: !If [EmptyEnvironmentName, !Ref 'AWS::StackName', !Ref EnvironmentName]
         # Network properties
         VPCID: !Ref VPCID
@@ -822,4 +808,4 @@ Resources:
         RunnerChartVersion: !Ref RunnerChartVersion
         RunnerImage: !Ref RunnerImage
         MaximumConcurrentJobs: !Ref MaximumConcurrentJobs
-        PriviligedMode: !Ref PriviligedMode
+        PrivilegedMode: !Ref PrivilegedMode
