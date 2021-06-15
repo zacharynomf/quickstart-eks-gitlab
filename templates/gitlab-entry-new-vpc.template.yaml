@@ -1,6 +1,10 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: Deploys a GitLab cluster in a new VPC (qs-1rpegtrun)
 Metadata:
+  cfn-lint:
+    config:
+      ignore_checks:
+        - E0002
   QuickStartDocumentation:
     EntrypointName: "Launch into a new VPC"
     Order: Index 1
