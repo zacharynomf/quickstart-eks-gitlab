@@ -9,6 +9,7 @@ Metadata:
         - W9003
         - W9004
         - E0002
+        - E1010
 
 Parameters:
   ClusterName:
@@ -67,7 +68,6 @@ Resources:
       JsonPath: '{.data.password}'
   InitialRootPasswordSecret:
     Type: AWS::SecretsManager::Secret
-    Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }
     Properties:
       Name: !Sub '/quickstart/gitlab/${EnvironmentName}/secrets/initial-root-password'
       Description: "GitLab Initial Root Password"
@@ -87,7 +87,6 @@ Resources:
       JsonPath: '{.status.loadBalancer.ingress[0].hostname}'
   LoadBalancerParameter:
     Type: AWS::SSM::Parameter
-    Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }
     Properties:
       Type: String
       Name: !Sub '/quickstart/gitlab/${EnvironmentName}/loadbalancer'
@@ -108,7 +107,6 @@ Resources:
       JsonPath: '{.data.cfssl_ca}'
   RootCAParameter:
     Type: AWS::SSM::Parameter
-    Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }
     Properties:
       Type: String
       Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/tls-ca'
@@ -131,7 +129,6 @@ Resources:
   InitialGrafanaPasswordSecret:
     Type: AWS::SecretsManager::Secret
     Condition: ConfigureGrafana
-    Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }
     Properties:
       Name: !Sub '/quickstart/gitlab/${EnvironmentName}/secrets/initial-grafana-password'
       Description: "Grafana Initial Root Password"
@@ -140,7 +137,6 @@ Resources:
   # 5. Add DNS records to enable routing to GitLab
   GitLabPrivateDNSRecord:
     Type: AWS::Route53::RecordSet
-    Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }
     Properties:
       HostedZoneId: !Ref PrivateHostedZoneId
       Comment: DNS name for GitLab Web service.
@@ -152,7 +148,6 @@ Resources:
   GitLabDNSRecord:
     Type: AWS::Route53::RecordSet
     Condition: RegisterDns
-    Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }
     Properties:
       HostedZoneId: !Ref HostedZoneId
       Comment: DNS name for GitLab Web service.
@@ -163,7 +158,6 @@ Resources:
         - !GetAtt  LoadBalancerQuery.Response
   RegistryPrivateDNSRecord:
     Type: AWS::Route53::RecordSet
-    Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }
     Properties:
       HostedZoneId: !Ref PrivateHostedZoneId
       Comment: DNS name for GitLab Registry service.
@@ -175,7 +169,6 @@ Resources:
   RegistryDNSRecord:
     Type: AWS::Route53::RecordSet
     Condition: RegisterDns
-    Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }
     Properties:
       HostedZoneId: !Ref HostedZoneId
       Comment: DNS name for GitLab Registry service.
