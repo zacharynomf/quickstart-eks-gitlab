@@ -13,6 +13,9 @@ If you are migrating an existing GitLab Instance to one built by this Quick Star
 
 The GitLab instance will be configured with an Internet Ingress by default.
 
+=== Planning Instances Types, Sizes and Numbers
+
+This Quick Start is capable of creating GitLab Cloud Native Reference Architecture compliant GitLab instances. GitLab Reference Architectures have a "Cloud Native Hybrid" section that gives a manifest of required resources that can be used while deploying the template.  For instance, here is the list
 
 === Planning Post-Installation Considerations
 

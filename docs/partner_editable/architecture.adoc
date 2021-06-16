@@ -133,11 +133,11 @@ More about external object storage in https://docs.gitlab.com/charts/advanced/ex
 
 === GitLab Backups
 
-===== Schedule
+==== Scheduling Backups
 
 Backup schedule is controlled by cron expression and default value is `pass:[0 1 * * * *]` (daily at 1am). You can set a different schedule using *BackupSchedule* parameter.
 
-===== Content of the backups
+==== Content of the backups
 
 Backups include GitLab database snapshot and contents of GitLab projects (Git repositories, Wiki pages). Backups do *not* include contents of S3 buckets (see Object storage for a list of buckets). The main reason behind this decision:
 
@@ -147,7 +147,7 @@ Backups include GitLab database snapshot and contents of GitLab projects (Git re
 
 If needed, complete backup may be created using backup-utility as described in https://docs.gitlab.com/charts/backup-restore/[GitLab documentation^].
 
-===== Backup/Restore resources 
+==== Backup/Restore resources 
 
 NOTE: Disk volume required for backups is about *2x larger than backup tarball itself*. This is due to the fact that all resources have to be downloaded first and packaged to tarball file which also stored locally. Consider the size of you GitLab database and projects (mainly Git repositories) to set the size of the underlying EBS volumes appropriately using *BackupVolumeSize* parameter.
 
@@ -158,7 +158,7 @@ For large GitLab deployments you can also adjust CPU and memory requirements for
 More about backups in https://docs.gitlab.com/charts/backup-restore/[GitLab documentation^].
 
 === GitLab Telemetry and Monitoring
-==== CloudWatch Container Insights
+=== CloudWatch Container Insights
 GitLab Quickstart integrates EKS cluster with https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html[CloudWatch Container Insights^] to collect, aggregate, and summarise metrics and logs if *ConfigureContainerInsights* parameter is set to `Yes`.
 
 Logs and metrics can be accessed from CloudWatch console:
