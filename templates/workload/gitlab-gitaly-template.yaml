@@ -160,6 +160,8 @@ Resources:
         TagSpecifications:
           - ResourceType: instance
             Tags:
+              - Key: Name
+                Value: gitlab-gitaly
               - Key: !Ref GitalyEnvironmentTagName
                 Value: !Ref EnvironmentName
               - Key: !Ref GitalyReplicaTagName
@@ -167,7 +169,7 @@ Resources:
 
   GitalyAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
-
+    DependsOn: SQSTrigger
     Metadata:
       AWS::CloudFormation::Init:
         configSets:
@@ -316,6 +318,7 @@ Resources:
               command: source /etc/gitlab/mount_gitaly_volume.sh
 
     Properties:
+      AutoScalingGroupName: !Sub ${EnvironmentName}-gitaly
       VPCZoneIdentifier: !Ref GitalySubnetIds
       LaunchTemplate:
         LaunchTemplateId: !Ref GitalyLaunchTemplate
@@ -401,7 +404,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - autoscaling:CompleteLifecycleAction
-                Resource: !Sub arn:${AWS::Partition}:autoscaling:${AWS::Region}:${AWS::AccountId}:autoScalingGroup:*:autoScalingGroupName/${GitalyAutoScalingGroup}
+                Resource: !Sub arn:${AWS::Partition}:autoscaling:${AWS::Region}:${AWS::AccountId}:autoScalingGroup:*:autoScalingGroupName/${EnvironmentName}-gitaly
               - Effect: Allow
                 Action:
                   - ec2:DescribeInstances

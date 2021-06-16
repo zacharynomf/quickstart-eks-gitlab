@@ -85,9 +85,6 @@ Parameters:
     AllowedValues: [ 'AES256', 'aws:kms' ]
   ObjectStorageKMSKeyID:
     Type: String
-  ObjectStorageRetainOnDelete:
-    Type: String
-    AllowedValues: [ 'Yes', 'No' ]
 
 # Cache Parameters
   CacheMode:
@@ -315,6 +312,7 @@ Resources:
         - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
+        EnvironmentName: !Ref EnvironmentName
         DomainName: !Ref DomainName
         DBHost: !GetAtt Database.Outputs.RDSEndPointAddress
         DBPort: !Ref DBPort
@@ -380,7 +378,6 @@ Resources:
         SSEAlgorithm: !Ref ObjectStorageSSEAlgorithm
         KMSKeyID: !Ref ObjectStorageKMSKeyID
         EnvironmentName: !Ref EnvironmentName
-        RetainOnDelete: !Ref ObjectStorageRetainOnDelete
         DeleteBucketContentsFunctionArn: !GetAtt Functions.Outputs.DeleteBucketContentsFunctionArn
         DeleteBucketContentsRoleName: !GetAtt Functions.Outputs.DeleteBucketContentsRoleName
 

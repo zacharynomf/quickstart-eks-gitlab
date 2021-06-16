@@ -13,6 +13,8 @@ Metadata:
 
 Parameters:
   # Infrastructure
+  EnvironmentName:
+    Type: String
   DomainName:
     Type: String
 
@@ -201,6 +203,11 @@ Resources:
             for i in $(seq 1 3); do gitlab-ctl reconfigure && s=0 && break || s=$? && sleep 15; done; (exit $s)
             
             /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource "PraefectAutoScalingGroup" --region ${AWS::Region}
+        TagSpecifications:
+          - ResourceType: instance
+            Tags:
+              - Key: Name
+                Value: gitlab-praefect
 
   PraefectAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
@@ -339,6 +346,7 @@ Resources:
               group: root
 
     Properties:
+      AutoScalingGroupName: !Sub ${EnvironmentName}-praefect
       VPCZoneIdentifier: !Ref PraefectSubnetIds
       LaunchTemplate:
         LaunchTemplateId: !Ref PraefectLaunchTemplate

@@ -20,10 +20,6 @@ Parameters:
     Default: ''
   EnvironmentName:
     Type: String 
-  RetainOnDelete:
-    Type: String
-    Default: 'No'
-    AllowedValues: [ 'Yes', 'No' ]
   DeleteBucketContentsFunctionArn:
     Type: String
   DeleteBucketContentsRoleName:
@@ -31,14 +27,11 @@ Parameters:
 
 Conditions:
   UseKMS: !Equals [!Ref KMSKeyID, 'aws:kms']
-  RetainOnDelete: !Equals [!Ref RetainOnDelete, 'Yes']
-  CleanupOnDelete: !Equals [!Ref RetainOnDelete, 'No']
 
 Resources:
 
   ArtifactsBucket:
     Type: AWS::S3::Bucket
-    DeletionPolicy:  !If [RetainOnDelete, Retain, !Ref 'AWS::NoValue']
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
@@ -48,14 +41,12 @@ Resources:
   DeleteArtifactsBucketContents:
     Type: Custom::DeleteBucketContents
     DependsOn: DeleteBucketContentsRolePolicy
-    Condition: CleanupOnDelete
     Properties:
       ServiceToken: !Ref DeleteBucketContentsFunctionArn
       Bucket: !Ref ArtifactsBucket
 
   LfsBucket:
     Type: AWS::S3::Bucket
-    DeletionPolicy:  !If [RetainOnDelete, Retain, !Ref 'AWS::NoValue']
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
@@ -65,14 +56,12 @@ Resources:
   DeleteLfsBucketContents:
     Type: Custom::DeleteBucketContents
     DependsOn: DeleteBucketContentsRolePolicy
-    Condition: CleanupOnDelete
     Properties:
       ServiceToken: !Ref DeleteBucketContentsFunctionArn
       Bucket: !Ref LfsBucket
 
   UploadsBucket:
     Type: AWS::S3::Bucket
-    DeletionPolicy:  !If [RetainOnDelete, Retain, !Ref 'AWS::NoValue']
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
@@ -82,14 +71,12 @@ Resources:
   DeleteUploadsBucketContents:
     Type: Custom::DeleteBucketContents
     DependsOn: DeleteBucketContentsRolePolicy
-    Condition: CleanupOnDelete
     Properties:
       ServiceToken: !Ref DeleteBucketContentsFunctionArn
       Bucket: !Ref UploadsBucket
 
   PackagesBucket:
     Type: AWS::S3::Bucket
-    DeletionPolicy:  !If [RetainOnDelete, Retain, !Ref 'AWS::NoValue']
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
@@ -99,14 +86,12 @@ Resources:
   DeletePackagesBucketContents:
     Type: Custom::DeleteBucketContents
     DependsOn: DeleteBucketContentsRolePolicy
-    Condition: CleanupOnDelete
     Properties:
       ServiceToken: !Ref DeleteBucketContentsFunctionArn
       Bucket: !Ref PackagesBucket
 
   TerraformBucket:
     Type: AWS::S3::Bucket
-    DeletionPolicy:  !If [RetainOnDelete, Retain, !Ref 'AWS::NoValue']
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
@@ -116,14 +101,12 @@ Resources:
   DeleteTerraformBucketContents:
     Type: Custom::DeleteBucketContents
     DependsOn: DeleteBucketContentsRolePolicy
-    Condition: CleanupOnDelete
     Properties:
       ServiceToken: !Ref DeleteBucketContentsFunctionArn
       Bucket: !Ref TerraformBucket
 
   PseudonymizerBucket:
     Type: AWS::S3::Bucket
-    DeletionPolicy:  !If [RetainOnDelete, Retain, !Ref 'AWS::NoValue']
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
@@ -133,14 +116,12 @@ Resources:
   DeletePseudonymizerBucketContents:
     Type: Custom::DeleteBucketContents
     DependsOn: DeleteBucketContentsRolePolicy
-    Condition: CleanupOnDelete
     Properties:
       ServiceToken: !Ref DeleteBucketContentsFunctionArn
       Bucket: !Ref PseudonymizerBucket
 
   RegistryBucket:
     Type: AWS::S3::Bucket
-    DeletionPolicy:  !If [RetainOnDelete, Retain, !Ref 'AWS::NoValue']
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
@@ -150,14 +131,12 @@ Resources:
   DeleteRegistryBucketContents:
     Type: Custom::DeleteBucketContents
     DependsOn: DeleteBucketContentsRolePolicy
-    Condition: CleanupOnDelete
     Properties:
       ServiceToken: !Ref DeleteBucketContentsFunctionArn
       Bucket: !Ref RegistryBucket
 
   BackupBucket:
     Type: AWS::S3::Bucket
-    DeletionPolicy:  !If [RetainOnDelete, Retain, !Ref 'AWS::NoValue']
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
@@ -167,14 +146,12 @@ Resources:
   DeleteBackupBucketContents:
     Type: Custom::DeleteBucketContents
     DependsOn: DeleteBucketContentsRolePolicy
-    Condition: CleanupOnDelete
     Properties:
       ServiceToken: !Ref DeleteBucketContentsFunctionArn
       Bucket: !Ref BackupBucket
 
   BackupTempBucket:
     Type: AWS::S3::Bucket
-    DeletionPolicy:  !If [RetainOnDelete, Retain, !Ref 'AWS::NoValue']
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
@@ -184,7 +161,6 @@ Resources:
   DeleteBackupTempBucketContents:
     Type: Custom::DeleteBucketContents
     DependsOn: DeleteBucketContentsRolePolicy
-    Condition: CleanupOnDelete
     Properties:
       ServiceToken: !Ref DeleteBucketContentsFunctionArn
       Bucket: !Ref BackupTempBucket
