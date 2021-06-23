@@ -47,7 +47,7 @@ Resources:
       SubnetIds:
         - !Ref Subnet1ID
         - !Ref Subnet2ID   
-        - !If [Use3AvailabilityZones, !Ref Subnet3ID, !Ref AWS::NoValue]
+        - !If [Use3AvailabilityZones, !Ref Subnet3ID, !Ref 'AWS::NoValue']
 
   CacheSecurityGroup:
     Type: AWS::EC2::SecurityGroup

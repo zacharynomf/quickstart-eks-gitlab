@@ -21,7 +21,6 @@ tests:
       ProvisionBastionHost: Disabled
       DBUserPassword: 'Ae6ii5fcckj4ddi0t!'
       DomainName: devops.$[taskcat_random-string].com
-      SslCertificateIssuerEmail: gitlab@$[taskcat_random-string].com
     regions:
     - eu-west-1
     - us-east-1
@@ -35,13 +34,12 @@ tests:
       ProvisionBastionHost: Enabled
       DBUserPassword: 'Ae6ii5fcckj4ddi0t!'
       DomainName: devops.$[taskcat_random-string].com
-      SslCertificateIssuerEmail: gitlab@$[taskcat_random-string].com
       ConfigureContainerInsights: 'Yes'
       ConfigureGrafana: 'Yes'
       CreateHostedZone: 'Yes'
       CacheMode: External
       SMTPDomain: CreateNew
       ConfigureRunner: 'Yes'
-      PriviligedMode: 'Yes'
+      PrivilegedMode: 'Yes'
     regions:
     - eu-central-1
