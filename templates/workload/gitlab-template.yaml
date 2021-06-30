@@ -493,7 +493,7 @@ Resources:
         certmanager.install: false
         global.ingress.configureCertmanager: false
 
-        global.ingress.enabled: !If [AcmIngressConfigured, false, true]
+        global.ingress.enabled: true
         nginx-ingress.defaultBackend.image.repository: 
           !FindInMap [PartitionMap, !Ref 'AWS::Partition', IngressImageRepository]
 
