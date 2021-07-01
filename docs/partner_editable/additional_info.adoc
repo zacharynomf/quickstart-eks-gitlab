@@ -26,8 +26,7 @@ echo {base64-encoded-password} | base64 -d | pbcopy
 
 [WARNING]
 ====
-* If you get the error "422 The change you requested was rejected." you probably used "http" instead of "https" on the browser URL.
-* If you get the error "Invalid Login or password." you probably didn't use either the username 'root' or the email 'admin@example.com'"' for the login name - please use one of these for the username.
+* If you get the error "Invalid Login or password." you probably didn't use either the username 'root' for the username.
 * If you get the error "This site can't be reached" you are probably not using the actual host name you put in your hosts file.
 * If you get the message "default backend - 404" you probably forgot to prefix the domain with "gitlab." in your hosts file and in your browser.
 ====
@@ -44,27 +43,18 @@ NOTE: Using the bastion host for cluster administration has the following advant
 . On the *Connect to instance...* page select the *Session Manager* tab.
 . Click the orange *Connect* button.
 . Wait for several seconds to be placed in a shell console.
-
-==== Configuring kubectl To Access EKS
-These steps work as-is on the bastion host, if you are accessing the EKS end point from another machine, AWS CLI v2 and kubectl will need to be installed.
-
-Session Manager is a much more secure and auditable way to open a console session to the bastion host as it does not open any ports and does not require the bastion to be exposed to the internet.  It can even be used on machines outside of Amazon by https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html[installing the Session Manager plugin for the AWS CLI^].
-
-. In the *AWS Systems Manager* console and click on *(https://console.aws.amazon.com/systems-manager/parameters/[Parameter Store^])*. 
-. In the search field, type **/cluster/name** to locate the parameter.  Copy the value. This can also be found in the EKS console in the region where you deployed.
-. In the list, find the *Kubernetes cluster name* and substitute it into this command line to configure kubectl to point to the cluster.
+. Switch to the root user where kubectl is preconfigured.
 
 ----
-  aws eks --region us-east-1 update-kubeconfig --name <CLUSTERNAMEFROMCONSOLE>
+  sudo su
 ----
 
 [start=3]
 . Test with this command:
 
 ----
-  kubectl get pods --all-namespaces
+  /usr/local/bin/kubectl get pods --all-namespaces
 ----
-
 
 === Enabling AWS Simple Email Services (SES) Outbound Email
 
@@ -85,19 +75,26 @@ AWS Simple Email Services are purposely created in "sandbox" mode to prevent spa
 NOTE: Notice the new banner near the top containing *Your account details are currently under review*. 
 
 === Accessing Grafana
-If you configured Grafana, you can retrieve the admin password to your clipboard by running this command wherever you have kubectl wired up to the cluster:
+
+. Go to the https://console.aws.amazon.com/secretsmanager[AWS Secrets manager console^] in the region where GitLab was deployed and click on the secret ending in *initial-grafana-password*
+. Click the *Retrieve secret value* button.
+. Decode the base64 encoded password in bash with (the password will be in your copy / paste buffer):
 
 .Bash command
 [Source,bash]
 ----
-kubectl get secret -n gitlab gitlab-grafana-initial-password  -o jsonpath='{.data.password}' | base64 -d | pbcopy
+echo {base64-encoded-password} | base64 -d | pbcopy
 ----
 
 .PowerShell command
 [Source,powsershell]
 ----
-[Text.Encoding]::Utf8.GetString([Convert]::FromBase64String($(kubectl get secret -n gitlab gitlab-grafana-initial-password  -o jsonpath='{.data.password}'))) | clip
+[Text.Encoding]::Utf8.GetString([Convert]::FromBase64String('{base64-encoded-password}')) | clip
 ----
+
+. Visit YourGitLabURL/-/grafana
+. For user specify 'root'
+. Use the password retrieved above.
 
 == Test the deployment
 // If steps are required to test the deployment, add them here. If not, remove the heading
