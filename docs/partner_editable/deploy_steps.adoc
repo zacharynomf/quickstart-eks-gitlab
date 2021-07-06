@@ -55,15 +55,16 @@ Changing the region later will clear all form values.
 ====
 
 For details on each parameter, see the link:#_parameter_reference[Parameter reference] section of this guide.
-Any parameters that are not mentioned can be left at their default setting.
+
+Any parameters in the form that are not mentioned below can be left at their default setting.
 
 [start=6]
 . On the *Quick create stack* page:
 ** For `Stack name` set a unique name, but not too long. Note: All resources created will be prepended by this name.
-** For `Availability Zones` select at least 2 for non-production and 3 for production.
+** For `Number of Availability Zones` pick the number that matches your HA requirements and is not more than the selected region has available.
+** For `Availability Zones` select at least 2 for non-production and 3 for production.  
 ** For `SSH key pair name` select an existing keypair in the region. If none exist, you must create one now and specify it here (refresh the browser for the newly created key pair to appear on the list).
-** For `Number of Availability Zones` pick the number that matches how many you specified in the previous step.
-** For `Provision a bastion host` select **Enabled**
+** For `Provision a bastion host` select **Enabled**.
 ** For `Allowed bastion external access CIDR` use the internet to find your own public IP and enter it with a /32 CIDR (e.g. **123.231.123.231/32**)
 ** `EKS public access endpoint` can stay at the default of `Disabled` if you will use the Bastion host (recommended) for administering the GitLab cluster.
 ** `EKS node instance type` can remain at the default for non-production and non-performance testing setups. For production or testing setups, https://aws.amazon.com/ec2/instance-types/[select an instance type^] that meets the vCPU and Memory requirements of your chosen reference architecture user level - spread across all EKS nodes you select.
@@ -73,7 +74,7 @@ Any parameters that are not mentioned can be left at their default setting.
 ** If you will be using the cluster integrated Grafana for GitLab, for `Configure Grafana` select **Yes**.
 ** For `GitLab database instance class` select an instance type that fulfills the vCPUs and Memory requirements of PostgreSQL across 3 instances. These must be of the special "db" type. https://aws.amazon.com/rds/instance-types/[RDS Instance Type List^]
 ** For `Database admin password` provide a password that meets the complexity requirements on the Cloud Formation form.
-** For `Cache mode` production and performance testing setups must select External to ensure Redis is configured for RDS rather than placed in the EKS cluster. Redis in the EKS cluster is not currently supported by GitLab Reference Architecture.
+** For `Cache mode` production and performance testing setups must select External to ensure Redis is configured using Elasticache rather than placed in the EKS cluster. Redis in the EKS cluster is not currently supported by GitLab Reference Architecture.
 ** For `Number of cache replicas` enter the number that matches the availability zones you are configuring for.
 ** `Cache node type` can remain at the default for non-production and non-performance testing setups. For production or testing setups, specify the Cache instance node type. These must be of the special instance type "cache". https://aws.amazon.com/elasticache/pricing/[Cache Instance Type List^].
 ** For `GitLab DNS Name` select a subdomain to which the gitlab host ("gitlab") will be a part of, but do not specify the gitlab host name.  For example `devopstools.ourcompany.com` creates a gitlab instance at `gitlab.devopstools.ourcompany.com`
@@ -82,9 +83,11 @@ Any parameters that are not mentioned can be left at their default setting.
 ** For `Outgoing SMTP domain` select **CreateNew**.
 ** For `GitLab Helm chart version` pick a version from https://docs.gitlab.com/charts/installation/version_mappings.html[GitLab version mappings^].
 ** For `GitLab application version` select the corresponding GitLab version for the chart version that was picked from https://docs.gitlab.com/charts/installation/version_mappings.html[GitLab version mappings^].
-** For `Praefect instance type`, https://aws.amazon.com/ec2/instance-types/[select an instance type^] that meets the vCPU and Memory requirements of your chosen reference architecture user level. (10K = c5.large)
-** For `Gitaly instance type`, https://aws.amazon.com/ec2/instance-types/[select an instance type^] that meets the vCPU and Memory requirements of your chosen reference architecture user level. (10K = m5.4xlarge)
+** For `Number of Gitaly replicas` set it the same as the number of Availability Zones being configured.
+** For `Gitaly instance type`, https://aws.amazon.com/ec2/instance-types/[select an instance type^] that meets the vCPU and Memory requirements of your chosen reference architecture user level.
 ** For `Gitaly volume capacity` - this is used for Git Repository storage and working and cache storage for Gitaly. Remember that overprovisioning storage size gives more IOPs on AWS. You may also elect to pay for higher IOPs levels. https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-volume-types.html[See EBS docs^]. Gitaly uses a lot of working storage and cache storage, so do at least double of your 1-2 year Git repository storage projection.
+** For `Number of Praefect replicas` set it the same as the number of Availability Zones being configured.
+** For `Praefect instance type`, https://aws.amazon.com/ec2/instance-types/[select an instance type^] that meets the vCPU and Memory requirements of your chosen reference architecture user level.
 ** For production or performance testing setups, for `Configure GitLab Runner` select **No**.
 ** For `Quick Start S3 bucket region` select **us-east-1** (this does not need to match the region you are deploying to)
 ** **Check** `I acknowledge that AWS CloudFormation might create IAM resources with custom names.`
