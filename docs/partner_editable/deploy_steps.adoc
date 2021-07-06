@@ -74,7 +74,7 @@ Any parameters in the form that are not mentioned below can be left at their def
 ** If you will be using the cluster integrated Grafana for GitLab, for `Configure Grafana` select **Yes**.
 ** For `GitLab database instance class` select an instance type that fulfills the vCPUs and Memory requirements of PostgreSQL across 3 instances. These must be of the special "db" type. https://aws.amazon.com/rds/instance-types/[RDS Instance Type List^]
 ** For `Database admin password` provide a password that meets the complexity requirements on the Cloud Formation form.
-** For `Cache mode` production and performance testing setups must select External to ensure Redis is configured for RDS rather than placed in the EKS cluster. Redis in the EKS cluster is not currently supported by GitLab Reference Architecture.
+** For `Cache mode` production and performance testing setups must select External to ensure Redis is configured for Elasticache rather than placed in the EKS cluster. Redis in the EKS cluster is not currently supported by GitLab Reference Architecture.
 ** For `Number of cache replicas` enter the number that matches the availability zones you are configuring for.
 ** `Cache node type` can remain at the default for non-production and non-performance testing setups. For production or testing setups, specify the Cache instance node type. These must be of the special instance type "cache". https://aws.amazon.com/elasticache/pricing/[Cache Instance Type List^].
 ** For `GitLab DNS Name` select a subdomain to which the gitlab host ("gitlab") will be a part of, but do not specify the gitlab host name.  For example `devopstools.ourcompany.com` creates a gitlab instance at `gitlab.devopstools.ourcompany.com`
