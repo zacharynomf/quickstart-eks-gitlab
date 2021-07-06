@@ -61,7 +61,7 @@ Any parameters that are not mentioned can be left at their default setting.
 . On the *Quick create stack* page:
 ** For `Stack name` set a unique name, but not too long. Note: All resources created will be prepended by this name.
 ** For `Availability Zones` select at least 2 for non-production and 3 for production.
-** For `SSH key pair name` select an existing keypair in the region. If none exist, you must create one now and specify here.
+** For `SSH key pair name` select an existing keypair in the region. If none exist, you must create one now and specify it here (refresh the browser for the newly created key pair to appear on the list).
 ** For `Number of Availability Zones` pick the number that matches how many you specified in the previous step.
 ** For `Provision a bastion host` select **Enabled**
 ** For `Allowed bastion external access CIDR` use the internet to find your own public IP and enter it with a /32 CIDR (e.g. **123.231.123.231/32**)
