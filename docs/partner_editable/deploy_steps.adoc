@@ -107,6 +107,8 @@ NOTE: If you choose Yes for both `Create Route53 hosted zone` and `Request AWS C
 
 The waiting period starts when the child stack containing "...GitLabStack...Infrastructure..." is waiting for creation of a resource called "SslCertificate"
 
+These steps can be completed as soon as the subdomain Hosted Zone is created in Route53 - this happens well ahead of the ACM certificate wait state (which will not occur if you do these steps as soon as the hosted Zone is created).
+
 [start=1]
 . Monitor Route53 for the creation of a Hosted Zone with the domain you specified for `GitLab DNS Name` (For this example we will use `devopstools.ourcompany.com`).
 . In the [*AWS Route53 console*](https://console.aws.amazon.com/route53/v2/hostedzones#), find the new hosted zone's *Public* recordset for the subdomain and **copy it's nameservers list**.
