@@ -204,7 +204,7 @@ Metadata:
         default: Database port
     # Cache configuration
       CacheMode:
-        default: Cache mode
+        default: Where to provision Redis
       CacheNodes:
         default: Number of cache replicas
       CacheNodeType:
@@ -504,8 +504,10 @@ Parameters:
   CacheMode:
     Type: String
     AllowedValues: [ 'BuiltIn', 'External' ]    
-    Default: 'BuiltIn'
-    Description: Use built-in cache or provision external Amazon ElastiCache Redis cluster.
+    Default: 'External'
+    Description: |
+      'BuiltIn' will install Redis in the EKS cluster while 'External' provisions Amazon ElastiCache Redis. 
+      GitLab Redis in Kubernetes clusters is not GitLab reference architecture compliant and only for training or testing setups.
   CacheNodes:
     Type: Number
     Default: 2
