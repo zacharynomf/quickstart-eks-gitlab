@@ -297,7 +297,7 @@ Resources:
         - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
-        DBEngineVersion: !Ref: DBEngineVersion # GitLab PostgreSQL version mappings https://docs.gitlab.com/omnibus/settings/database.html#gitlab-140-and-later
+        DBEngineVersion: !Ref DBEngineVersion # GitLab PostgreSQL version mappings https://docs.gitlab.com/omnibus/settings/database.html#gitlab-140-and-later
         DBInstanceClass: !Ref DBInstanceClass
         DBName: !Ref DBName
         DBMasterUsername: !Ref DBUserName
