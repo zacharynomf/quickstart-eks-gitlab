@@ -55,6 +55,7 @@ Metadata:
       - Label:
           default: Amazon Aurora Postgres configuration
         Parameters:
+          - DBEngineVersion
           - DBInstanceClass
           - DBName
           - DBPraefectName
@@ -142,6 +143,8 @@ Metadata:
       ConfigureGrafana:
         default: Configure Grafana
     # Amazon Aurora Postgres configuration
+      DBEngineVersion:
+        default: GitLab PostgreSQL version
       DBInstanceClass:
         default: GitLab database instance class
       DBName:
@@ -277,11 +280,33 @@ Parameters:
     Description: Choose "Yes" to enable integration with Grafana.
 
 # Database Parameters
+  DBEngineVersion:
+    Description: |
+      Select Database Engine Version.
+      The version must be supported by your target version of GitLab: https://docs.gitlab.com/omnibus/settings/database.html#gitlab-140-and-later
+      And by the Aurora RDS Instance type you choose: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html
+    Type: String
+    Default: 12.4
+    AllowedValues:
+      - 9.6.16
+      - 9.6.17
+      - 9.6.18
+      - 9.6.19
+      - 10.11
+      - 10.12
+      - 10.13
+      - 10.14
+      - 11.6
+      - 11.7
+      - 11.8
+      - 11.9
+      - 12.4
   DBInstanceClass:
     Description: |
       The name of the compute and memory capacity class of the database instance.
       This Quickstart deploys Multi-AZ Postgres replicas in different Availability Zones.
       The instance class is applied to both primary and standby instances.
+      The instance class you choose must support the needed PostgreSQL version: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html
     Default: db.r5.large
     AllowedPattern: "db\\.[a-z0-9]*\\.[a-z0-9]*"
     Type: String
@@ -560,6 +585,7 @@ Resources:
         ConfigureContainerInsights: !Ref ConfigureContainerInsights
         ConfigureGrafana: !Ref ConfigureGrafana
         # Database properties
+        DBEngineVersion: !Ref DBEngineVersion
         DBInstanceClass: !Ref DBInstanceClass
         DBName: !Ref DBName
         DBPraefectName: !Ref DBPraefectName
