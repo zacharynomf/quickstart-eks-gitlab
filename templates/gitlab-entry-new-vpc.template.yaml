@@ -296,7 +296,7 @@ Parameters:
       Environment name is used to generate unique resource names.
       Multiple GitLab environments with different names can be deployed in the same region.
   AvailabilityZones:
-      Description: List of Availability Zones to use for the subnets in the VPC. Pick only as many as match what was selected for Number of Availability Zones (NumberofAZs).
+    Description: List of Availability Zones to use for the subnets in the VPC. Pick only as many as match what was selected for Number of Availability Zones (NumberofAZs).
     Type: List<AWS::EC2::AvailabilityZone::Name>
   KeyPairName:
     Description: Name of an existing public/private key pair, which allows you
@@ -743,6 +743,7 @@ Rules:
         AssertDescription: "You must provide SMTP host name if you chose to use existing SMTP server."
   BastionParameters:
     RuleCondition: !Equals [!Ref ProvisionBastionHost, 'Enabled']
+      Assertions:
       - Assert: !Not [!Equals [!Ref RemoteAccessCIDR, '']]
         AssertDescription: "You must provide RemoteAccessCIDR you chose to set ProvisionBastionHost to Enabled."
 
