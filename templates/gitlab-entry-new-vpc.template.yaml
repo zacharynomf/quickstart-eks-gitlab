@@ -743,9 +743,9 @@ Rules:
         AssertDescription: "You must provide SMTP host name if you chose to use existing SMTP server."
   BastionParameters:
     RuleCondition: !Equals [!Ref ProvisionBastionHost, 'Enabled']
-      Assertions:
-      - Assert: !Not [!Equals [!Ref RemoteAccessCIDR, '']]
-        AssertDescription: "You must provide RemoteAccessCIDR you chose to set ProvisionBastionHost to Enabled."
+    Assertions:
+    - Assert: !Not [!Equals [!Ref RemoteAccessCIDR, '']]
+      AssertDescription: "You must provide RemoteAccessCIDR you chose to set ProvisionBastionHost to Enabled."
 
 Conditions:
   Using3AvailabilityZones:  !Equals [!Ref NumberOfAZs, '3']
