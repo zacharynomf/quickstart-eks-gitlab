@@ -612,8 +612,7 @@ Resources:
   Runner: 
     Type: AWS::CloudFormation::Stack
     Condition: ConfigureRunner
-    DependsOn: PostInstall
-    Properties: 
+    Properties:
       TemplateURL: !Sub
         - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-runner-template.yaml'
         - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
