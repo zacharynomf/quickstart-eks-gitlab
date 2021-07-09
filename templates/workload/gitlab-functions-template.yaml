@@ -79,6 +79,7 @@ Resources:
       Objects:
         - functions/packages/CfnSesDomain/lambda.zip
         - functions/packages/CreateDatabase/lambda.zip
+        - functions/packages/CleanupACMDNSValidation/lambda.zip
         - functions/packages/SmtpPasswordGenerator/lambda.zip
         - functions/packages/UpdateDnsRecord/lambda.zip
 

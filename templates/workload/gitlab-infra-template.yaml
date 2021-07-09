@@ -142,6 +142,52 @@ Resources:
         - DomainName: !Sub "*.${DomainName}"
           HostedZoneId: !Ref HostedZone
 
+
+  CleanupACMDNSValidationLambdaRole:
+    Type: AWS::IAM::Role
+    Condition: CertificateRequested
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Sid: AssumeLambdaExecutionRole
+          Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action: sts:AssumeRole
+      ManagedPolicyArns:
+        # (allows logging)
+        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - route53:ChangeResourceRecordSets
+                Resource: !Sub
+                  - "arn:${AWS::Partition}:route53:::hostedzone/${HostedZoneID}"
+                  - HostedZoneID: !Ref HostedZone
+
+  CleanupACMDNSValidationLambdaFunction:
+    Type: AWS::Lambda::Function
+    Condition: CertificateRequested
+    Properties:
+      Handler: handler.handler
+      Runtime: python3.8
+      Role: !GetAtt CleanupACMDNSValidationLambdaRole.Arn
+      Code:
+        S3Bucket: !Ref FunctionsBucketName
+        S3Key: !Sub '${QSS3KeyPrefix}functions/packages/CleanupACMDNSValidation/lambda.zip'
+
+  CleanupACMDNSValidation:
+    Condition: CertificateRequested
+    Type: Custom::CleanupACMDNSValidation
+    Properties:
+      ServiceToken: !Ref CleanupACMDNSValidationLambdaFunction
+      ACMArn: !Ref SslCertificate
+
 # 3. Define the Custom::SES_Domain's Lambda Function via a nested stack. 
   CfnSESResources:
     Type: AWS::CloudFormation::Stack
