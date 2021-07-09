@@ -1,6 +1,36 @@
 // Replace the content in <>
 // Describe or link to specific knowledge requirements; for example: “familiarity with basic concepts in the areas of networking, database operations, and data encryption” or “familiarity with <software>.”
 
-This Quick Start assumes familiarity with <knowledge expectations>.
+=== GitLab Instance Version Selection
 
+The version of GitLab that will be deployed depends on the GitLab Helm Chart Version you select when launching this Quick Start.  Here is the https://docs.gitlab.com/charts/installation/version_mappings.html[documentation for Mapping GitLab Helm Chart Versions to GitLab Product Versions^]. 
+
+=== GitLab Migrations and Versions
+
+If you are migrating an existing GitLab Instance to one built by this Quick Start, it is critical to have the new instance version match the old instance version during migration.  GitLab version upgrades can be done on the old instance before migration or on the new instance after migration - but not during a migration using mismatched versions. **This includes the versions of all underlying components such as PostgreSQL and Redis.**
+
+=== GitLab Internet Ingress
+
+The GitLab instance will be configured with an Internet Ingress by default.
+
+=== Planning Instances Types, Sizes and Numbers
+
+This Quick Start is capable of creating GitLab Cloud Native Reference Architecture compliant GitLab instances. GitLab Reference Architectures have a "Cloud Native Hybrid" section that gives a manifest of required resources that can be used while deploying the template.  For instance, here is the list
+
+=== Planning Post-Installation Considerations
+
+The following items need to be deployed after the GitLab instance is operational. They are noted here so that plans can be made around deploying them. Further instructions are given in Post-deployment steps.
+
+* <<Configuring GitLab to integrate with Existing EKS Clusters>>
+* <<Configuring GitLab for Kubernetes Cluster Provisioning on EKS>>
+
+==== Deploying GitLab Runners in EKS or Ec2
+
+For a production deployment, the Kubernetes runner chart integrated into the Quick Start should not be deployed because it deploys to the same cluster as GitLab. This can create workload scaling challenges and should never be done with privileged mode enabled because it gives very high privileges to the cluster for any runner job.  However, without privileged mode, AutoDevOps, Review Apps and DinD based container builds will not work (Kaniko based container builds can work) - so a separate GitLab Runner design and deployment is advised.
+
+Alternative GitLab Runner deployment options include:
+
+. For groups and projects that will be integrated into a Kubernetes cluster dedicated to development and/or production, the https://docs.gitlab.com/ee/user/clusters/applications.html#gitlab-runner[GitLab Runner can be deployed as a Managed App^] or using the https://docs.gitlab.com/runner/install/kubernetes.html[Runner Helm Chart^] after the clusters are integrated.
+. For non-Kubernetes integrated groups, projects or for shared runners for the entire instance, the https://gitlab.com/guided-explorations/aws/gitlab-runner-autoscaling-aws-asg[GitLab HA Scaling Runner Vending Machine for AWS^] can be used to deploy runners of all OS types and Runner Executor types using an AWS ASG.
+. a dedicated EKS cluster for a fleet of shared runners could also be implemented.
 

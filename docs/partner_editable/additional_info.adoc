@@ -1,23 +1,144 @@
 // Add steps as necessary for accessing the software, post-configuration, and testing. Don’t include full usage instructions for your software, but add links to your product documentation for that information.
 //Should any sections not be applicable, remove them
 
+=== Retrieving Credentials and Logging In to GitLab
+
+. Go to the https://console.aws.amazon.com/secretsmanager[AWS Secrets manager console^] in the region where GitLab was deployed and click on the secret ending in *initial-root-password*
+. Click the *Retrieve secret value* button.
+. Decode the base64 encoded password in bash with (the password will be in your copy / paste buffer):
+
+.Bash command
+[Source,bash]
+----
+echo {base64-encoded-password} | base64 -d | pbcopy
+----
+
+.PowerShell command
+[Source,powsershell]
+----
+[Text.Encoding]::Utf8.GetString([Convert]::FromBase64String('{base64-encoded-password}')) | clip
+----
+
+[start=4]
+. Copy the emitted password (or use your operating system's CLI command to pipe the above command output directly to the clipboard. Bash: `| pbcopy` PowerShell: `| clip`)
+. Use an internet browser to access the GitLab instance URL.
+. Login with the username 'root' and paste the password in.
+
+[WARNING]
+====
+* If you get the error "Invalid Login or password." you probably didn't use either the username 'root' for the username.
+* If you get the error "This site can't be reached" you are probably not using the actual host name you put in your hosts file.
+* If you get the message "default backend - 404" you probably forgot to prefix the domain with "gitlab." in your hosts file and in your browser.
+====
+
+=== Accessing Kubernetes
+
+NOTE: Using the bastion host for cluster administration has the following advantages: all the kubernetes utilities preinstalled, it has permissions to the cluster and it is the only way to access the cluster if you setup the QuickStart to not expose a public endpoint for the cluster. If using the bastion host, complete these steps on that machine.
+
+==== Getting a Console on the Bastion Host
+
+. Open the https://console.aws.amazon.com/ec2/v2/home?Instances:[Ec2 Instance Console^] in the region that GitLab was deployed to.
+. Locate the instance whose name is *EKSBastion*
+. Right click it and select *Connect*
+. On the *Connect to instance...* page select the *Session Manager* tab.
+. Click the orange *Connect* button.
+. Wait for several seconds to be placed in a shell console.
+. Switch to the root user where kubectl is preconfigured.
+
+----
+  sudo su
+----
+
+[start=3]
+. Test with this command:
+
+----
+  /usr/local/bin/kubectl get pods --all-namespaces
+----
+
+=== Enabling AWS Simple Email Services (SES) Outbound Email
+
+AWS Simple Email Services are purposely created in "sandbox" mode to prevent spam abuse using massively scaled email services. You must take a manual action to enable it.
+
+. While logged into AWS, go to the https://console.aws.amazon.com/ses/[Simple Email Services (SES) console^]^.
+. On the left navigation, under *Email Sending*, click **Sending Statistics**
+. On the right pane, next to *Production Access*, visually validate that it says **Sandbox**.
+. Click **Edit your account details** (button).
+. Next to *Enable Production Access*, click **Yes**.
+. For *Mail type* leave the default of **Transactional**.
+. For *Website URL* enter **your GitLab instance url**.
+. Under *Use case description*, type **Testing GitLab instance outbound email**.
+. Under *Additional contact addresses* type **your real email address**.
+. Find *I agree to the AWS Service Terms and AUP*, and **check the box** to the right.
+. Click **Submit for review**.
+
+NOTE: Notice the new banner near the top containing *Your account details are currently under review*. 
+
+=== Accessing Grafana
+
+. Go to the https://console.aws.amazon.com/secretsmanager[AWS Secrets manager console^] in the region where GitLab was deployed and click on the secret ending in *initial-grafana-password*
+. Click the *Retrieve secret value* button.
+. Decode the base64 encoded password in bash with (the password will be in your copy / paste buffer):
+
+.Bash command
+[Source,bash]
+----
+echo {base64-encoded-password} | base64 -d | pbcopy
+----
+
+.PowerShell command
+[Source,powsershell]
+----
+[Text.Encoding]::Utf8.GetString([Convert]::FromBase64String('{base64-encoded-password}')) | clip
+----
+
+. Visit YourGitLabURL/-/grafana
+. For user specify 'root'
+. Use the password retrieved above.
+
 == Test the deployment
 // If steps are required to test the deployment, add them here. If not, remove the heading
 
 == Post-deployment steps
-// If post-deployment steps are required, add them here. If not, remove the heading
+When deployed for production grade implementations, this Quick Start does not setup {partner-product-short-name} Runners for you. To setup runners you can consult the https://docs.gitlab.com/runner/[GitLab Runner Documentation^] or leverage the https://gitlab.com/guided-explorations/aws/gitlab-runner-autoscaling-aws-asg[GitLab HA Scaling Runner Vending Machine for AWS^]
 
-== Best practices for using {partner-product-short-name} on AWS
-// Provide post-deployment best practices for using the technology on AWS, including considerations such as migrating data, backups, ensuring high performance, high availability, etc. Link to software documentation for detailed information.
+=== Configuring GitLab for Kubernetes Cluster Provisioning on EKS
 
-_Add any best practices for using the software._
+GitLab can be configured to provision EKS clusters into AWS accounts. It requires configuration of an AWS IAM Role (and possible IAM User) for GitLab Authentication in an AWS Account. Each account to which clusters will be provisioned also require at least one EKS Provisioning IAM Role to be defined. https://docs.gitlab.com/ee/user/project/clusters/add_eks_clusters.html#configure-amazon-authentication[Follow this documentation on GitLab Integration Configuration for EKS Provisioning].
+
+=== Configuring GitLab to integrate with Existing EKS Clusters
+
+A GitLab instance of any type (does not have to be running on Kubernetes) can integrate to a Kubernetes cluster for Review Apps and AutoDevOps to preproduction and production environments.  For production deployments, the cluster containing your GitLab instance should not be used for this purpose due to the level of privileges required to deploy Review Apps and AutoDevOps to the cluster.
+
+== SRE practices for using {partner-product-short-name} on AWS
+There are not any specific things to account for in operating {partner-product-short-name} on AWS. When GitLab relies on AWS services like CloudWatch and S3, then the AWS specific practices for those services are applicable - but as long as these services are correctly integrated, they are abstracted in GitLab. Services configuration may also provide benefits that are not anticipated by GitLab.  For instance, using S3 storage policies for replicating backups to another region. 
+
+GitLab has distinctive SRE management concerns that will need to be monitored and adjusted. Aspects of GitLab operations can be impacted by instance size choices, provisioned IOPs and other cloud level implementation decisions.
+
+GitLab provides the https://gitlab.com/gitlab-org/quality/performance[GitLab Performance Tool (gpt)^] and https://gitlab.com/gitlab-org/quality/performance/-/wikis/Benchmarks/Latest[Reference Architecture performance benchmarks^] created by the tool for the reference of GitLab Instance SREs. If your instance will be highly scaled, you should run the gpt tool against it for a baseline performance. This will help with planning scaling.
+
+Please consult the https://docs.gitlab.com[GitLab Documentation^] for general operations and usage information.
+
+=== Log monitoring Using CloudWatch Logs
+
+`aws logs tail --since 1d --follow /aws/log/path`
+
+=== Performance monitoring
+
+==== Using CloudWatch Metrics
+CloudWatch metrics are collected for instances and containers.  These metrics can be used for performance analysis, graphing, alarms and events in AWS CloudWatch. As per standard CloudWatch capabilities alarms and events can interact with many other AWS services for notifications or automated actions.
+
+==== Using Integrated Prometheus
+The Quick Start wires up GitLab to Prometheus deployed to the cluster to expose all GitLab surfaced application metrics. The Grafana deployment option enables "in-instance" grafana capabilities with these metrics.
 
 == Security
-// Provide post-deployment best practices for using the technology on AWS, including considerations such as migrating data, backups, ensuring high performance, high availability, etc. Link to software documentation for detailed information.
+The infrastructure that GitLab is deployed on must be secured according to that infrastructure's security best practices. GitLab has reasonable security out of the box, but as with all complex products it can be configured with tighter security. Some practices are outline in https://about.gitlab.com/blog/2020/05/20/gitlab-instance-security-best-practices/[GitLab instance: security best practices^]
 
-_Add any security-related information._
+=== Public Internet Access
+If the GitLab instance will be on the public internet, the industry advised security precautions and due diligences of public Internet services should be applied to it, including, but not limited to, GitLab updates and patching and infrastructure updates and patching. Leveraging AWS hardened services for the front end can help improve the security posture (for example, AWS Load Balancers, DNS and edge network services, SES for SMTP).
 
-== Other useful information
-//Provide any other information of interest to users, especially focusing on areas where AWS or cloud usage differs from on-premises usage.
+The Quick Start does enable a more secure administrative mode by enabling the EKS cluster to be configured without a public endpoint and then configuring the Bastion host. The bastion host used automatically contains all the cluster administration tools like Kubernetes, EKSCTL, AWS CLI and Helm. The SSM agent is also preinstalled and SSM session manager permissions are configured.  This means that even the Bastion host does not need to have a port publicly exposed in order to get a console session - either through the AWS web console or a workstation installation of the AWS CLI with the SSM extensions.
 
-_Add any other details that will help the customer use the software on AWS._
+For production setups, GitLab Runner should not be deployed to the cluster that runs GitLab, *especially in Privileged mode*.
+
+GitLab publishes new releases - including security hotfixing - on the https://about.gitlab.com/releases/categories/releases/["Releases" category of the general blog^].

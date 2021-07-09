@@ -1,35 +1,58 @@
+// DONE: 2021-05 by DK and DJS
 Deploying this Quick Start for a new virtual private cloud (VPC) with
 default parameters builds the following {partner-product-short-name} environment in the
 AWS Cloud.
 
 // Replace this example diagram with your own. Send us your source PowerPoint file. Be sure to follow our guidelines here : http://(we should include these points on our contributors giude)
+=== Architecture Diagram
 :xrefstyle: short
 [#architecture1]
 .Quick Start architecture for {partner-product-short-name} on AWS
 image::../images/architecture_diagram.png[Architecture,width=100%,height=100%]
 
+=== Architecture Details
+.Key to architecture and best practice compliance tags
+[cols="^1,7"]
+|===
+|Tag|Meaning
+
+|^[AWS-WA]^|Compliant with **AWS W**ell **A**rchitected - including favoring PaaS to externalize scaling and availability management and HA / Self-Healing for non-PaaS resources.
+|^[GL-RAR]^|Compliant with a **G**it**L**ab **R**eference **A**rchitecture **R**equirement or **R**ecommendation - only applied to items where the Reference Architectures actually express an opinion.
+|===
+
+The result of this automation is a completely operational GitLab Instance.
+
 As shown in <<architecture1>>, the Quick Start sets up the following:
 
-* A highly available architecture that spans two or three Availability Zones.
+* A highly available architecture that spans two or three Availability Zones. ^[AWS-WA]^
 * A VPC configured with public and private subnets, according to AWS
-best practices, to provide you with your own virtual network on AWS.^1^
-* An Amazon EKS cluster, which creates the Kubernetes control plane.^2^
-* S3 buckets for GitLab object storage
+best practices, to provide you with your own virtual network on AWS.^1^ ^[AWS-WA]^
+* An Amazon EKS cluster, which creates the Kubernetes control plane.^2^ ^[AWS-WA]^
+* S3 buckets for GitLab object storage including Git-lfs ^[GL-RAR][AWS-WA]^
 * In the public subnets:
 ** Managed network address translation (NAT) gateways to allow outbound
-internet access for resources in the private subnets.^1^
+internet access for resources in the private subnets.^1^ 
 * In the private subnets:
-** A group of Kubernetes EC2 nodes.^2^
-** An Amazon RDS cluster fot GitLab and Praefect databases.
-* Optionally:
+** A group of AutoScaling Kubernetes EC2 nodes.^2^ ^[AWS-WA]^
+** An Amazon RDS cluster fot GitLab and Praefect databases. ^[GL-RAR][AWS-WA]^
+** Elasticache for Redis PaaS. ^[GL-RAR][AWS-WA]^
+** S3 Object storage PaaS for all non-git file systems and git-lfs ^[GL-RAR][AWS-WA]^
+** Uses AWS ELB for internal load balancer - Load balancing PaaS. ^[GL-RAR][AWS-WA]^
+** AWS ELB Load Balancing PaaS for external access. ^[AWS-WA]^
+** An ASG with Gitaly nodes spread across Availability Zones. https://docs.gitlab.com/ee/administration/reference_architectures/10k_users.html#cloud-native-hybrid-reference-architecture-with-helm-charts-alternative[GitLab's Cloud Native Hybrid Reference Architecture^] calls for Gitaly to be implemented on EC2 Instance compute and to utilize Non-NFS storage for the file system containing Git repositories. ^[GL-RAR][AWS-WA]^
+** An ASG with Praefect nodes spread across Availability Zones. https://docs.gitlab.com/ee/administration/reference_architectures/10k_users.html#cloud-native-hybrid-reference-architecture-with-helm-charts-alternative[GitLab's Cloud Native Hybrid Reference Architecture^] calls for Praefect to be implemented on EC2 Instance compute. ^[GL-RAR][AWS-WA]^
+** Amazon CloudWatch Container Insights integration. ^[AWS-WA]^
+** Amazon CloudWatch Agent for Instance compute. ^[AWS-WA]^
+* Optionally (on by default):
 ** In one public subnet, a Linux bastion host in an Auto Scaling group to allow 
 inbound Secure Shell (SSH) access to Amazon Elastic Compute Cloud (Amazon EC2) 
 instances in private subnets. The bastion host is also configured with the Kubernetes 
-`kubectl` command line interface (CLI) for managing the Kubernetes cluster.
-** Amazon Route53 Hosted zone for DNS configuration
-** AWS Certificate Manager TLS certificate
-** Amazon Simple Email Service domain for outgoing email messages
-** Amazon CloudWatch Container Insights integration 
+`kubectl` command line interface (CLI) and the `helm` v3 CLI for managing the Kubernetes 
+cluster as well as the AWS CLI V2 for general AWS management. ^[AWS-WA]^
+** Amazon Route53 Hosted zone for DNS configuration. ^[AWS-WA]^
+** AWS Certificate Manager TLS certificate. ^[AWS-WA]^
+** Amazon Simple Email Service domain for outgoing email messages. ^[AWS-WA]^
+** IaC parameters and outputs stored in AWS Parameter Store. ^[AWS-WA]^
 
 [.small]#^1^The template that deploys the Quick Start into an existing VPC skips 
 the components and prompts you for your existing VPC configuration.#
@@ -37,7 +60,40 @@ the components and prompts you for your existing VPC configuration.#
 [.small]#^2^The template that deploys the Quick Start into an existing EKS cluster skips
 the components and prompts you for your existing EKS configuration.#
 
-=== Database Cluster
+=== Bundled Provisioning of Container Registry, Backup, Log Aggregation and Monitoring
+- Uses Amazon Linux 2 throughout - which benefits from Amazon specific optimizations for performance and compute density for both EKS and EC2 hosts. ^[AWS-WA]^
+- All GitLab logs are automatically aggregated into CloudWatch logs via CloudWatch Instance Agent and CloudWatch Container Insights. ^[AWS-WA]^
+- EKS workload monitoring via CloudWatch Container Insights. ^[AWS-WA]^
+- GitLab backup is preconfigured. 
+- Prometheus is always deployed with the GitLab instance. 
+- Setting "ConfigureGrafana" also deploys and configures Grafana. ^[AWS-WA]^
+- The container registry is automatically setup at `registry.[subdomain]` ^[AWS-WA]^
+
+=== Security
+
+==== Application Secrets
+** Stores generated secrets in AWS Secrets Manager (e.g. generates a proper initial root password) ^[AWS-WA]^
+
+==== EKS Cluster Administration
+The GitLab Kubernetes endpoint can be private, a bastion host must be deployed in order to do direct cluster management (it will be preloaded with AWS, EKS and Kubernetes management utilities and IAM permissions for cluster management). The bastion host is setup with SSH keys, but can also be accessed more securely using the preconfigured SSM Session Manager. Additionally, the bastion host has command audit logging enabled and the log is uploaded to CloudWatch.
+
+==== Data Encryption
+
+* Data in Transit:
+** SSL for front end http. ^[AWS-WA]^
+** SSL for GitLab to S3. ^[AWS-WA]^
+** SSL for GitLab to PostgreSQL RDS. ^[AWS-WA]^
+** SSL for GitLab to Redis Elasticache. ^[AWS-WA]^
+** SSL for GitLab to Runner. ^[AWS-WA]^
+** SSL Not Yet Available for GitLab to Praefect to Gitaly. ^[AWS-WA]^
+* Data at Rest (AWS Managed Keys):
+** S3 Encryption ^[AWS-WA]^
+** PostgreSQL RDS Encryption ^[AWS-WA]^
+** Redis Elasticache Encryption ^[AWS-WA]^
+** Gitaly EBS Encryption (Git File System) ^[AWS-WA]^
+** Praefect Data (PostgreSQL RDS). ^[AWS-WA]^
+
+=== Database
 GitLab Quickstart deploys Highly Available PostgreSQL database cluster using https://aws.amazon.com/quickstart/architecture/aurora-postgresql/[Amazon Aurora PostgreSQL Quickstart^].
 
 Depending on the projected size of your GitLab deployment you may want to adjust database instance size using *DBInstanceClass* parameter.
@@ -51,7 +107,12 @@ Praefect requires a separate tracking database as described in https://docs.gitl
 
 More about external database configuration in https://docs.gitlab.com/charts/advanced/external-db/[GitLab documentation^].
 
-=== Object storage
+=== GitLab Storage
+
+==== Git repository storage
+* EBS Volumes on Gitaly Cluster instances. ^[GL-RAR]
+
+==== Object storage for GitLab storage types.
 GitLab Quickstart creates the following S3 buckets:
 
 * ArtifactsBucket
@@ -64,13 +125,15 @@ GitLab Quickstart creates the following S3 buckets:
 * BackupBucket
 * BackupTempBucket
 
+S3 policies can be applied to these storages for retentions, storage tier management, cleanup and out of region replication.
+
 Contents of the bucket encrypted by default with SSE-S3. Names of the buckets are generated by CloudFormation and exported as SSM parameters (see *Exports* section).
 
 More about external object storage in https://docs.gitlab.com/charts/advanced/external-object-storage/[GitLab documentation^].
 
-=== Backups
+=== GitLab Backups
 
-==== Schedule
+==== Scheduling Backups
 
 Backup schedule is controlled by cron expression and default value is `pass:[0 1 * * * *]` (daily at 1am). You can set a different schedule using *BackupSchedule* parameter.
 
@@ -80,6 +143,7 @@ Backups include GitLab database snapshot and contents of GitLab projects (Git re
 
 * Contents of these buckets may be very large (pipeline artifacts, docker images, etc.) and that may affect stability and performance of the backup jobs
 * S3 is a https://aws.amazon.com/s3/faqs/#Durability_.26_Data_Protection[durable storage^] 
+* S3 storage policies also enable out of region replication and management of storage class migration to control costs for older data.
 
 If needed, complete backup may be created using backup-utility as described in https://docs.gitlab.com/charts/backup-restore/[GitLab documentation^].
 
@@ -93,8 +157,8 @@ For large GitLab deployments you can also adjust CPU and memory requirements for
 
 More about backups in https://docs.gitlab.com/charts/backup-restore/[GitLab documentation^].
 
-=== Telemetry
-==== CloudWatch Container Insights
+=== GitLab Telemetry and Monitoring
+=== CloudWatch Container Insights
 GitLab Quickstart integrates EKS cluster with https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html[CloudWatch Container Insights^] to collect, aggregate, and summarise metrics and logs if *ConfigureContainerInsights* parameter is set to `Yes`.
 
 Logs and metrics can be accessed from CloudWatch console:
@@ -125,7 +189,7 @@ Please see the prerequisites for Amazon EKS Console access configuration in http
 image::../images/aws-eks-console.png[AWS EKS Console,width=100%,height=100%]
 
 === Exports
-Upon successful GitLab deployment, the following SSM parameters and Secrets Manages secrtes are exposed: 
+Upon successful GitLab deployment, the following SSM parameters and Secrets Manages secrets are exposed: 
 
 .SSM parameters
 [cols="3,1,2"]

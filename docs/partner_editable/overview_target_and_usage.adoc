@@ -1,7 +1,25 @@
+// DONE: 2021-05 by DJS
 // Replace the content in <>
 // Identify your target audience and explain how/why they would use this Quick Start.
 //Avoid borrowing text from third-party websites (copying text from AWS service documentation is fine). Also, avoid marketing-speak, focusing instead on the technical aspect.
 
-This guide provides instructions for deploying the {partner-product-short-name} Quick Start reference architecture on the AWS Cloud.
+This guide provides instructions for deploying the {partner-product-short-name} Hybrid Reference Architecture for EKS Quick Start on the AWS Cloud.
 
-This Quick Start is for users who want a repeatable, customizable reference deployment for {partner-product-short-name} using AWS CloudFormation.
+This Quick Start is for users who want a production grade {partner-product-short-name} instance deployed to AWS infrastructure.
+
+GitLab is a Single, Open Solution for managing DevOps and other SDLCs.
+
+== Built-in Value of AWS Quick Starts
+
+In addition to reference architecture compliance, this Quick Start has these additional value-add features:
+
+=== Market Reach and Reuse
+* https://aws.amazon.com/quickstart/?solutions-all.sort-by=item.additionalFields.sortDate&solutions-all.sort-order=desc[As an AWS Quick Start] (Primary Use Case Initiated by AWS) - Production Grade HA-Required 3rd Party Software Deployable in the Fewest Possible Clicks to AWS.
+* https://aws.amazon.com/quickstart/?solutions-all.sort-by=item.additionalFields.sortDate&solutions-all.sort-order=desc[As an AWS Service Catalog Item] - AWS alternative to Service Now self service automation - could be used by large customers or partners to create parameter customized versions
+* https://aws.amazon.com/controltower/partners/[As an AWS Control Tower Partner Solution] - allowing vending of GitLab instances into AWS accounts managed by AWS Control Tower.
+
+=== Quick Start Active Open Source Community
+* Quick Starts are managed as Open Source with special attention given by AWS Quick Start team and the vendor (GitLab in this case) whose software is the focus of the Quick Start.
+* All Quick Starts are quality tested using CI in many regions when they are changed or when taking new versions of dependent Quick Starts.
+* Relies on included Quick Start dependencies for EKS, PostgreSQL and others - these shared dependencies are used, debugged and improved as community maintained shared dependencies that underlie many AWS Quick Starts.
+* **The value of the dependency framework is seen in that any of the EKS Quick Start functionality can be passed through to the GitLab EKS Quick Start easily.** For instance, the support for EKS clusters on AWS Spot Compute can be passed through for non-production setups like training and demos. As an example, any of [these EKS Quick Start settings](https://aws-quickstart.github.io/quickstart-amazon-eks/#_parameter_reference) could be surfaced. The GitLab EKS Quick Start depends on a few others that would also pass through any improvement benefits.

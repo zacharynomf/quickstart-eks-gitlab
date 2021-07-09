@@ -110,11 +110,11 @@ Metadata:
       - Label: 
           default: GitLab Git repository storage configuration
         Parameters:
-          - PraefectInstanceType
-          - GitalyInstanceType
-          - NumberOfPraefectReplicas
           - NumberOfGitalyReplicas
+          - GitalyInstanceType
           - GitalyVolumeSize
+          - NumberOfPraefectReplicas
+          - PraefectInstanceType
       - Label:
           default: GitLab object storage configuration
         Parameters:
@@ -143,13 +143,13 @@ Metadata:
     # Basic configuration
       EnvironmentName:
         default: Environment name
-      AvailabilityZones:
-        default: Availability Zones
       KeyPairName:
         default: SSH key pair name
     # VPC network configuration
       NumberOfAZs:
         default: Number of Availability Zones
+      AvailabilityZones:
+        default: Availability Zones
       VPCCIDR:
         default: VPC CIDR
       PrivateSubnet1CIDR:
@@ -168,7 +168,7 @@ Metadata:
       ProvisionBastionHost:
         default: Provision a bastion host
       BastionInstanceType:
-        default: Instance type
+        default: Bastion host instance type
       RemoteAccessCIDR:
         default: Allowed bastion external access CIDR
     # Amazon EKS cluster configuration
@@ -189,7 +189,7 @@ Metadata:
       ConfigureContainerInsights:
         default: Configure Container Insights
       ConfigureGrafana:
-        default: Configure Grafana
+        default: Provision and integrate Grafana
     # Amazon Aurora Postgres configuration
       DBEngineVersion:
         default: GitLab PostgreSQL version
@@ -207,7 +207,7 @@ Metadata:
         default: Database port
     # Cache configuration
       CacheMode:
-        default: Cache mode
+        default: Where to provision Redis
       CacheNodes:
         default: Number of cache replicas
       CacheNodeType:
@@ -242,16 +242,16 @@ Metadata:
       GitLabVersion:
         default: GitLab application version
     # GitLab Git repository storage configuration
-      PraefectInstanceType:
-        default: Praefect instance type
       GitalyInstanceType:
         default: Gitaly instance type
-      NumberOfPraefectReplicas: 
-        default: Number of Praefect replicas
       NumberOfGitalyReplicas:
         default: Number of Gitaly replicas
       GitalyVolumeSize: 
         default: Gitaly volume capacity
+      NumberOfPraefectReplicas: 
+        default: Number of Praefect replicas
+      PraefectInstanceType:
+        default: Praefect instance type
     # GitLab object storage configuration
       ObjectStorageSSEAlgorithm: 
         default: Object storage encryption algorithm
@@ -296,11 +296,11 @@ Parameters:
       Environment name is used to generate unique resource names.
       Multiple GitLab environments with different names can be deployed in the same region.
   AvailabilityZones:
-    Description: List of Availability Zones to use for the subnets in the VPC. 
+      Description: List of Availability Zones to use for the subnets in the VPC. Pick only as many as match what was selected for Number of Availability Zones (NumberofAZs).
     Type: List<AWS::EC2::AvailabilityZone::Name>
   KeyPairName:
     Description: Name of an existing public/private key pair, which allows you
-      to securely connect to your instance after it launches.
+      to securely connect to your instance after it launches. If the selection list is blank, you must create a keypair in the target region, refresh this form and select it.
     Type: AWS::EC2::KeyPair::KeyName
     AllowedPattern: .+
     ConstraintDescription: SSH key pair must be provided.
@@ -369,7 +369,27 @@ Parameters:
       Choose "Enabled" to provision a bastion host to access EKS cluster.
       Bastion host includes kubectl and helm tools already configured for EKS cluster access.
       Bastion host is recommended for EKS cluster management in production environments as a more secure option than a public EKS API endpoint.
+      Select a larger instance size to do performance testing from the bastion host using GitLab Performance Tool (gpt).
   BastionInstanceType:
+    AllowedValues:
+      - t2.nano
+      - t2.micro
+      - t2.small
+      - t2.medium
+      - t2.large
+      - t3.micro
+      - t3.small
+      - t3.medium
+      - t3.large
+      - t3.xlarge
+      - t3.2xlarge
+      - m3.large
+      - m3.xlarge
+      - m3.2xlarge
+      - m4.large
+      - m4.xlarge
+      - m4.2xlarge
+      - m4.4xlarge  
     Default: "t3.micro"
     Type: String
     Description: Instance type for the bastion host.
@@ -377,9 +397,8 @@ Parameters:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
     Description: CIDR IP range that is permitted to access the bastions. We recommend
-      that you set this value to a trusted IP range.
+      that you set this value to a trusted IP range. If the BastionHost is enabled, then this parameter is required
     Type: String
-
 # Cluster parameters
   EKSPublicAccessEndpoint:
     Type: String
@@ -423,12 +442,14 @@ Parameters:
     Type: String
     AllowedValues: [ 'Yes', 'No' ]
     Default: 'Yes'
-    Description: Choose "No" to disable integration with CloudWatch Container Insights.
+    Description: |
+      Choose "No" to disable integration with CloudWatch Container Insights. 
+      Container insights ensure pod performance metrics and logs are collected to CloudWatch - including Gitlab application logs.
   ConfigureGrafana:
     Type: String
     AllowedValues: [ 'Yes', 'No' ]
     Default: 'No'
-    Description: Choose "Yes" to enable integration with Grafana.
+    Description: Choose "Yes" to provision Grafana to EKS and enable GitLab integration with it.
 
 # Database Parameters
   DBEngineVersion:
@@ -507,8 +528,10 @@ Parameters:
   CacheMode:
     Type: String
     AllowedValues: [ 'BuiltIn', 'External' ]    
-    Default: 'BuiltIn'
-    Description: Use built-in cache or provision external Amazon ElastiCache Redis cluster.
+    Default: 'External'
+    Description: |
+      'BuiltIn' will install Redis in the EKS cluster while 'External' provisions Amazon ElastiCache Redis. 
+      GitLab Redis in Kubernetes clusters is not GitLab reference architecture compliant and only for training or testing setups.
   CacheNodes:
     Type: Number
     Default: 2
@@ -516,11 +539,14 @@ Parameters:
     Description: |
       Provide the number of cache replicas (applicable for both BuiltIn and External cache modes).
       For BuiltIn cache mode this is the number of replica Redis pods (in addition to primary pod).
-      For External mode this is the total number of Amazon ElastiCache Redis clusters.
+      For External mode this is the total number of nodes used for Redis.
+      This should match the number of Availability Zones you are configuring for.
   CacheNodeType:
     Type: String
     Default: cache.t3.medium
-    Description: If you chose to use External cache above, provide cache node type. 
+    Description: |
+      If you chose to use External cache above, provide cache node type.
+      List of acceptable instance types: https://aws.amazon.com/elasticache/pricing/
     AllowedPattern: "cache\\.[a-z0-9]*\\.[a-z0-9]*"    
 
 # Infra Parameters
@@ -585,24 +611,19 @@ Parameters:
     Default: '13.12.3'
 
 # Gitaly Storage Parameters
-  PraefectInstanceType:
-    Type: String
-    Default: t3.medium
-    Description: Praefect EC2 instance type.
-  GitalyInstanceType:
-    Type: String
-    Default: t3.medium
-    Description: Gitaly EC2 instance type.
-  NumberOfPraefectReplicas: 
-    Type: Number
-    Default: 3
-    AllowedValues: [ 3 ]
-    Description: Number of Praefect replicas to deploy in GitLab cluster. The replicas will be distributed across Availability Zones selected.
   NumberOfGitalyReplicas:
     Type: Number
     Default: 3
     AllowedValues: [ 3 ]
-    Description: Number of Gitaly replicas to deploy in GitLab cluster. The replicas will be distributed across Availability Zones selected.
+    Description: |
+      Number of Gitaly replicas to deploy in GitLab cluster.
+      The replicas will be distributed across Availability Zones selected.
+  GitalyInstanceType:
+    Type: String
+    Default: t3.medium
+    Description: |
+      Gitaly EC2 instance type.
+      Select an instance from this list: https://aws.amazon.com/ec2/instance-types/
   GitalyVolumeSize: 
     Type: Number
     Default: 50
@@ -610,7 +631,21 @@ Parameters:
     Description: |
       Capacity of EBS volume used by Gitaly replicas (Git repository storage), in Gb. 
       Note that this storage is used for Git repositories only. 
-      All other object storage files are stored in S3 buckets.
+      All other GitLab storage types are stored in S3 buckets.
+  NumberOfPraefectReplicas: 
+    Type: Number
+    Default: 3
+    AllowedValues: [ 3 ]
+    Description: |
+      Praefect coordinates Gitaly cluster replication. Number of Praefect replicas to deploy in GitLab cluster.
+      The replicas will be distributed across Availability Zones selected.
+      3 are required because Prafect replicas perform voting for data consistency and so an odd number are needed.
+  PraefectInstanceType:
+    Type: String
+    Default: t3.medium
+    Description: |
+      Praefect EC2 instance type.
+      Select an instance from this list: https://aws.amazon.com/ec2/instance-types/
 
 # Object Storage Parameters
   ObjectStorageSSEAlgorithm:
@@ -706,6 +741,10 @@ Rules:
     Assertions:
       - Assert: !Not [!Equals [!Ref SMTPHostName, '']]
         AssertDescription: "You must provide SMTP host name if you chose to use existing SMTP server."
+  BastionParameters:
+    RuleCondition: !Equals [!Ref ProvisionBastionHost, 'Enabled']
+      - Assert: !Not [!Equals [!Ref RemoteAccessCIDR, '']]
+        AssertDescription: "You must provide RemoteAccessCIDR you chose to set ProvisionBastionHost to Enabled."
 
 Conditions:
   Using3AvailabilityZones:  !Equals [!Ref NumberOfAZs, '3']

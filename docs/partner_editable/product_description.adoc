@@ -1,20 +1,23 @@
+
 // Replace the content in <>
 // Briefly describe the software. Use consistent and clear branding. 
 // Include the benefits of using the software on AWS, and provide details on usage scenarios.
 
-<Describe how the software works on AWS.>
+GitLab can be deployed to conform to https://docs.gitlab.com/ee/administration/reference_architectures/10k_users.html#cloud-native-hybrid-reference-architecture-with-helm-charts-alternative[GitLab's Cloud Native Hybrid Architecture] (for any size), which puts all container compatible elements of GitLab into an Amazon EKS cluster and anything else that can be, is implemented using AWS Services (PaaS).
 
-GitLab is deployed ek Amazon EKS cluster as a https://docs.gitlab.com/charts/[Helm chart]. 
+GitLab can be configured to utilize many AWS services directly and has been tested with the ones used in this Quick Start Guide. GitLab is built using SOA Service Endpoints - this means that as long as an AWS service endpoint conforms to the relevant standards, you can generally wire GitLab up to it.
 
 This Quick Start integrates with the following AWS services:
 
 * https://aws.amazon.com/cloudformation/[AWS CloudFormation] infrastructure as code GitLab deployment
-* Highly Available https://aws.amazon.com/eks/[Amazon EKS] cluster
-* Highly Available https://aws.amazon.com/rds/postgresql/[Amazon RDS Postgres] database cluster
-* Highly Available https://aws.amazon.com/elasticache/redis/[Amazon ElasteCache for Redis] cluster
-* https://aws.amazon.com/s3/[Amazon S3] object storage
-* https://aws.amazon.com/cloudwatch/[Amazon CloudWatch] integration for logs and metrics
-* https://aws.amazon.com/route53/[Amazon Route53] hosted zone for DNS configuration
+* Highly Available https://aws.amazon.com/eks/[Amazon EKS] cluster.
+* Highly Available https://aws.amazon.com/rds/postgresql/[Amazon RDS Postgres] database cluster.
+* Highly Available https://aws.amazon.com/elasticache/redis/[Amazon ElasteCache for Redis] cluster.
+* Highly Available https://docs.aws.amazon.com/autoscaling/ec2/userguide/AutoScalingGroup.html[Ec2 Auto Scaling groups] for Gitaly and Prafect.
+* Highly Available and Durable https://aws.amazon.com/s3/[Amazon S3] object storage.
+* https://aws.amazon.com/kms/[AWS KMS] for encryption key management.
+* https://aws.amazon.com/cloudwatch/[Amazon CloudWatch] integration for logs and metrics.
+* https://aws.amazon.com/route53/[Amazon Route53] hosted zone for DNS configuration.
 * https://aws.amazon.com/certificate-manager/[AWS Certificate Manager] integration for TLS certificates^*^
 * https://aws.amazon.com/ses/[Amazon Simple Email Service] for sending out email notifications ^*^
 

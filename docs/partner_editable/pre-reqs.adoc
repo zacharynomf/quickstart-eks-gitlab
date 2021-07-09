@@ -1,13 +1,15 @@
+
+// DONE: 2021-05 by DJS
+
 // If no preperation is required, remove all content from here
-
-==== Prepare your AWS account
-
-_Describe any setup required in the AWS account prior to template launch_
 
 ==== Prepare your {partner-company-name} account
 
-_Describe any setup required in the partner portal/account prior to template launch_
+A GitLab.com account is not required to deploy this Quick Start. A GitLab license is only required to enable https://about.gitlab.com/pricing/gitlab-com/feature-comparison/["licensed tier only" features].
 
-==== Prepare for the deployment
+==== Prepare your AWS account
 
-_Describe any preparation required to complete the product build, such as obtaining licenses or placing files in S3_
+1. Create an EC2 Keypair in the region you will deploy. You will need to provide the keypair name as a parameter.
+2. If deploying into an existing VPC, create 2 or more dedicated subnets for this QuickStart. You will need to provide the subnet ids as parameters.
+
+Ensure that the target AWS account has sufficient remaining service limit quota for items listed in <<Resource quotas>>.  If limits need increasing, make requests using the AWS Service Quotas console and wait until they are all increased before deploying.
