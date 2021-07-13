@@ -43,7 +43,7 @@ General build sequence
    git clone --recurse-submodules https://github.com/aws-quickstart/quickstart-eks-gitlab.git
    
    # if repository is clonned already
-   git submodule update --init –recursive
+   git submodule update --init --recursive
    ```
 2. Build [taskcat](https://github.com/aws-quickstart/taskcat) docker image with the following command:
 
