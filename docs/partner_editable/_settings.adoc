@@ -26,5 +26,11 @@
 // Additional content will be generated automatically based on these attributes.
 // :marketplace_subscription:
 // :marketplace_listing_url: https://example.com/
+:launch_link_new_vpc: https://fwd.aws/q9mPN?
+:template_link_new_vpc: https://github.com/aws-quickstart/quickstart-eks-gitlab/blob/main/templates/gitlab-entry-new-vpc.template.yaml
+:launch_link_existing_vpc: https://fwd.aws/Kbzv6?
+:template_link_existing_vpc: https://github.com/aws-quickstart/quickstart-eks-gitlab/blob/main/templates/gitlab-entry-existing-vpc.template.yaml
+:launch_link_existing_cluster: https://fwd.aws/wrQba?
+:template_link_existing_cluster: https://github.com/aws-quickstart/quickstart-eks-gitlab/blob/main/templates/gitlab-entry-existing-cluster.template.yaml
 
 WARNING: Developer Preview Only
