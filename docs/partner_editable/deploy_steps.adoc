@@ -26,9 +26,6 @@ NOTE: You are responsible for the cost of the AWS services used while running th
 
 ^|{launch_link_existing_vpc}[Deploy {partner-product-short-name} into an existing VPC on AWS^]
 ^|{template_link_existing_vpc}[View template^]
-
-^|{launch_link_existing_cluster}[Deploy {partner-product-short-name} into an existing EKS cluster on AWS^]
-^|{template_link_existing_cluster}[View template^]
 |===
 
 // Adapt the following warning to your Quick Start.
