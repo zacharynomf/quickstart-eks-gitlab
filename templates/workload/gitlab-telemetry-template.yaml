@@ -69,6 +69,7 @@ Resources:
     Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
+      Namespace: default
       Manifest: |
         apiVersion: v1
         kind: Namespace
