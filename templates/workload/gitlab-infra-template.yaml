@@ -185,7 +185,7 @@ Resources:
     Condition: CertificateRequested
     Type: Custom::CleanupACMDNSValidation
     Properties:
-      ServiceToken: !Ref CleanupACMDNSValidationLambdaFunction
+      ServiceToken: !GetAtt "CleanupACMDNSValidationLambdaFunction.Arn"
       ACMArn: !Ref SslCertificate
 
 # 3. Define the Custom::SES_Domain's Lambda Function via a nested stack. 
