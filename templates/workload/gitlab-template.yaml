@@ -394,6 +394,7 @@ Resources:
     Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref KubeClusterName
+      Namespace: default
       Manifest: !Sub |
         apiVersion: v1
         kind: Namespace
