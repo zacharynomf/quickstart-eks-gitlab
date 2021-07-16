@@ -8,8 +8,7 @@ Metadata:
         - W9002
         - W9003
         - W9004
-        - E0002
-        
+
 Parameters:
   ClusterName:
     Type: String
@@ -100,6 +99,7 @@ Resources:
     Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
+      Namespace: default
       Manifest: |
         apiVersion: rbac.authorization.k8s.io/v1
         kind: ClusterRole
@@ -133,6 +133,7 @@ Resources:
     Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
+      Namespace: default
       Manifest: |
         apiVersion: rbac.authorization.k8s.io/v1
         kind: ClusterRoleBinding
@@ -322,6 +323,7 @@ Resources:
     Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
+      Namespace: default
       Manifest: |
         apiVersion: rbac.authorization.k8s.io/v1
         kind: ClusterRole
@@ -342,6 +344,7 @@ Resources:
     Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
+      Namespace: default
       Manifest: |
         apiVersion: rbac.authorization.k8s.io/v1
         kind: ClusterRoleBinding
