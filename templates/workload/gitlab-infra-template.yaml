@@ -165,6 +165,11 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
+                  - acm:DescribeCertificate
+                Resource: !Ref SslCertificate
+              - Effect: Allow
+                Action:
+                  - route53:ListResourceRecordSets
                   - route53:ChangeResourceRecordSets
                 Resource: !Sub
                   - "arn:${AWS::Partition}:route53:::hostedzone/${HostedZoneID}"
