@@ -21,8 +21,6 @@
 [submodule "functions/source/CfnSesDomain/aws-cfn-ses-domain"]
 	path = functions/source/CfnSesDomain/aws-cfn-ses-domain
 	url = git@github.com:medmunds/aws-cfn-ses-domain.git
-	branch = main
 [submodule "submodules/aws-cfn-ses-domain"]
 	path = submodules/aws-cfn-ses-domain
 	url = git@github.com:medmunds/aws-cfn-ses-domain.git
-	branch = main
