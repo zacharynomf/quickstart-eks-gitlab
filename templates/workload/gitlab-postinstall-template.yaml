@@ -46,6 +46,7 @@ Resources:
       Namespace: !Ref HelmChartNamespace
       Name: !Sub 'secret/${HelmChartName}-rails-secret'
       JsonPath: '{.data}'
+      Retries: 3
   RailsSecret:
     Type: AWS::SecretsManager::Secret
     Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }
@@ -66,6 +67,7 @@ Resources:
       Namespace: !Ref HelmChartNamespace
       Name: !Sub 'secret/${HelmChartName}-gitlab-initial-root-password'
       JsonPath: '{.data.password}'
+      Retries: 3
   InitialRootPasswordSecret:
     Type: AWS::SecretsManager::Secret
     Properties:
@@ -85,6 +87,7 @@ Resources:
       Namespace: !Ref HelmChartNamespace
       Name: !Sub 'service/${HelmChartName}-nginx-ingress-controller'
       JsonPath: '{.status.loadBalancer.ingress[0].hostname}'
+      Retries: 3
   LoadBalancerParameter:
     Type: AWS::SSM::Parameter
     Properties:
@@ -105,6 +108,7 @@ Resources:
       Namespace: !Ref HelmChartNamespace
       Name: !Sub 'secret/${HelmChartName}-wildcard-tls-ca'
       JsonPath: '{.data.cfssl_ca}'
+      Retries: 3
   RootCAParameter:
     Type: AWS::SSM::Parameter
     Properties:
@@ -126,6 +130,7 @@ Resources:
       Namespace: !Ref HelmChartNamespace
       Name: !Sub 'secret/${HelmChartName}-grafana-initial-password'
       JsonPath: '{.data.password}'
+      Retries: 3
   InitialGrafanaPasswordSecret:
     Type: AWS::SecretsManager::Secret
     Condition: ConfigureGrafana
