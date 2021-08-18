@@ -258,7 +258,6 @@
           "UpdateType": "Mutable"
         },
         "Values": {
-          "PrimitiveItemType": "String",
           "Type": "Map",
           "Required": false,
           "Documentation": "https://github.com/aws-quickstart/quickstart-helm-resource-provider",
