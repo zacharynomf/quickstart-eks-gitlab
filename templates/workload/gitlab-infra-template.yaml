@@ -192,6 +192,7 @@ Resources:
     Properties:
       ServiceToken: !GetAtt "CleanupACMDNSValidationLambdaFunction.Arn"
       ACMArn: !Ref SslCertificate
+      HostedZoneId: !Ref HostedZone
 
 # 3. Define the Custom::SES_Domain's Lambda Function via a nested stack. 
   CfnSESResources:

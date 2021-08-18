@@ -299,6 +299,12 @@
           "Documentation": "https://github.com/aws-quickstart/quickstart-kubernetes-resource-provider",
           "PrimitiveType": "String",
           "UpdateType": "Mutable"
+        },
+        "Retries": {
+          "Required": false,
+          "Documentation": "https://github.com/aws-quickstart/quickstart-kubernetes-resource-provider",
+          "PrimitiveType": "Integer",
+          "UpdateType": "Mutable"
         }
       }
     },
