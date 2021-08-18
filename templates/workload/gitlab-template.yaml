@@ -200,6 +200,8 @@ Mappings:
   PartitionMap: 
     aws:
       IngressImageRepository: k8s.gcr.io/defaultbackend-amd64
+    aws-us-gov:
+      IngressImageRepository: k8s.gcr.io/defaultbackend-amd64
     aws-cn:
       IngressImageRepository: registry.aliyuncs.com/google_containers/defaultbackend
 
