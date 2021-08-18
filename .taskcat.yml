@@ -13,37 +13,37 @@ project:
   s3_bucket: ''
 
 tests:
-  # deploy-in-3-az-with-defaults:
-  #   parameters:
-  #     AvailabilityZones: $[taskcat_genaz_3]
-  #     NumberOfAZs: 3
-  #     EKSPublicAccessEndpoint: Enabled
-  #     ProvisionBastionHost: Disabled
-  #     DBUserPassword: 'Ae6ii5fcckj4ddi0t!'
-  #     DomainName: devops.$[taskcat_random-string].com
-  #   regions:
-  #   - eu-west-1
-  #   - us-east-1
-  #   - us-west-2
 
-  # deploy-in-2-az-with-optional-features:
-  #   parameters:
-  #     AvailabilityZones: $[taskcat_genaz_2]
-  #     NumberOfAZs: 2
-  #     EKSPublicAccessEndpoint: Disabled
-  #     ProvisionBastionHost: Enabled
-  #     DBUserPassword: 'Ae6ii5fcckj4ddi0t!'
-  #     DomainName: devops.$[taskcat_random-string].com
-  #     ConfigureContainerInsights: 'Yes'
-  #     ConfigureGrafana: 'Yes'
-  #     CreateHostedZone: 'Yes'
-  #     CacheMode: External
-  #     SMTPDomain: CreateNew
-  #     ConfigureRunner: 'Yes'
-  #     PrivilegedMode: 'Yes'
-  #   regions:
-  #   - eu-central-1
+  deploy-in-3-az-with-defaults:
+    parameters:
+      AvailabilityZones: $[taskcat_genaz_3]
+      NumberOfAZs: 3
+      EKSPublicAccessEndpoint: Enabled
+      ProvisionBastionHost: Disabled
+      DBUserPassword: 'Ae6ii5fcckj4ddi0t!'
+      DomainName: devops.$[taskcat_random-string].com
+    regions:
+    - eu-west-1
+    - us-east-1
+    - us-west-2
 
+  deploy-in-2-az-with-optional-features:
+    parameters:
+      AvailabilityZones: $[taskcat_genaz_2]
+      NumberOfAZs: 2
+      EKSPublicAccessEndpoint: Disabled
+      ProvisionBastionHost: Enabled
+      DBUserPassword: 'Ae6ii5fcckj4ddi0t!'
+      DomainName: devops.$[taskcat_random-string].com
+      ConfigureContainerInsights: 'Yes'
+      ConfigureGrafana: 'Yes'
+      CreateHostedZone: 'Yes'
+      CacheMode: External
+      SMTPDomain: CreateNew
+      ConfigureRunner: 'Yes'
+      PrivilegedMode: 'Yes'
+    regions:
+    - eu-central-1
 
   deploy-in-gov-cloud:
     parameters:
