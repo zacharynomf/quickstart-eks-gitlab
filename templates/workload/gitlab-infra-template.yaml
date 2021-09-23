@@ -359,12 +359,12 @@ Resources:
       Description: "GitLab SMTP credentials"
       SecretString: !Sub '{"username": "${SmtpKeys}", "password": "${SmtpPasswordGenerator.Password}"}'
 
-  RDSPassword:
+  DatabasePassword:
     Type: 'AWS::SecretsManager::Secret'
     Properties:
       Name: !Sub '/quickstart/gitlab/${EnvironmentName}/secrets/rds-password'
       Description: "RDS Password"
-      SecretString: !Sub '{"password": "${RDSPasswordGenerator.Password}"}'
+      SecretString: !Sub '{"password": "${DatabasePasswordGenerator.Password}"}'
 
 Outputs:
   DatabaseSecurityGroupID:
@@ -378,7 +378,7 @@ Outputs:
     Condition: EmailDomainRequested
     Value: !Ref SmtpCredentialsSecret
   DatabaseSecretName:
-    Value: !Ref DatabasePasswordGenerator
+    Value: !Ref DatabasePassword
   HostedZoneId:
     Condition: HostedZoneRequested
     Value: !Ref HostedZone
