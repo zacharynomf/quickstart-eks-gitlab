@@ -317,7 +317,7 @@ Resources:
         DBPort: !Ref DBPort
         DBName: !Ref DBPraefectName
         DBUserName: !Ref DBUserName
-        DBUserPassword: !Sub '{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:password}}'
+        DBUserPassword: '{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:password}}'
         VPCID: !Ref VPCID
         DBSubnetIds: !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID ] ]
         DBSecurityGroup: !GetAtt Infrastructure.Outputs.DatabaseSecurityGroupID
