@@ -77,7 +77,6 @@ Metadata:
           - DBName
           - DBPraefectName
           - DBUserName
-          - DBUserPassword
           - DBPort
       - Label:
           default: GitLab cache configuration

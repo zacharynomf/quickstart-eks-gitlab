@@ -296,7 +296,7 @@ Resources:
         DBInstanceClass: !Ref DBInstanceClass
         DBName: !Ref DBName
         DBMasterUsername: !Ref DBUserName
-        DBMasterUserPassword: !Ref DBUserPassword
+        DBMasterUserPassword: !Sub '{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:password}}'
         DBPort: !Ref DBPort
         VPCID: !Ref VPCID
         Subnet1ID: !Ref PrivateSubnet1ID
@@ -317,7 +317,7 @@ Resources:
         DBPort: !Ref DBPort
         DBName: !Ref DBPraefectName
         DBUserName: !Ref DBUserName
-        DBUserPassword: !Ref DBUserPassword
+        DBUserPassword: !Sub '{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:password}}'
         VPCID: !Ref VPCID
         DBSubnetIds: !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID ] ]
         DBSecurityGroup: !GetAtt Infrastructure.Outputs.DatabaseSecurityGroupID
@@ -426,7 +426,7 @@ Resources:
         KubeClusterName: !Ref KubeClusterName
         HelmChartNamespace: !Ref HelmChartNamespace
         HelmChartName: !Ref HelmChartName
-        DatabasePassword: !Sub '{{resolve:secretsmanager:${Infrastructure.Outputs.RDSSecretName}:SecretString:password}}'
+        DatabasePassword: !Sub '{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:password}}'
         StorageAccessKeyId: !Sub '{{resolve:secretsmanager:${ObjectStorage.Outputs.CredentialsSecretName}:SecretString:accessKeyId}}'
         StorageSecretAccessKey: !Sub '{{resolve:secretsmanager:${ObjectStorage.Outputs.CredentialsSecretName}:SecretString:secretAccessKey}}'
         RegistryBucket: !GetAtt ObjectStorage.Outputs.RegistryBucket
