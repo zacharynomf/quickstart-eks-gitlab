@@ -311,6 +311,12 @@ Resources:
       ServiceToken: !GetAtt GeneralPasswordGenerator.Arn
       Region: !Ref 'AWS::Region'
 
+  PraefectDBPasswordGenerator:
+    Type: Custom::PraefectDBDBPassword
+    Properties:
+      ServiceToken: !GetAtt GeneralPasswordGenerator.Arn
+      Region: !Ref 'AWS::Region'
+
 # SSM Parameters    
   DomainNameParameter:
     Type: AWS::SSM::Parameter
@@ -365,6 +371,13 @@ Resources:
       Description: "GitLab DB Password"
       SecretString: !GetAtt GLDBPasswordGenerator.OutputString
 
+  PraefectDBPassword:
+    Type: 'AWS::SecretsManager::Secret'
+    Properties:
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/secrets/praefect-db-password'
+      Description: "Praefect DB Password"
+      SecretString: !GetAtt PraefectDBDBPasswordGenerator.OutputString
+
   GeneralPasswordGenerator:
     Type: 'AWS::Lambda::Function'
     Properties:
@@ -394,16 +407,11 @@ Resources:
                   if event['RequestType'] == 'Create':
                       LOGGER.info('CREATE!')
                       #From: https://pynative.com/python-generate-random-string/
-                      # select 1 lowercase
                       password = random.choice(string.ascii_lowercase)
-                      # select 1 uppercase
                       password += random.choice(string.ascii_uppercase)
-                      # select 1 digit
                       password += random.choice(string.digits)
-                      # select 1 special symbol
                       password += random.choice("!#$%&")
-                      # generate other characters
-                      for i in range(6):
+                      for i in range(10):
                           password += random.choice(string.ascii_letters + string.digits + "!#$%&")
                       responseData = {'OutputString': password}
                       cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
@@ -459,6 +467,8 @@ Outputs:
     Value: !Ref SmtpCredentialsSecret
   DatabaseSecretName:
     Value: !Ref DatabasePassword
+  PraefectDBSecretName:
+    Value: !Ref PraefectDBPassword
   HostedZoneId:
     Condition: HostedZoneRequested
     Value: !Ref HostedZone
