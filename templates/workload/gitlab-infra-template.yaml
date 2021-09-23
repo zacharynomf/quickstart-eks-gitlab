@@ -305,7 +305,7 @@ Resources:
 
 # PostgreSQL Password
 
-  RDSPasswordGenerator:
+  DatabasePasswordGenerator:
     Type: Custom::SMTPPassword
     Properties:
       ServiceToken: !GetAtt SmtpPasswordGeneratorFunction.Arn
@@ -377,8 +377,8 @@ Outputs:
   SmtpCredentialsSecretName:
     Condition: EmailDomainRequested
     Value: !Ref SmtpCredentialsSecret
-  RDSSecretName:
-    Value: !Ref RDSPassword
+  DatabaseSecretName:
+    Value: !Ref DatabasePasswordGenerator
   HostedZoneId:
     Condition: HostedZoneRequested
     Value: !Ref HostedZone
