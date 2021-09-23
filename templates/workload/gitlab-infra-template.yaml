@@ -303,6 +303,15 @@ Resources:
       Region: !Ref 'AWS::Region'
       Secret: !GetAtt SmtpKeys.SecretAccessKey
 
+# PostgreSQL Password
+
+  RDSPasswordGenerator:
+    Type: Custom::SMTPPassword
+    Properties:
+      ServiceToken: !GetAtt SmtpPasswordGeneratorFunction.Arn
+      Region: !Ref 'AWS::Region'
+      Secret: !GetAtt SmtpKeys.SecretAccessKey
+
 # SSM Parameters    
   DomainNameParameter:
     Type: AWS::SSM::Parameter
@@ -350,6 +359,13 @@ Resources:
       Description: "GitLab SMTP credentials"
       SecretString: !Sub '{"username": "${SmtpKeys}", "password": "${SmtpPasswordGenerator.Password}"}'
 
+  RDSPassword:
+    Type: 'AWS::SecretsManager::Secret'
+    Properties:
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/secrets/rds-password'
+      Description: "RDS Password"
+      SecretString: !Sub '{"password": "${RDSPasswordGenerator.Password}"}'
+
 Outputs:
   DatabaseSecurityGroupID: 
     Value: !GetAtt DatabaseSecurityGroup.GroupId
@@ -360,7 +376,9 @@ Outputs:
     Value: !Ref SslCertificate
   SmtpCredentialsSecretName:
     Condition: EmailDomainRequested
-    Value: !Ref SmtpCredentialsSecret  
+    Value: !Ref SmtpCredentialsSecret
+  RDSSecretName:
+    Value: !Ref RDSPassword
   HostedZoneId:
     Condition: HostedZoneRequested
     Value: !Ref HostedZone

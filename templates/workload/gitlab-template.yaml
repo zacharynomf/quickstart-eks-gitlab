@@ -69,13 +69,6 @@ Parameters:
     MaxLength: "16"
     MinLength: "1"
     Type: String
-  DBUserPassword:
-    AllowedPattern: >-
-      ^(?=^.{8,255}$)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)((?=.*[^A-Za-z0-9])(?!.*[@/"'])).*$
-    MaxLength: "64"
-    MinLength: "8"
-    NoEcho: "True"
-    Type: String
   DBPort:
     Type: Number
     MinValue: 1150
@@ -433,7 +426,7 @@ Resources:
         KubeClusterName: !Ref KubeClusterName
         HelmChartNamespace: !Ref HelmChartNamespace
         HelmChartName: !Ref HelmChartName
-        DatabasePassword: !Ref DBUserPassword
+        DatabasePassword: !Sub '{{resolve:secretsmanager:${Infrastructure.Outputs.RDSSecretName}:SecretString:password}}'
         StorageAccessKeyId: !Sub '{{resolve:secretsmanager:${ObjectStorage.Outputs.CredentialsSecretName}:SecretString:accessKeyId}}'
         StorageSecretAccessKey: !Sub '{{resolve:secretsmanager:${ObjectStorage.Outputs.CredentialsSecretName}:SecretString:secretAccessKey}}'
         RegistryBucket: !GetAtt ObjectStorage.Outputs.RegistryBucket
