@@ -367,11 +367,11 @@ Resources:
       SecretString: !Sub '{"password": "${RDSPasswordGenerator.Password}"}'
 
 Outputs:
-  DatabaseSecurityGroupID: 
+  DatabaseSecurityGroupID:
     Value: !GetAtt DatabaseSecurityGroup.GroupId
-  PraefectSecurityGroupID: 
+  PraefectSecurityGroupID:
     Value: !GetAtt PraefectSecurityGroup.GroupId
-  SslCertificateArn: 
+  SslCertificateArn:
     Condition: CertificateRequested
     Value: !Ref SslCertificate
   SmtpCredentialsSecretName:
