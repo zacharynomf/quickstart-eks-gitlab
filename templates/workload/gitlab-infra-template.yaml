@@ -376,7 +376,7 @@ Resources:
     Properties:
       Name: !Sub '/quickstart/gitlab/${EnvironmentName}/secrets/praefect-db-password'
       Description: "Praefect DB Password"
-      SecretString: !GetAtt PraefectDBDBPasswordGenerator.OutputString
+      SecretString: !GetAtt PraefectDBPasswordGenerator.OutputString
 
   GeneralPasswordGenerator:
     Type: 'AWS::Lambda::Function'
