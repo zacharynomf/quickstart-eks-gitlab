@@ -296,8 +296,8 @@ Resources:
         DBEngineVersion: !Ref DBEngineVersion # GitLab PostgreSQL version mappings https://docs.gitlab.com/omnibus/settings/database.html#gitlab-140-and-later
         DBInstanceClass: !Ref DBInstanceClass
         DBName: !Ref DBName
-        DBMasterUsername: !Sub '{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:username}}'
-        DBMasterUserPassword: !Sub '{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:password}}'
+        DBMasterUsername: !Sub "{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:username}}"
+        DBMasterUserPassword: !Sub "{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:password}}"
         DBPort: !Ref DBPort
         VPCID: !Ref VPCID
         Subnet1ID: !Ref PrivateSubnet1ID
@@ -317,8 +317,8 @@ Resources:
         DBHost: !GetAtt Database.Outputs.RDSEndPointAddress
         DBPort: !Ref DBPort
         DBName: !Ref DBPraefectName
-        DBUserName: !Sub '{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:username}}'
-        DBUserPassword: !Sub '{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:password}}'
+        DBUserName: !Sub "{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:username}}"
+        DBUserPassword: !Sub "{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:password}}"
         VPCID: !Ref VPCID
         DBSubnetIds: !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID ] ]
         DBSecurityGroup: !GetAtt Infrastructure.Outputs.DatabaseSecurityGroupID
