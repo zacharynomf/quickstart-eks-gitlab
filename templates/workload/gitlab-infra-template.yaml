@@ -11,7 +11,7 @@ Metadata:
         - E0002
 
 Parameters:
-  VPCID: 
+  VPCID:
     Type: 'AWS::EC2::VPC::Id'
   DBPort:
     Type: Number
@@ -19,6 +19,8 @@ Parameters:
     MaxValue: 65535
   DBAccessCIDR:
     AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    Type: String
+  DBUserName:
     Type: String
   PraefectPort:
     Type: Number
@@ -51,7 +53,7 @@ Parameters:
     AllowedPattern: ^[0-9a-zA-Z-/]*$
 
   EnvironmentName:
-    Type: String    
+    Type: String
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
@@ -79,7 +81,7 @@ Resources:
       SecurityGroupIngress:
         - CidrIp: !Ref DBAccessCIDR 
           FromPort: !Ref PraefectPort
-          ToPort: !Ref PraefectPort          
+          ToPort: !Ref PraefectPort
           IpProtocol: tcp
       VpcId: !Ref VPCID
   PraefectSecurityGroupIngress:
@@ -117,15 +119,15 @@ Resources:
       Description: 'Self Reference'
 
 # 1. Create a new hosted zone for subdomain
-  HostedZone: 
+  HostedZone:
     Type: AWS::Route53::HostedZone
     Condition: HostedZoneRequested
-    Properties: 
+    Properties:
       Name: !Sub "${DomainName}."
   # Always create private hosted zone, even if public is not requested
-  PrivateHostedZone: 
+  PrivateHostedZone:
     Type: AWS::Route53::HostedZone
-    Properties: 
+    Properties:
       Name: !Sub "${DomainName}."
       VPCs:
         - VPCId: !Ref VPCID
@@ -194,7 +196,7 @@ Resources:
       ACMArn: !Ref SslCertificate
       HostedZoneId: !Ref HostedZone
 
-# 3. Define the Custom::SES_Domain's Lambda Function via a nested stack. 
+# 3. Define the Custom::SES_Domain's Lambda Function via a nested stack.
   CfnSESResources:
     Type: AWS::CloudFormation::Stack
     Condition: EmailDomainRequested
@@ -257,7 +259,7 @@ Resources:
     Condition: EmailDomainRequested
     Properties:
       Path: /quickstart/gitlab/
-      Groups: 
+      Groups:
         - !Ref SmtpGroup
 
   SmtpKeys:
@@ -311,11 +313,12 @@ Resources:
       Name: !Sub '/quickstart/gitlab/${EnvironmentName}/secrets/gitlab-db-password'
       Description: "GitLab DB Password"
       GenerateSecretString:
+        SecretStringTemplate: !Sub '{"username": "${DBUserName}"}'
         GenerateStringKey: "password"
         PasswordLength: 30
         ExcludeCharacters: '"@/\'
 
-# SSM Parameters    
+# SSM Parameters
   DomainNameParameter:
     Type: AWS::SSM::Parameter
     Properties:

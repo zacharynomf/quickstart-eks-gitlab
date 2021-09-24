@@ -252,6 +252,7 @@ Resources:
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
         VPCID: !Ref VPCID
+        DBUserName: !Ref DBUserName
         DBPort: !Ref DBPort
         DBAccessCIDR: !Ref VPCCIDR
         PraefectPort: !Ref PraefectPort
@@ -295,7 +296,7 @@ Resources:
         DBEngineVersion: !Ref DBEngineVersion # GitLab PostgreSQL version mappings https://docs.gitlab.com/omnibus/settings/database.html#gitlab-140-and-later
         DBInstanceClass: !Ref DBInstanceClass
         DBName: !Ref DBName
-        DBMasterUsername: !Ref DBUserName
+        DBMasterUsername: !Sub '{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:username}}'
         DBMasterUserPassword: !Sub '{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:password}}'
         DBPort: !Ref DBPort
         VPCID: !Ref VPCID
@@ -316,7 +317,7 @@ Resources:
         DBHost: !GetAtt Database.Outputs.RDSEndPointAddress
         DBPort: !Ref DBPort
         DBName: !Ref DBPraefectName
-        DBUserName: !Ref DBUserName
+        DBUserName: '{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:username}}'
         DBUserPassword: '{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:password}}'
         VPCID: !Ref VPCID
         DBSubnetIds: !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID ] ]
