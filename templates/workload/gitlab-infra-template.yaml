@@ -305,17 +305,15 @@ Resources:
 
 # PostgreSQL Password
 
-  GLDBPasswordGenerator:
-    Type: Custom::GitLabDBPassword
+  GitLabDBPassword:
+    Type: 'AWS::SecretsManager::Secret'
     Properties:
-      ServiceToken: !GetAtt GeneralPasswordGenerator.Arn
-      Region: !Ref 'AWS::Region'
-
-  PraefectDBPasswordGenerator:
-    Type: Custom::PraefectDBDBPassword
-    Properties:
-      ServiceToken: !GetAtt GeneralPasswordGenerator.Arn
-      Region: !Ref 'AWS::Region'
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/secrets/gitlab-db-password'
+      Description: "GitLab DB Password"
+      GenerateSecretString:
+        GenerateStringKey: "password"
+        PasswordLength: 30
+        ExcludeCharacters: '"@/\'
 
 # SSM Parameters    
   DomainNameParameter:
@@ -364,96 +362,6 @@ Resources:
       Description: "GitLab SMTP credentials"
       SecretString: !Sub '{"username": "${SmtpKeys}", "password": "${SmtpPasswordGenerator.Password}"}'
 
-  DatabasePassword:
-    Type: 'AWS::SecretsManager::Secret'
-    Properties:
-      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/secrets/gitlab-db-password'
-      Description: "GitLab DB Password"
-      SecretString: !GetAtt GLDBPasswordGenerator.OutputString
-
-  PraefectDBPassword:
-    Type: 'AWS::SecretsManager::Secret'
-    Properties:
-      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/secrets/praefect-db-password'
-      Description: "Praefect DB Password"
-      SecretString: !GetAtt PraefectDBPasswordGenerator.OutputString
-
-  GeneralPasswordGenerator:
-    Type: 'AWS::Lambda::Function'
-    Properties:
-      Description: Returns a password
-      MemorySize: 256
-      Runtime: python3.8
-      Handler: index.handler
-      Role: !GetAtt CFCustomResourceLambdaRole.Arn
-      Timeout: 30
-      Code:
-        ZipFile: |
-          import cfnresponse
-          import random
-          import string
-          import logging
-          import signal
-
-          LOGGER = logging.getLogger()
-          LOGGER.setLevel(logging.INFO)
-
-          def handler(event, context):
-              # Setup alarm for remaining runtime minus a second
-              signal.alarm((int(context.get_remaining_time_in_millis() / 1000)) - 1)
-              try:
-                  LOGGER.info('REQUEST RECEIVED:\n %s', event)
-                  LOGGER.info('REQUEST RECEIVED:\n %s', context)
-                  if event['RequestType'] == 'Create':
-                      LOGGER.info('CREATE!')
-                      #From: https://pynative.com/python-generate-random-string/
-                      password = random.choice(string.ascii_lowercase)
-                      password += random.choice(string.ascii_uppercase)
-                      password += random.choice(string.digits)
-                      password += random.choice("!#$%&")
-                      for i in range(10):
-                          password += random.choice(string.ascii_letters + string.digits + "!#$%&")
-                      responseData = {'OutputString': password}
-                      cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
-                  elif event['RequestType'] == 'Delete':
-                      LOGGER.info('DELETE!')
-                      cfnresponse.send(event, context, "SUCCESS",
-                                    {"Message": "Resource deletion successful!"})
-              except: #pylint: disable=W0702
-                  LOGGER.info('FAILED!')
-                  cfnresponse.send(event, context, "FAILED", {
-                      "Message": "Exception during processing"})
-
-          def timeout_handler(_signal, _frame):
-              '''Handle SIGALRM'''
-              raise Exception('Time exceeded')
-
-          signal.signal(signal.SIGALRM, timeout_handler)   
-
-  CFCustomResourceLambdaRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: "Allow"
-            Principal:
-              Service:
-                - "lambda.amazonaws.com"
-            Action:
-              - "sts:AssumeRole"
-      Policies:
-        - PolicyName: "lambda-write-logs"
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: "Allow"
-                Action:
-                  - "logs:CreateLogGroup"
-                  - "logs:CreateLogStream"  
-                  - "logs:PutLogEvents"
-                Resource: "arn:aws:logs:*:*"
-
 Outputs:
   DatabaseSecurityGroupID:
     Value: !GetAtt DatabaseSecurityGroup.GroupId
@@ -466,9 +374,7 @@ Outputs:
     Condition: EmailDomainRequested
     Value: !Ref SmtpCredentialsSecret
   DatabaseSecretName:
-    Value: !Ref DatabasePassword
-  PraefectDBSecretName:
-    Value: !Ref PraefectDBPassword
+    Value: !Ref GitLabDBPassword
   HostedZoneId:
     Condition: HostedZoneRequested
     Value: !Ref HostedZone
