@@ -33,6 +33,8 @@ Parameters:
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
     MaxLength: "16"
     MinLength: "1"
+  DBUserPasswordSecretName:
+    Type: String
 
   # Network
   VPCID: 
@@ -135,7 +137,7 @@ Resources:
       Host: !Ref DBHost
       DBName: !Ref DBName
       UserName: !Ref DBUserName
-      Password: !Sub '{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:password}}'
+      Password: !Sub '{{resolve:secretsmanager:${DBUserPasswordSecretName}:SecretString:password}}'
       ServiceToken: !GetAtt CreateDatabaseLambda.Arn
 
   EC2InstanceProfile:
@@ -153,8 +155,8 @@ Resources:
         - Effect: Allow
           Principal:
             Service:
-            - ec2.amazonaws.com   
-            - ssm.amazonaws.com         
+            - ec2.amazonaws.com
+            - ssm.amazonaws.com
           Action:
           - sts:AssumeRole
       ManagedPolicyArns:
@@ -311,7 +313,7 @@ Resources:
                 praefect['database_host'] = '${DBHost}'
                 praefect['database_port'] = '${DBPort}'
                 praefect['database_user'] = '${DBUserName}'
-                praefect['database_password'] = '${DBUserPassword}'
+                praefect['database_password'] = '{{resolve:secretsmanager:${DBUserPasswordSecretName}:SecretString:password}}'
                 praefect['database_dbname'] = '${DBName}'
                 praefect['database_sslmode'] = 'require'
 
