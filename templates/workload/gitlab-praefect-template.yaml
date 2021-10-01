@@ -137,7 +137,7 @@ Resources:
       Host: !Ref DBHost
       DBName: !Ref DBName
       UserName: !Ref DBUserName
-      Password: !Sub '{{resolve:secretsmanager:${DBUserPasswordSecretName}:SecretString:password}}'
+      Password: !Sub "{{resolve:secretsmanager:${DBUserPasswordSecretName}:SecretString:password}}"
       ServiceToken: !GetAtt CreateDatabaseLambda.Arn
 
   EC2InstanceProfile:
