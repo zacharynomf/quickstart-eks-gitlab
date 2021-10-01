@@ -317,6 +317,7 @@ Resources:
         GenerateStringKey: "password"
         PasswordLength: 30
         ExcludeCharacters: '"@/\'
+        RequireEachIncludedType: True
 
 # SSM Parameters
   DomainNameParameter:
