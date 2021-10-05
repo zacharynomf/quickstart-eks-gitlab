@@ -28,11 +28,6 @@ Parameters:
     AllowedPattern: "[a-zA-Z0-9]*"
     MaxLength: "64"
     MinLength: "0"
-  DBUserName: 
-    Type: String
-    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
-    MaxLength: "16"
-    MinLength: "1"
   DBUserPasswordSecretName:
     Type: String
 
@@ -136,7 +131,7 @@ Resources:
     Properties:
       Host: !Ref DBHost
       DBName: !Ref DBName
-      UserName: !Ref DBUserName
+      UserName: !Sub "{{resolve:secretsmanager:${DBUserPasswordSecretName}:SecretString:username}}"
       Password: !Sub "{{resolve:secretsmanager:${DBUserPasswordSecretName}:SecretString:password}}"
       ServiceToken: !GetAtt CreateDatabaseLambda.Arn
 
@@ -312,7 +307,7 @@ Resources:
 
                 praefect['database_host'] = '${DBHost}'
                 praefect['database_port'] = '${DBPort}'
-                praefect['database_user'] = '${DBUserName}'
+                praefect['database_user'] = '{{resolve:secretsmanager:${DBUserPasswordSecretName}:SecretString:username}}'
                 praefect['database_password'] = '{{resolve:secretsmanager:${DBUserPasswordSecretName}:SecretString:password}}'
                 praefect['database_dbname'] = '${DBName}'
                 praefect['database_sslmode'] = 'require'
