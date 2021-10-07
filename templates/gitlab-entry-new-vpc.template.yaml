@@ -189,7 +189,7 @@ Metadata:
         default: Configure Container Insights
       ConfigureGrafana:
         default: Provision and integrate Grafana
-    # Amazon Aurora Postgres configuration
+    # Amazon RDS configuration
       DBEngineVersion:
         default: GitLab PostgreSQL version
       DBInstanceClass:
@@ -202,6 +202,8 @@ Metadata:
         default: Database admin username
       DBPort:
         default: Database port
+      UsingAurora:
+        default: No
     # Cache configuration
       CacheMode:
         default: Where to provision Redis
@@ -449,7 +451,7 @@ Parameters:
     Description: Choose "Yes" to provision Grafana to EKS and enable GitLab integration with it.
 
 # Database Parameters
-  DBEngineVersion:
+  AuroraDBEngineVersion:
     Description: |
       Select Database Engine Version.
       The version must be supported by your target version of GitLab: https://docs.gitlab.com/omnibus/settings/database.html#gitlab-140-and-later
@@ -470,13 +472,33 @@ Parameters:
       - 11.8
       - 11.9
       - 12.4
+  RDSDBEngineVersion:
+    Description: Select Database Engine Version
+    Type: String
+    Default: 13.3
+    AllowedValues:
+      - 9.6.20
+      - 9.6.21
+      - 9.6.22
+      - 10.15
+      - 10.16
+      - 10.17
+      - 11.10
+      - 11.11
+      - 11.12
+      - 12.5
+      - 12.6
+      - 12.7
+      - 13.1
+      - 13.2
+      - 13.3
   DBInstanceClass:
     Description: |
       The name of the compute and memory capacity class of the database instance.
       This Quickstart deploys Multi-AZ Postgres replicas in different Availability Zones.
       The instance class is applied to both primary and standby instances.
       The instance class you choose must support the needed PostgreSQL version: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html
-    Default: db.r5.large
+    Default: db.m6g.large
     AllowedPattern: "db\\.[a-z0-9]*\\.[a-z0-9]*"
     Type: String
   DBName: 
@@ -508,6 +530,10 @@ Parameters:
     ConstraintDescription: 'Must be in the range [1115-65535].'
     MinValue: 1150
     MaxValue: 65535
+  UsingAurora:
+    Default: No
+    Description: "Amazon RDS is the default database engine. Set yes if Amazon Aurora need to be used."
+    Type: String
 
 # Cache Parameters
   CacheMode:
@@ -869,12 +895,14 @@ Resources:
         ConfigureContainerInsights: !Ref ConfigureContainerInsights
         ConfigureGrafana: !Ref ConfigureGrafana
         # Database properties
-        DBEngineVersion: !Ref DBEngineVersion
+        AuroraDBEngineVersion: !Ref AuroraDBEngineVersion
+        RDSDBEngineVersion: !Ref RDSDBEngineVersion
         DBInstanceClass: !Ref DBInstanceClass
         DBName: !Ref DBName
         DBPraefectName: !Ref DBPraefectName
         DBUserName: !Ref DBUserName
         DBPort: !Ref DBPort
+        UsingAurora: !Ref UsingAurora
         # Object storage properties
         ObjectStorageSSEAlgorithm: !Ref ObjectStorageSSEAlgorithm
         ObjectStorageKMSKeyID: !Ref ObjectStorageKMSKeyID
