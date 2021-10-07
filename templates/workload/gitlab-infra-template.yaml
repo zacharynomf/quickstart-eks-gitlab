@@ -316,7 +316,7 @@ Resources:
         SecretStringTemplate: !Sub '{"username": "${DBUserName}"}'
         GenerateStringKey: "password"
         PasswordLength: 30
-        ExcludeCharacters: "/@\"\\ "
+        ExcludeCharacters: "\"@/\\"
         RequireEachIncludedType: True
 
 # SSM Parameters
