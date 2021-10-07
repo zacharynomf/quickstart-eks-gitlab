@@ -317,7 +317,8 @@ Resources:
         DBHost: !GetAtt Database.Outputs.RDSEndPointAddress
         DBPort: !Ref DBPort
         DBName: !Ref DBPraefectName
-        DBUserPasswordSecretName: !Sub "${Infrastructure.Outputs.DatabaseSecretName}"
+        DBMasterUsername: !Sub "{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:username}}"
+        DBMasterUserPassword: !Sub "{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:password}}"
         VPCID: !Ref VPCID
         DBSubnetIds: !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID ] ]
         DBSecurityGroup: !GetAtt Infrastructure.Outputs.DatabaseSecurityGroupID

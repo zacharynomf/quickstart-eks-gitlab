@@ -28,8 +28,11 @@ Parameters:
     AllowedPattern: "[a-zA-Z0-9]*"
     MaxLength: "64"
     MinLength: "0"
-  DBUserPasswordSecretName:
+  DBMasterUsername:
     Type: String
+  DBMasterUserPassword:
+    Type: String
+    NoEcho: "True"
 
   # Network
   VPCID: 
@@ -131,8 +134,8 @@ Resources:
     Properties:
       Host: !Ref DBHost
       DBName: !Ref DBName
-      UserName: !Sub "{{resolve:secretsmanager:${DBUserPasswordSecretName}:SecretString:username}}"
-      Password: !Sub "{{resolve:secretsmanager:${DBUserPasswordSecretName}:SecretString:password}}"
+      UserName: !Ref DBMasterUsername
+      Password: !Ref $DBMasterUserPassword
       ServiceToken: !GetAtt CreateDatabaseLambda.Arn
 
   EC2InstanceProfile:
@@ -307,8 +310,8 @@ Resources:
 
                 praefect['database_host'] = '${DBHost}'
                 praefect['database_port'] = '${DBPort}'
-                praefect['database_user'] = '{{resolve:secretsmanager:${DBUserPasswordSecretName}:SecretString:username}}'
-                praefect['database_password'] = '{{resolve:secretsmanager:${DBUserPasswordSecretName}:SecretString:password}}'
+                praefect['database_user'] = '${DBMasterUsername}'
+                praefect['database_password'] = '${DBMasterUserPassword}'
                 praefect['database_dbname'] = '${DBName}'
                 praefect['database_sslmode'] = 'require'
 
