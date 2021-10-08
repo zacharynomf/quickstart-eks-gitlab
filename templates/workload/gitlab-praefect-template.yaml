@@ -135,7 +135,7 @@ Resources:
       Host: !Ref DBHost
       DBName: !Ref DBName
       UserName: !Ref DBMasterUsername
-      Password: !Ref $DBMasterUserPassword
+      Password: !Ref DBMasterUserPassword
       ServiceToken: !GetAtt CreateDatabaseLambda.Arn
 
   EC2InstanceProfile:
