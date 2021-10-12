@@ -79,6 +79,10 @@ Parameters:
     MaxValue: 65535
   DBInstanceClass:
     Type: String
+  AuroraDBInstanceClass:
+    Type: String
+  RDSDBInstanceClass:
+    Type: String
   UsingAurora:
     Type: String
     AllowedValues: [ 'Yes', 'No' ]
@@ -195,8 +199,6 @@ Conditions:
   CreateCacheCluster: !Equals [!Ref CacheMode, 'External']
   ConfigureRunner: !Equals [!Ref ConfigureRunner, 'Yes']
   PrivilegedMode: !Equals [!Ref PrivilegedMode, 'Yes']
-  UsingAurora: !Equals [!Ref UsingAurora, 'Yes']
-  UsingRDS: !Equals [!Ref UsingAurora, 'No']
 
 Mappings: 
   PartitionMap: 
@@ -292,47 +294,32 @@ Resources:
         CacheNodes: !Ref CacheNodes
         CacheNodeType: !Ref CacheNodeType
 
-  AuroraDatabase:
+  Database:
     Type: AWS::CloudFormation::Stack
-    Condition: UsingAurora
     # E9101 Ignoring 'master' in Aurora PostgreSQL quickstart parameter names
     Metadata: { cfn-lint: { config: { ignore_checks: [E9101] } } }
     Properties:
       TemplateURL: !Sub
-        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-aurora-postgresql/templates/aurora_postgres.template.yaml'
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-database-template.yaml'
         - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
-        AuroraDBEngineVersion: !Ref AuroraDBEngineVersion # GitLab PostgreSQL version mappings https://docs.gitlab.com/omnibus/settings/database.html#gitlab-140-and-later
-        DBInstanceClass: !Ref DBInstanceClass
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3KeyPrefix: !Ref QSS3KeyPrefix
+        QSS3BucketRegion: !Ref QSS3BucketRegion
+        AuroraDBEngineVersion: !Ref AuroraDBEngineVersion
+        RDSDBEngineVersion: !Ref RDSDBEngineVersion
+        AuroraDBInstanceClass: !Ref AuroraDBInstanceClass
+        RDSDBInstanceClass: !Ref RDSDBInstanceClass
         DBName: !Ref DBName
-        DBMasterUsername: !Ref DBUserName
-        DBMasterUserPassword: !Ref DBUserPassword
+        DBUserName: !Sub "{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:username}}"
+        DBUserPassword: !Sub "{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:password}}"
         DBPort: !Ref DBPort
         VPCID: !Ref VPCID
-        Subnet1ID: !Ref PrivateSubnet1ID
-        Subnet2ID: !Ref PrivateSubnet2ID
+        PrivateSubnet1ID: !Ref PrivateSubnet1ID
+        PrivateSubnet2ID: !Ref PrivateSubnet2ID
         CustomDBSecurityGroup: !GetAtt Infrastructure.Outputs.DatabaseSecurityGroupID
-
-  RDSDatabase:
-    Type: AWS::CloudFormation::Stack
-    Condition: UsingRDS
-    Properties:
-      TemplateURL: !Sub
-        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-rds-postgresql/templates/rds_postgres-main.template.yaml'
-        - S3Region: !If [ UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion ]
-          S3Bucket: !If [ UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName ]
-      Parameters:
-        RDSDBEngineVersion: !Ref RDSDBEngineVersion # GitLab PostgreSQL version mappings https://docs.gitlab.com/omnibus/settings/database.html#gitlab-140-and-later
-        DBInstanceClass: !Ref DBInstanceClass
-        DBName: !Ref DBName
-        DBMasterUsername: !Sub "{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:username}}"
-        DBMasterUserPassword: !Sub "{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:password}}"
-        DBPort: !Ref DBPort
-        VPCID: !Ref VPCID
-        Subnet1ID: !Ref PrivateSubnet1ID
-        Subnet2ID: !Ref PrivateSubnet2ID
-        CustomDBSecurityGroup: !GetAtt Infrastructure.Outputs.DatabaseSecurityGroupID
+        UsingAurora: !Ref UsingAurora
 
   Praefect:
     Type: AWS::CloudFormation::Stack
