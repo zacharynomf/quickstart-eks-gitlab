@@ -20,6 +20,9 @@ Parameters:
     Type: 'AWS::EC2::Subnet::Id'
   PrivateSubnet2ID:
     Type: 'AWS::EC2::Subnet::Id'
+  CustomDBSecurityGroup:
+    Type: String
+    Default: ''
 
 # Database Parameters
   AuroraDBEngineVersion:
@@ -95,6 +98,7 @@ Resources:
         VPCID: !Ref VPCID
         Subnet1ID: !Ref PrivateSubnet1ID
         Subnet2ID: !Ref PrivateSubnet2ID
+        CustomDBSecurityGroup: !Ref CustomDBSecurityGroup
 
   RDSDatabase:
     Type: AWS::CloudFormation::Stack
@@ -115,6 +119,7 @@ Resources:
         VPCID: !Ref VPCID
         Subnet1ID: !Ref PrivateSubnet1ID
         Subnet2ID: !Ref PrivateSubnet2ID
+        CustomDBSecurityGroup: !Ref CustomDBSecurityGroup
 
 Outputs:
   DBName:
