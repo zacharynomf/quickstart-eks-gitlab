@@ -190,8 +190,10 @@ Metadata:
       ConfigureGrafana:
         default: Provision and integrate Grafana
     # Amazon RDS configuration
-      DBEngineVersion:
-        default: GitLab PostgreSQL version
+      AuroraDBEngineVersion:
+        default: GitLab Aurora PostgreSQL version
+      RDSDBEngineVersion:
+        default: GitLab RDS PostgreSQL version
       DBInstanceClass:
         default: GitLab database instance class
       DBName:
@@ -492,7 +494,16 @@ Parameters:
       - 13.1
       - 13.2
       - 13.3
-  DBInstanceClass:
+  AuroraDBInstanceClass:
+    Description: |
+      The name of the compute and memory capacity class of the database instance.
+      This Quickstart deploys Multi-AZ Postgres replicas in different Availability Zones.
+      The instance class is applied to both primary and standby instances.
+      The instance class you choose must support the needed PostgreSQL version: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html
+    Default: db.r5.large
+    AllowedPattern: "db\\.[a-z0-9]*\\.[a-z0-9]*"
+    Type: String
+  RDSDBInstanceClass:
     Description: |
       The name of the compute and memory capacity class of the database instance.
       This Quickstart deploys Multi-AZ Postgres replicas in different Availability Zones.
@@ -531,8 +542,8 @@ Parameters:
     MinValue: 1150
     MaxValue: 65535
   UsingAurora:
-    Default: No
-    Description: "Amazon RDS is the default database engine. Set yes if Amazon Aurora need to be used."
+    Default: 'No'
+    Description: "Amazon RDS is the default database engine. Set to [Yes] if Amazon Aurora need to be used."
     Type: String
 
 # Cache Parameters
@@ -897,7 +908,8 @@ Resources:
         # Database properties
         AuroraDBEngineVersion: !Ref AuroraDBEngineVersion
         RDSDBEngineVersion: !Ref RDSDBEngineVersion
-        DBInstanceClass: !Ref DBInstanceClass
+        AuroraDBInstanceClass: !Ref AuroraDBInstanceClass
+        RDSDBInstanceClass: !Ref RDSDBInstanceClass
         DBName: !Ref DBName
         DBPraefectName: !Ref DBPraefectName
         DBUserName: !Ref DBUserName

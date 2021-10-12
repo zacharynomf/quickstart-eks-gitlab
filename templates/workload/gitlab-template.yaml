@@ -50,8 +50,12 @@ Parameters:
     AllowedValues: [ 'Yes', 'No' ]
 
 # Database Parameters
-  DBEngineVersion:
+  AuroraDBEngineVersion:
     AllowedValues: [ '9.6.16', '9.6.17', '9.6.18', '9.6.19', '10.11', '10.12', '10.13', '10.14', '11.6', '11.7', '11.8', '11.9', '12.4']
+    MinLength: "4"
+    Type: String
+  RDSDBEngineVersion:
+    AllowedValues: [ '9.6.20', '9.6.21', '9.6.22', '10.15', '10.16', '10.17', '11.10', '11.11', '11.12', '12.5', '12.6', '12.7', '13.1', '13.2', '13.3']
     MinLength: "4"
     Type: String
   DBName: 
@@ -192,6 +196,7 @@ Conditions:
   ConfigureRunner: !Equals [!Ref ConfigureRunner, 'Yes']
   PrivilegedMode: !Equals [!Ref PrivilegedMode, 'Yes']
   UsingAurora: !Equals [!Ref UsingAurora, 'Yes']
+  UsingRDS: !Equals [!Ref UsingAurora, 'No']
 
 Mappings: 
   PartitionMap: 
@@ -308,11 +313,10 @@ Resources:
         Subnet1ID: !Ref PrivateSubnet1ID
         Subnet2ID: !Ref PrivateSubnet2ID
         CustomDBSecurityGroup: !GetAtt Infrastructure.Outputs.DatabaseSecurityGroupID
+
   RDSDatabase:
     Type: AWS::CloudFormation::Stack
-    Condition: !Not UsingAurora
-    # E9101 Ignoring 'master' in Aurora PostgreSQL quickstart parameter names
-    Metadata: { cfn-lint: { config: { ignore_checks: [ E9101 ] } } }
+    Condition: UsingRDS
     Properties:
       TemplateURL: !Sub
         - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-rds-postgresql/templates/rds_postgres-main.template.yaml'
@@ -471,7 +475,7 @@ Resources:
     Metadata: { cfn-lint: { config: { ignore_checks: [E3001, E1010] } } }
     Properties:
       ClusterID: !Ref KubeClusterName 
-      Namespace: !Ref HelmChartNamespace  
+      Namespace: !Ref HelmChartNamespace
       Repository: https://charts.gitlab.io/
       Chart: gitlab/gitlab 
       Name: !Ref HelmChartName
