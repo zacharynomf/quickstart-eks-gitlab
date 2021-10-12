@@ -28,17 +28,10 @@ Parameters:
     AllowedPattern: "[a-zA-Z0-9]*"
     MaxLength: "64"
     MinLength: "0"
-  DBUserName: 
+  DBMasterUsername:
     Type: String
-    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
-    MaxLength: "16"
-    MinLength: "1"
-  DBUserPassword:
+  DBMasterUserPassword:
     Type: String
-    AllowedPattern: >-
-      ^(?=^.{8,255}$)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)((?=.*[^A-Za-z0-9])(?!.*[@/"'])).*$
-    MaxLength: "64"
-    MinLength: "8"
     NoEcho: "True"
 
   # Network
@@ -140,9 +133,9 @@ Resources:
     DeletionPolicy: Retain
     Properties:
       Host: !Ref DBHost
-      DBName: !Ref DBName      
-      UserName: !Ref DBUserName
-      Password: !Ref DBUserPassword
+      DBName: !Ref DBName
+      UserName: !Ref DBMasterUsername
+      Password: !Ref DBMasterUserPassword
       ServiceToken: !GetAtt CreateDatabaseLambda.Arn
 
   EC2InstanceProfile:
@@ -160,8 +153,8 @@ Resources:
         - Effect: Allow
           Principal:
             Service:
-            - ec2.amazonaws.com   
-            - ssm.amazonaws.com         
+            - ec2.amazonaws.com
+            - ssm.amazonaws.com
           Action:
           - sts:AssumeRole
       ManagedPolicyArns:
@@ -282,7 +275,7 @@ Resources:
 
           commands:
             100_gitlab_yum_repo:
-              command: curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh | bash  
+              command: curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh | bash
 
             200_yum_update:
               command: yum update -y --exclude=gitlab-ee*
@@ -306,7 +299,7 @@ Resources:
                 sidekiq['enable'] = false
                 gitlab_workhorse['enable'] = false
                 gitaly['enable'] = false
-                
+
                 # Prevent database connections during 'gitlab-ctl reconfigure'
                 gitlab_rails['rake_cache_clear'] = false
                 gitlab_rails['auto_migrate'] = false
@@ -314,14 +307,14 @@ Resources:
                 praefect['listen_addr'] = '0.0.0.0:${PraefectPort}'
                 praefect['auth_token'] = '${PraefectExternalToken}'
                 gitlab_shell['secret_token'] = '${GitLabShellToken}'
-                
+
                 praefect['database_host'] = '${DBHost}'
                 praefect['database_port'] = '${DBPort}'
-                praefect['database_user'] = '${DBUserName}'
-                praefect['database_password'] = '${DBUserPassword}' 
+                praefect['database_user'] = '${DBMasterUsername}'
+                praefect['database_password'] = '${DBMasterUserPassword}'
                 praefect['database_dbname'] = '${DBName}'
                 praefect['database_sslmode'] = 'require'
-                
+
                 praefect['virtual_storages'] = {
                   'default' => {
                     'nodes' => {

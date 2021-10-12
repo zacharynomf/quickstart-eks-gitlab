@@ -20,7 +20,6 @@ tests:
       NumberOfAZs: 3
       EKSPublicAccessEndpoint: Enabled
       ProvisionBastionHost: Disabled
-      DBUserPassword: 'Ae6ii5fcckj4ddi0t!'
       DomainName: devops.$[taskcat_random-string].com
     regions:
     - eu-west-1
@@ -33,7 +32,6 @@ tests:
       NumberOfAZs: 2
       EKSPublicAccessEndpoint: Disabled
       ProvisionBastionHost: Enabled
-      DBUserPassword: 'Ae6ii5fcckj4ddi0t!'
       DomainName: devops.$[taskcat_random-string].com
       ConfigureContainerInsights: 'Yes'
       ConfigureGrafana: 'Yes'
@@ -51,7 +49,6 @@ tests:
       NumberOfAZs: 2
       EKSPublicAccessEndpoint: Disabled
       ProvisionBastionHost: Disabled
-      DBUserPassword: 'Ae6ii5fcckj4ddi0t!'
       DomainName: devops.$[taskcat_random-string].dev
       ConfigureContainerInsights: 'Yes'
     regions:
