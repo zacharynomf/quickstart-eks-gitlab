@@ -77,8 +77,6 @@ Parameters:
     Type: Number
     MinValue: 1150
     MaxValue: 65535
-  DBInstanceClass:
-    Type: String
   AuroraDBInstanceClass:
     Type: String
   RDSDBInstanceClass:
