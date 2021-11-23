@@ -134,6 +134,9 @@ Outputs:
   RDSEndPointPort:
     Description: "Database EndPoint Port"
     Value: !If [UsingAurora, !Sub '${AuroraDatabase.Outputs.RDSEndPointPort}', !Sub '${RDSDatabase.Outputs.RDSEndPointPort}']
+  RDSReadEndPointAddress:
+    Description: "Database Read Endpoint Address"
+    Value: !If [ UsingAurora, !Sub '${AuroraDatabase.Outputs.RDSReadEndPointAddress}', !Sub '${RDSDatabase.Outputs.RDSEndPointAddress}' ]
   RDSEndPoints:
     Description: "Full Database End Points"
     Value: !If [UsingAurora, !Sub '${AuroraDatabase.Outputs.RDSEndPointAddress}:${AuroraDatabase.Outputs.RDSEndPointPort}/${AuroraDatabase.Outputs.DBName}', !Sub '${RDSDatabase.Outputs.RDSEndPointAddress}:${RDSDatabase.Outputs.RDSEndPointPort}/${RDSDatabase.Outputs.DBName}']
