@@ -130,13 +130,10 @@ Outputs:
     Value: !Ref DBUserPassword
   RDSEndPointAddress:
     Description: "Database Endpoint Address"
-    Value: !If [UsingAurora, !Sub '${AuroraDatabase.Outputs.AuroraDBCluster.Endpoint.Address}', !Sub '${RDSDatabase.Outputs.RDSDBInstance.Endpoint.Address}']
-  RDSReadEndPointAddress:
-    Description: "Database Endpoint Address"
-    Value: !If [UsingAurora, !Sub '${AuroraDatabase.Outputs.AuroraDBCluster.ReadEndpoint.Address}', !Sub '${RDSDatabase.Outputs.RDSDBInstance.Endpoint.Address}' ]
+    Value: !If [UsingAurora, !Sub '${AuroraDatabase.Outputs.RDSEndPointAddress}', !Sub '${RDSDatabase.Outputs.RDSEndPointAddress}']
   RDSEndPointPort:
     Description: "Database EndPoint Port"
-    Value: !If [UsingAurora, !Sub '${AuroraDatabase.Outputs.AuroraDBCluster.Endpoint.Port}', !Sub '${RDSDatabase.Outputs.RDSDBInstance.Endpoint.Port}']
+    Value: !If [UsingAurora, !Sub '${AuroraDatabase.Outputs.RDSEndPointPort}', !Sub '${RDSDatabase.Outputs.RDSEndPointPort}']
   RDSEndPoints:
     Description: "Full Database End Points"
-    Value: !If [UsingAurora, !Sub '${AuroraDatabase.Outputs.AuroraDBCluster.Endpoint.Address}:${AuroraDatabase.Outputs.AuroraDBCluster.Endpoint.Port}/${AuroraDatabase.Outputs.AuroraDBCluster.DBName}', !Sub '${RDSDatabase.Outputs.RDSDBInstance.Endpoint.Address}:${RDSDatabase.Outputs.RDSDBInstance.Endpoint.Port}/${RDSDatabase.Outputs.RDSDBInstance.DBName}']
+    Value: !If [UsingAurora, !Sub '${AuroraDatabase.Outputs.RDSEndPointAddress}:${AuroraDatabase.Outputs.RDSEndPointPort}/${AuroraDatabase.Outputs.DBName}', !Sub '${RDSDatabase.Outputs.RDSEndPointAddress}:${RDSDatabase.Outputs.RDSEndPointPort}/${RDSDatabase.Outputs.DBName}']
