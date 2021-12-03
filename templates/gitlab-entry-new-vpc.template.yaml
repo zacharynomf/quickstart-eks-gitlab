@@ -509,7 +509,7 @@ Parameters:
       This Quickstart deploys Multi-AZ Postgres replicas in different Availability Zones.
       The instance class is applied to both primary and standby instances.
       The instance class you choose must support the needed PostgreSQL version: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html
-    Default: db.m6g.large
+    Default: db.r6g.large
     AllowedPattern: "db\\.[a-z0-9]*\\.[a-z0-9]*"
     Type: String
   DBName: 
