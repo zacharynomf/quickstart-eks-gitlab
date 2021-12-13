@@ -1,0 +1,143 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Deploys Database instance or cluster (qs-1rpegts6r)
+
+# Lint rules to ignore
+Metadata:
+  cfn-lint:
+    config:
+      ignore_checks:
+        - W9002
+        - W9003
+        - W9004
+        - E9101
+        - E0002
+
+Parameters:
+
+# Network Parameters
+  VPCID:
+    Type: 'AWS::EC2::VPC::Id'
+  PrivateSubnet1ID:
+    Type: 'AWS::EC2::Subnet::Id'
+  PrivateSubnet2ID:
+    Type: 'AWS::EC2::Subnet::Id'
+  CustomDBSecurityGroup:
+    Type: String
+    Default: ''
+
+# Database Parameters
+  AuroraDBEngineVersion:
+    AllowedValues: [ '9.6.16', '9.6.17', '9.6.18', '9.6.19', '10.11', '10.12', '10.13', '10.14', '11.6', '11.7', '11.8', '11.9', '12.4' ]
+    MinLength: "4"
+    Type: String
+  RDSDBEngineVersion:
+    AllowedValues: [ '9.6.20', '9.6.21', '9.6.22', '10.15', '10.16', '10.17', '11.10', '11.11', '11.12', '12.5', '12.6', '12.7', '13.1', '13.2', '13.3' ]
+    MinLength: "4"
+    Type: String
+  DBName:
+    AllowedPattern: "[a-zA-Z0-9]*"
+    MaxLength: "64"
+    MinLength: "0"
+    Type: String
+  DBUserName:
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    MaxLength: "16"
+    MinLength: "1"
+    Type: String
+  DBUserPassword:
+    AllowedPattern: >-
+      ^(?=^.{8,255}$)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)((?=.*[^A-Za-z0-9])(?!.*[@/"'])).*$
+    MaxLength: "64"
+    MinLength: "8"
+    NoEcho: "True"
+    Type: String
+  DBPort:
+    Type: Number
+    MinValue: 1150
+    MaxValue: 65535
+  AuroraDBInstanceClass:
+    Type: String
+  RDSDBInstanceClass:
+    Type: String
+  UsingAurora:
+    Type: String
+    AllowedValues: [ 'Yes', 'No' ]
+
+# Quickstart location Parameters
+  QSS3BucketName:
+    Type: String
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+  QSS3BucketRegion:
+    Type: String
+  QSS3KeyPrefix:
+    Type: String
+    AllowedPattern: ^[0-9a-zA-Z-/]*$
+
+Conditions:
+  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+  UsingAurora: !Equals [!Ref UsingAurora, 'Yes']
+  UsingRDS: !Equals [!Ref UsingAurora, 'No']
+
+Resources:
+
+  AuroraDatabase:
+    Type: AWS::CloudFormation::Stack
+    Condition: UsingAurora
+    Metadata: { cfn-lint: { config: { ignore_checks: [E9101] } } } # E9101 Ignoring 'master' in Aurora PostgreSQL quickstart parameter names
+    Properties:
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-aurora-postgresql/templates/aurora_postgres.template.yaml'
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        DBEngineVersion: !Ref AuroraDBEngineVersion
+        DBInstanceClass: !Ref AuroraDBInstanceClass
+        DBName: !Ref DBName
+        DBMasterUsername: !Ref DBUserName
+        DBMasterUserPassword: !Ref DBUserPassword
+        DBPort: !Ref DBPort
+        VPCID: !Ref VPCID
+        Subnet1ID: !Ref PrivateSubnet1ID
+        Subnet2ID: !Ref PrivateSubnet2ID
+        CustomDBSecurityGroup: !Ref CustomDBSecurityGroup
+
+  RDSDatabase:
+    Type: AWS::CloudFormation::Stack
+    Condition: UsingRDS
+    Metadata: { cfn-lint: { config: { ignore_checks: [ E9101 ] } } } # E9101 Ignoring 'master' in RDS PostgreSQL quickstart parameter names
+    Properties:
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-rds-postgres/templates/rds_postgres.template.yaml'
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        DBEngineVersion: !Ref RDSDBEngineVersion
+        DBInstanceClass: !Ref RDSDBInstanceClass
+        DBName: !Ref DBName
+        DBMasterUsername: !Ref DBUserName
+        DBMasterUserPassword: !Ref DBUserPassword
+        DBPort: !Ref DBPort
+        VPCID: !Ref VPCID
+        Subnet1ID: !Ref PrivateSubnet1ID
+        Subnet2ID: !Ref PrivateSubnet2ID
+        CustomDBSecurityGroup: !Ref CustomDBSecurityGroup
+
+Outputs:
+  DBName:
+    Description: "Database Name"
+    Value: !Ref DBName
+  DBMasterUsername:
+    Description: "Database Master Username"
+    Value: !Ref DBUserPassword
+  RDSEndPointAddress:
+    Description: "Database Endpoint Address"
+    Value: !If [UsingAurora, !Sub '${AuroraDatabase.Outputs.RDSEndPointAddress}', !Sub '${RDSDatabase.Outputs.RDSEndPointAddress}']
+  RDSEndPointPort:
+    Description: "Database EndPoint Port"
+    Value: !If [UsingAurora, !Sub '${AuroraDatabase.Outputs.RDSEndPointPort}', !Sub '${RDSDatabase.Outputs.RDSEndPointPort}']
+  RDSReadEndPointAddress:
+    Description: "Database Read Endpoint Address"
+    Value: !If [UsingAurora, !Sub '${AuroraDatabase.Outputs.RDSReadEndPointAddress}', !Sub '${RDSDatabase.Outputs.RDSEndPointAddress}']
+  RDSEndPoints:
+    Description: "Full Database End Points"
+    Value: !If [UsingAurora, !Sub '${AuroraDatabase.Outputs.RDSEndPointAddress}:${AuroraDatabase.Outputs.RDSEndPointPort}/${AuroraDatabase.Outputs.DBName}', !Sub '${RDSDatabase.Outputs.RDSEndPointAddress}:${RDSDatabase.Outputs.RDSEndPointPort}/${RDSDatabase.Outputs.DBName}']

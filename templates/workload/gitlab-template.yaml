@@ -50,8 +50,12 @@ Parameters:
     AllowedValues: [ 'Yes', 'No' ]
 
 # Database Parameters
-  DBEngineVersion:
+  AuroraDBEngineVersion:
     AllowedValues: [ '9.6.16', '9.6.17', '9.6.18', '9.6.19', '10.11', '10.12', '10.13', '10.14', '11.6', '11.7', '11.8', '11.9', '12.4']
+    MinLength: "4"
+    Type: String
+  RDSDBEngineVersion:
+    AllowedValues: [ '9.6.20', '9.6.21', '9.6.22', '10.15', '10.16', '10.17', '11.10', '11.11', '11.12', '12.5', '12.6', '12.7', '13.1', '13.2', '13.3']
     MinLength: "4"
     Type: String
   DBName: 
@@ -73,8 +77,13 @@ Parameters:
     Type: Number
     MinValue: 1150
     MaxValue: 65535
-  DBInstanceClass:
+  AuroraDBInstanceClass:
     Type: String
+  RDSDBInstanceClass:
+    Type: String
+  UsingAurora:
+    Type: String
+    AllowedValues: [ 'Yes', 'No' ]
 
 # Object Storage Parameters
   ObjectStorageSSEAlgorithm:
@@ -289,20 +298,26 @@ Resources:
     Metadata: { cfn-lint: { config: { ignore_checks: [E9101] } } }
     Properties:
       TemplateURL: !Sub
-        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-aurora-postgresql/templates/aurora_postgres.template.yaml'
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-database-template.yaml'
         - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
-        DBEngineVersion: !Ref DBEngineVersion # GitLab PostgreSQL version mappings https://docs.gitlab.com/omnibus/settings/database.html#gitlab-140-and-later
-        DBInstanceClass: !Ref DBInstanceClass
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3KeyPrefix: !Ref QSS3KeyPrefix
+        QSS3BucketRegion: !Ref QSS3BucketRegion
+        AuroraDBEngineVersion: !Ref AuroraDBEngineVersion
+        RDSDBEngineVersion: !Ref RDSDBEngineVersion
+        AuroraDBInstanceClass: !Ref AuroraDBInstanceClass
+        RDSDBInstanceClass: !Ref RDSDBInstanceClass
         DBName: !Ref DBName
-        DBMasterUsername: !Sub "{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:username}}"
-        DBMasterUserPassword: !Sub "{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:password}}"
+        DBUserName: !Sub "{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:username}}"
+        DBUserPassword: !Sub "{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:password}}"
         DBPort: !Ref DBPort
         VPCID: !Ref VPCID
-        Subnet1ID: !Ref PrivateSubnet1ID
-        Subnet2ID: !Ref PrivateSubnet2ID
+        PrivateSubnet1ID: !Ref PrivateSubnet1ID
+        PrivateSubnet2ID: !Ref PrivateSubnet2ID
         CustomDBSecurityGroup: !GetAtt Infrastructure.Outputs.DatabaseSecurityGroupID
+        UsingAurora: !Ref UsingAurora
 
   Praefect:
     Type: AWS::CloudFormation::Stack
@@ -445,7 +460,7 @@ Resources:
     Metadata: { cfn-lint: { config: { ignore_checks: [E3001, E1010] } } }
     Properties:
       ClusterID: !Ref KubeClusterName 
-      Namespace: !Ref HelmChartNamespace  
+      Namespace: !Ref HelmChartNamespace
       Repository: https://charts.gitlab.io/
       Chart: gitlab/gitlab 
       Name: !Ref HelmChartName

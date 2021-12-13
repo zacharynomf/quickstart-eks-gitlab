@@ -21,6 +21,12 @@
 [submodule "functions/source/CfnSesDomain/aws-cfn-ses-domain"]
 	path = functions/source/CfnSesDomain/aws-cfn-ses-domain
 	url = git@github.com:medmunds/aws-cfn-ses-domain.git
+        branch = main
 [submodule "submodules/aws-cfn-ses-domain"]
 	path = submodules/aws-cfn-ses-domain
 	url = git@github.com:medmunds/aws-cfn-ses-domain.git
+        branch = main 
+[submodule "submodules/quickstart-amazon-rds-postgres"]
+	path = submodules/quickstart-amazon-rds-postgres
+	url = https://github.com/aws-quickstart/quickstart-amazon-rds-postgres.git
+	branch = main
