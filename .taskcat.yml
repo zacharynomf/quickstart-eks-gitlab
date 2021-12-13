@@ -42,15 +42,3 @@ tests:
       PrivilegedMode: 'Yes'
     regions:
     - eu-central-1
-
-  deploy-in-gov-cloud:
-    parameters:
-      AvailabilityZones: $[taskcat_genaz_2]
-      NumberOfAZs: 2
-      EKSPublicAccessEndpoint: Disabled
-      ProvisionBastionHost: Disabled
-      DomainName: devops.$[taskcat_random-string].dev
-      ConfigureContainerInsights: 'Yes'
-    regions:
-      - us-gov-east-1
-      - us-gov-west-1
