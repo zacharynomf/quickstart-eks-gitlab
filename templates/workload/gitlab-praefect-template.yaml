@@ -29,9 +29,9 @@ Parameters:
     AllowedPattern: "[a-zA-Z0-9]*"
     MaxLength: "64"
     MinLength: "0"
-  DBMasterUsername:
+  DBUsername:
     Type: String
-  DBMasterUserPassword:
+  DBUserPassword:
     Type: String
     NoEcho: "True"
 
@@ -135,8 +135,8 @@ Resources:
     Properties:
       Host: !Ref DBHost
       DBName: !Ref DBName
-      UserName: !Ref DBMasterUsername
-      Password: !Ref DBMasterUserPassword
+      UserName: !Ref DBUsername
+      Password: !Ref DBUserPassword
       ServiceToken: !GetAtt CreateDatabaseLambda.Arn
 
   EC2InstanceProfile:
@@ -311,8 +311,8 @@ Resources:
 
                 praefect['database_host'] = '${DBHost}'
                 praefect['database_port'] = '${DBPort}'
-                praefect['database_user'] = '${DBMasterUsername}'
-                praefect['database_password'] = '${DBMasterUserPassword}'
+                praefect['database_user'] = '${DBUsername}'
+                praefect['database_password'] = '${DBUserPassword}'
                 praefect['database_dbname'] = '${DBName}'
                 praefect['database_sslmode'] = 'require'
 
