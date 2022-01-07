@@ -38,10 +38,6 @@ Parameters:
   # Network
   VPCID: 
     Type: AWS::EC2::VPC::Id
-  DBSubnetIds:
-    Type: List<AWS::EC2::Subnet::Id>
-  DBSecurityGroup:
-    Type: String
   PraefectSubnetIds:
     Type: List<AWS::EC2::Subnet::Id>
   PraefectSecurityGroup:
@@ -95,49 +91,6 @@ Resources:
     Properties:
       LogGroupName: !Sub praefect-${AWS::StackName}
       RetentionInDays: 30
-
-  CreateDatabaseLambdaRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - 'lambda.amazonaws.com'
-            Action:
-              - 'sts:AssumeRole'
-      ManagedPolicyArns:
-        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
-        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole'
-
-  CreateDatabaseLambda:
-    Type: AWS::Lambda::Function
-    Properties:
-      Handler: handler.handler
-      MemorySize: 256
-      Role: !GetAtt  CreateDatabaseLambdaRole.Arn
-      Runtime: python3.8
-      Timeout: 900
-      Code:
-        S3Bucket: !Ref FunctionsBucketName
-        S3Key: !Sub '${QSS3KeyPrefix}functions/packages/CreateDatabase/lambda.zip'
-      VpcConfig:
-        SecurityGroupIds:
-          - !Ref DBSecurityGroup
-        SubnetIds: !Ref DBSubnetIds
-
-  PraefectDatabase:
-    Type: Custom::CreatePraefectDatabase
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Retain
-    Properties:
-      Host: !Ref DBHost
-      DBName: !Ref DBName
-      UserName: !Ref DBMasterUsername
-      Password: !Ref DBMasterUserPassword
-      ServiceToken: !GetAtt CreateDatabaseLambda.Arn
 
   EC2InstanceProfile:
     Type: AWS::IAM::InstanceProfile
@@ -205,7 +158,6 @@ Resources:
 
   PraefectAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
-    DependsOn: PraefectDatabase
     Metadata: 
       AWS::CloudFormation::Init:
         configSets:

@@ -626,11 +626,11 @@ Parameters:
   HelmChartVersion:
     Type: String
     Description: Version of GitLab Helm chart GitLab for deployment. See https://docs.gitlab.com/charts/installation/version_mappings.html.
-    Default: '4.12.3'
+    Default: '5.5.2'
   GitLabVersion:
     Type: String
     Description: Version of GitLab application - must correspond to helm chart version above. See https://docs.gitlab.com/charts/installation/version_mappings.html.
-    Default: '13.12.3'
+    Default: '14.5.2'
 
 # Gitaly Storage Parameters
   NumberOfGitalyReplicas:
@@ -772,7 +772,6 @@ Rules:
 Conditions:
   Using3AvailabilityZones:  !Equals [!Ref NumberOfAZs, '3']
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
-  EmptyEnvironmentName: !Equals [!Ref EnvironmentName, '']
 
 Resources:
   VPCStack:
@@ -803,7 +802,7 @@ Resources:
         PrivateSubnetATag2: "kubernetes.io/role/internal-elb="
 
   # https://aws-quickstart.github.io/quickstart-amazon-eks/#_configure_advanced_options
-  EKSConfigSet:
+  GitLab:
     Type: AWS::CloudFormation::Stack
     Metadata:
       cfn-lint:
@@ -812,100 +811,37 @@ Resources:
             - W9901
     Properties:
       TemplateURL: !Sub
-        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-eks/templates/amazon-eks-advanced-configuration.template.yaml'
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/gitlab-entry-existing-vpc.template.yaml'
         - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
-        ConfigSetName: !If [EmptyEnvironmentName, !Ref 'AWS::StackName', !Ref EnvironmentName]
-        NodeVolumeSize: !Ref NodeVolumeSize
-        BastionInstanceType: !Ref BastionInstanceType
-
-  EKSStack:
-    Type: AWS::CloudFormation::Stack
-    DependsOn: EKSConfigSet
-    Metadata:
-      cfn-lint:
-        config:
-          ignore_checks:
-            - W9901
-    Properties:
-      TemplateURL: !Sub
-        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-eks/templates/amazon-eks-entrypoint-existing-vpc.template.yaml'
-        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
-          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-      Parameters:
-        # Quickstart properties
-        QSS3BucketName: !Ref QSS3BucketName
-        QSS3KeyPrefix: !Sub '${QSS3KeyPrefix}submodules/quickstart-amazon-eks/'
-        QSS3BucketRegion: !Ref QSS3BucketRegion
-        # VPC properties
+        # Basic Configuration
+        EnvironmentName: !Ref EnvironmentName
+        KeyPairName: !Ref KeyPairName
+        # VPC parameters
         VPCID: !GetAtt VPCStack.Outputs.VPCID
+        VPCCIDR: !Ref VPCCIDR
         PublicSubnet1ID: !GetAtt VPCStack.Outputs.PublicSubnet1ID
         PublicSubnet2ID: !GetAtt VPCStack.Outputs.PublicSubnet2ID
         PublicSubnet3ID: !If [Using3AvailabilityZones, !GetAtt VPCStack.Outputs.PublicSubnet3ID, !Ref 'AWS::NoValue']
         PrivateSubnet1ID: !GetAtt VPCStack.Outputs.PrivateSubnet1AID
         PrivateSubnet2ID: !GetAtt VPCStack.Outputs.PrivateSubnet2AID
         PrivateSubnet3ID: !If [Using3AvailabilityZones, !GetAtt VPCStack.Outputs.PrivateSubnet3AID, !Ref 'AWS::NoValue']
-        # Cluster properties
-        KeyPairName: !Ref KeyPairName
-        RemoteAccessCIDR: !Ref RemoteAccessCIDR
-        EKSPublicAccessEndpoint: !Ref EKSPublicAccessEndpoint
+        # Bastion parameters
         ProvisionBastionHost: !Ref ProvisionBastionHost
+        BastionInstanceType: !Ref BastionInstanceType
+        RemoteAccessCIDR: !Ref RemoteAccessCIDR
+        # Cluster parameters
+        EKSPublicAccessEndpoint: !Ref EKSPublicAccessEndpoint
         AdditionalEKSAdminUserArn: !Ref AdditionalEKSAdminUserArn
         AdditionalEKSAdminRoleArn: !Ref AdditionalEKSAdminRoleArn
-        ClusterAutoScaler: Enabled
         NodeInstanceType: !Ref NodeInstanceType
+        NodeVolumeSize: !Ref NodeVolumeSize
         NumberOfNodes: !Ref NumberOfNodes
         MaxNumberOfNodes: !Ref MaxNumberOfNodes
-        ConfigSetName: !If [EmptyEnvironmentName, !Ref 'AWS::StackName', !Ref EnvironmentName]
-        # Shared resources
-        PerAccountSharedResources: !Ref PerAccountSharedResources
-        PerRegionSharedResources: !Ref PerRegionSharedResources
-
-  MetricsServer:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub
-        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-eks/templates/amazon-eks-metrics-server.template.yaml'
-        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
-          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-      Parameters:
-        EksClusterName: !GetAtt EKSStack.Outputs.EKSClusterName
-
-  GitLabStack:
-    Type: AWS::CloudFormation::Stack
-    Metadata:
-      cfn-lint:
-        config:
-          ignore_checks:
-            - W9901
-    Properties:
-      TemplateURL: !Sub
-        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-template.yaml'
-        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
-          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-      Parameters:
-        # Quickstart properties
-        QSS3BucketName: !Ref QSS3BucketName
-        QSS3KeyPrefix: !Ref QSS3KeyPrefix
-        QSS3BucketRegion: !Ref QSS3BucketRegion
-        # Infra properties
-        DomainName: !Ref DomainName
-        CreateHostedZone: !Ref CreateHostedZone
-        CreateSslCertificate: !Ref CreateSslCertificate
-        EnvironmentName: !If [EmptyEnvironmentName, !Ref 'AWS::StackName', !Ref EnvironmentName]
-        # Network properties
-        VPCID: !GetAtt VPCStack.Outputs.VPCID
-        VPCCIDR: !Ref VPCCIDR
-        PrivateSubnet1ID: !GetAtt VPCStack.Outputs.PrivateSubnet1AID
-        PrivateSubnet2ID: !GetAtt VPCStack.Outputs.PrivateSubnet2AID
-        PrivateSubnet3ID: !If [Using3AvailabilityZones, !GetAtt VPCStack.Outputs.PrivateSubnet3AID, !Ref 'AWS::NoValue']
-        NodeGroupSecurityGroup: !GetAtt EKSStack.Outputs.NodeGroupSecurityGroup
-        # Cluster properties
-        KubeClusterName: !GetAtt EKSStack.Outputs.EKSClusterName 
         ConfigureContainerInsights: !Ref ConfigureContainerInsights
         ConfigureGrafana: !Ref ConfigureGrafana
-        # Database properties
+        # Database Parameters
         AuroraDBEngineVersion: !Ref AuroraDBEngineVersion
         RDSDBEngineVersion: !Ref RDSDBEngineVersion
         AuroraDBInstanceClass: !Ref AuroraDBInstanceClass
@@ -915,37 +851,47 @@ Resources:
         DBUserName: !Ref DBUserName
         DBPort: !Ref DBPort
         UsingAurora: !Ref UsingAurora
-        # Object storage properties
-        ObjectStorageSSEAlgorithm: !Ref ObjectStorageSSEAlgorithm
-        ObjectStorageKMSKeyID: !Ref ObjectStorageKMSKeyID
-        BackupSchedule: !Ref BackupSchedule
-        BackupVolumeSize: !Ref BackupVolumeSize
-        # Cache properties
+        # Cache Parameters
         CacheMode: !Ref CacheMode
         CacheNodes: !Ref CacheNodes
         CacheNodeType: !Ref CacheNodeType
-        # SMTP properties
+        # Infra Parameters
+        DomainName: !Ref DomainName
+        CreateHostedZone: !Ref CreateHostedZone
+        CreateSslCertificate: !Ref CreateSslCertificate
+        # SMTP Parameters
         SMTPDomain: !Ref SMTPDomain
         SMTPHostName: !Ref SMTPHostName
         SMTPPort: !Ref SMTPPort
         SMTPUsername: !Ref SMTPUsername
         SMTPPassword: !Ref SMTPPassword
-        # Chart properties
+        # GitLab Helm chart Parameters
         HelmChartNamespaceCreate: !Ref HelmChartNamespaceCreate
         HelmChartNamespace: !Ref HelmChartNamespace
         HelmChartName: !Ref HelmChartName
         HelmChartVersion: !Ref HelmChartVersion
         GitLabVersion: !Ref GitLabVersion
-        # Git repository storage properties
-        PraefectInstanceType: !Ref PraefectInstanceType
-        GitalyInstanceType: !Ref GitalyInstanceType
-        NumberOfPraefectReplicas: !Ref NumberOfPraefectReplicas
+        # Gitaly Storage Parameters
         NumberOfGitalyReplicas: !Ref NumberOfGitalyReplicas
+        GitalyInstanceType: !Ref GitalyInstanceType
         GitalyVolumeSize: !Ref GitalyVolumeSize
-        # Runner properties
+        NumberOfPraefectReplicas: !Ref NumberOfPraefectReplicas
+        PraefectInstanceType: !Ref PraefectInstanceType
+        # Object Storage Parameters
+        ObjectStorageSSEAlgorithm: !Ref ObjectStorageSSEAlgorithm
+        ObjectStorageKMSKeyID: !Ref ObjectStorageKMSKeyID
+        BackupSchedule: !Ref BackupSchedule
+        BackupVolumeSize: !Ref BackupVolumeSize
+        # GitLab Runner Parameters
         ConfigureRunner: !Ref ConfigureRunner
         RunnerChartName: !Ref RunnerChartName
         RunnerChartVersion: !Ref RunnerChartVersion
         RunnerImage: !Ref RunnerImage
         MaximumConcurrentJobs: !Ref MaximumConcurrentJobs
         PrivilegedMode: !Ref PrivilegedMode
+        # Quickstart location parameters
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3BucketRegion: !Ref QSS3BucketRegion
+        QSS3KeyPrefix: !Ref QSS3KeyPrefix
+        PerAccountSharedResources: !Ref PerAccountSharedResources
+        PerRegionSharedResources: !Ref PerRegionSharedResources

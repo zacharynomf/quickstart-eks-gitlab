@@ -79,7 +79,6 @@ Metadata:
           - DBName
           - DBPraefectName
           - DBUserName
-          - DBUserPassword
           - DBPort
       - Label:
           default: GitLab cache configuration
@@ -205,8 +204,6 @@ Metadata:
         default: Praefect database name
       DBUserName:
         default: Database admin username
-      DBUserPassword:
-        default: Database admin password
       DBPort:
         default: Database port
     # Cache configuration
@@ -323,8 +320,9 @@ Parameters:
     Type: AWS::EC2::Subnet::Id
     Description: ID of the public subnet in Availability Zone 2 of your existing VPC (e.g., subnet-b1236eea).
   PublicSubnet3ID:
-    Type: AWS::EC2::Subnet::Id
+    Type: String
     Description: ID of the public subnet in Availability Zone 3 of your existing VPC (e.g., subnet-c3456aba).
+    Default: ''
   PrivateSubnet1ID:
     Type: AWS::EC2::Subnet::Id
     Description: ID of the private subnet in Availability Zone 1 of your existing VPC (e.g., subnet-fe9a8b32).
@@ -332,9 +330,10 @@ Parameters:
     Type: AWS::EC2::Subnet::Id
     Description: ID of the private subnet in Availability Zone 2 of your existing VPC (e.g., subnet-be8b01ea).
   PrivateSubnet3ID:
-    Type: AWS::EC2::Subnet::Id
+    Type: String
     Description: ID of the private subnet in Availability Zone 3 of your existing VPC (e.g., subnet-abd39039).
-
+    Default: ''
+    
 # Bastion parameters
   ProvisionBastionHost:
     Type: String
@@ -509,18 +508,6 @@ Parameters:
     MaxLength: "16"
     MinLength: "1"
     Type: String
-  DBUserPassword:
-    AllowedPattern: >-
-      ^(?=^.{8,255}$)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)((?=.*[^A-Za-z0-9])(?!.*[@/"'])).*$
-    ConstraintDescription: >-
-      Minimum 8 characters. Must include 1 uppercase, 1 lowercase, 1 number, 1 (non / @ " ') symbol.
-    Description: |
-      The database admin account password.
-      Minimum 8 characters. Must include 1 uppercase, 1 lowercase, 1 number, 1 (non / @ " ') symbol.
-    MaxLength: "64"
-    MinLength: "8"
-    NoEcho: "True"
-    Type: String
   DBPort:
     Default: 5432
     Description: "The port the instance will listen for connections on."
@@ -613,11 +600,11 @@ Parameters:
   HelmChartVersion:
     Type: String
     Description: Version of GitLab Helm chart GitLab for deployment. See https://docs.gitlab.com/charts/installation/version_mappings.html.
-    Default: '4.12.3'
+    Default: '5.5.2'
   GitLabVersion:
     Type: String
     Description: Version of GitLab application - must correspond to helm chart version above. See https://docs.gitlab.com/charts/installation/version_mappings.html.
-    Default: '13.12.3'
+    Default: '14.5.2'
 
 # Gitaly Storage Parameters
   NumberOfGitalyReplicas:
@@ -776,7 +763,7 @@ Resources:
         - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
-        ConfigSetName: !Ref 'AWS::StackName'
+        ConfigSetName: !If [EmptyEnvironmentName, !Ref 'AWS::StackName', !Ref EnvironmentName]
         NodeVolumeSize: !Ref NodeVolumeSize
         BastionInstanceType: !Ref BastionInstanceType
 
@@ -817,7 +804,7 @@ Resources:
         NodeInstanceType: !Ref NodeInstanceType
         NumberOfNodes: !Ref NumberOfNodes
         MaxNumberOfNodes: !Ref MaxNumberOfNodes
-        ConfigSetName: !Ref 'AWS::StackName'
+        ConfigSetName: !If [EmptyEnvironmentName, !Ref 'AWS::StackName', !Ref EnvironmentName]
         # Shared resources
         PerAccountSharedResources: !Ref PerAccountSharedResources
         PerRegionSharedResources: !Ref PerRegionSharedResources
@@ -872,7 +859,6 @@ Resources:
         DBName: !Ref DBName
         DBPraefectName: !Ref DBPraefectName
         DBUserName: !Ref DBUserName
-        DBUserPassword: !Ref DBUserPassword
         DBPort: !Ref DBPort
         UsingAurora: !Ref UsingAurora
         # Object storage properties

@@ -261,9 +261,7 @@ Resources:
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
         VPCID: !Ref VPCID
-        DBUserName: !Ref DBUserName
-        DBPort: !Ref DBPort
-        DBAccessCIDR: !Ref VPCCIDR
+        VPCCIDR: !Ref VPCCIDR
         PraefectPort: !Ref PraefectPort
         DomainName: !Ref DomainName
         CreateHostedZone: !Ref CreateHostedZone
@@ -302,22 +300,23 @@ Resources:
         - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
-        QSS3BucketName: !Ref QSS3BucketName
-        QSS3KeyPrefix: !Ref QSS3KeyPrefix
-        QSS3BucketRegion: !Ref QSS3BucketRegion
+        EnvironmentName: !Ref EnvironmentName
+        VPCID: !Ref VPCID
+        VPCCIDR: !Ref VPCCIDR
+        Subnet1ID: !Ref PrivateSubnet1ID
+        Subnet2ID: !Ref PrivateSubnet2ID
+        UsingAurora: !Ref UsingAurora
         AuroraDBEngineVersion: !Ref AuroraDBEngineVersion
         RDSDBEngineVersion: !Ref RDSDBEngineVersion
         AuroraDBInstanceClass: !Ref AuroraDBInstanceClass
         RDSDBInstanceClass: !Ref RDSDBInstanceClass
         DBName: !Ref DBName
-        DBUserName: !Sub "{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:username}}"
-        DBUserPassword: !Sub "{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:password}}"
+        DBPraefectName: !Ref DBPraefectName 
+        DBUserName: !Ref DBUserName
         DBPort: !Ref DBPort
-        VPCID: !Ref VPCID
-        PrivateSubnet1ID: !Ref PrivateSubnet1ID
-        PrivateSubnet2ID: !Ref PrivateSubnet2ID
-        CustomDBSecurityGroup: !GetAtt Infrastructure.Outputs.DatabaseSecurityGroupID
-        UsingAurora: !Ref UsingAurora
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3KeyPrefix: !Ref QSS3KeyPrefix
+        QSS3BucketRegion: !Ref QSS3BucketRegion
 
   Praefect:
     Type: AWS::CloudFormation::Stack
@@ -329,14 +328,12 @@ Resources:
       Parameters:
         EnvironmentName: !Ref EnvironmentName
         DomainName: !Ref DomainName
-        DBHost: !GetAtt Database.Outputs.RDSEndPointAddress
+        DBHost: !GetAtt Database.Outputs.PraefectEndpointAddress
         DBPort: !Ref DBPort
         DBName: !Ref DBPraefectName
-        DBMasterUsername: !Sub "{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:username}}"
-        DBMasterUserPassword: !Sub "{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:password}}"
+        DBMasterUsername: !Sub "{{resolve:secretsmanager:${Database.Outputs.PraefectSecretName}:SecretString:username}}"
+        DBMasterUserPassword: !Sub "{{resolve:secretsmanager:${Database.Outputs.PraefectSecretName}:SecretString:password}}"
         VPCID: !Ref VPCID
-        DBSubnetIds: !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID ] ]
-        DBSecurityGroup: !GetAtt Infrastructure.Outputs.DatabaseSecurityGroupID
         PraefectSubnetIds: !If 
           - Using3AvailabilityZones
           - !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID, !Ref PrivateSubnet3ID ] ]
@@ -442,7 +439,7 @@ Resources:
         KubeClusterName: !Ref KubeClusterName
         HelmChartNamespace: !Ref HelmChartNamespace
         HelmChartName: !Ref HelmChartName
-        DatabasePassword: !Sub '{{resolve:secretsmanager:${Infrastructure.Outputs.DatabaseSecretName}:SecretString:password}}'
+        DatabasePassword: !Sub '{{resolve:secretsmanager:${Database.Outputs.DatabaseSecretName}:SecretString:password}}'
         StorageAccessKeyId: !Sub '{{resolve:secretsmanager:${ObjectStorage.Outputs.CredentialsSecretName}:SecretString:accessKeyId}}'
         StorageSecretAccessKey: !Sub '{{resolve:secretsmanager:${ObjectStorage.Outputs.CredentialsSecretName}:SecretString:secretAccessKey}}'
         RegistryBucket: !GetAtt ObjectStorage.Outputs.RegistryBucket
@@ -477,7 +474,7 @@ Resources:
             psql:
               load_balancing:
                 hosts:
-                  - ${Database.Outputs.RDSReadEndPointAddress}
+                  - ${Database.Outputs.GitLabReadEndpointAddress}
           gitlab:
             webservice:
               ingress:
@@ -556,7 +553,7 @@ Resources:
 
         # database configuration
         postgresql.install: false
-        global.psql.host: !GetAtt Database.Outputs.RDSEndPointAddress
+        global.psql.host: !GetAtt Database.Outputs.GitLabEndpointAddress
         global.psql.database: !Ref DBName
         global.psql.username: !Ref DBUserName
         global.psql.password.secret: !GetAtt KubeSecrets.Outputs.DatabaseKubeSecretName
@@ -587,17 +584,17 @@ Resources:
         registry.storage.key: !GetAtt KubeSecrets.Outputs.RegistrySecretKey
 
         # backups, see https://docs.gitlab.com/charts/backup-restore/backup.html
-        gitlab.task-runner.persistance.enabled: true
-        gitlab.task-runner.persistance.storageClass: gp2
-        gitlab.task-runner.persistance.size: !Sub '${BackupVolumeSize}Gi'
-        gitlab.task-runner.backups.cron.enabled: true
-        gitlab.task-runner.backups.cron.schedule: !Sub '${BackupSchedule}'
-        gitlab.task-runner.backups.cron.extraArgs: '--skip registry --skip uploads --skip artifacts --skip lfs --skip packages --skip terraform_state'
-        gitlab.task-runner.backups.cron.persistance.enabled: true
-        gitlab.task-runner.backups.cron.persistance.storageClass: gp2
-        gitlab.task-runner.backups.cron.persistance.size: !Sub '${BackupVolumeSize}Gi'
-        gitlab.task-runner.backups.objectStorage.config.secret: !GetAtt KubeSecrets.Outputs.ObjectStorageKubeSecretName
-        gitlab.task-runner.backups.objectStorage.config.key: !GetAtt KubeSecrets.Outputs.BackupSecretKey
+        gitlab.toolbox.persistance.enabled: true
+        gitlab.toolbox.persistance.storageClass: gp2
+        gitlab.toolbox.persistance.size: !Sub '${BackupVolumeSize}Gi'
+        gitlab.toolbox.backups.cron.enabled: true
+        gitlab.toolbox.backups.cron.schedule: !Sub '${BackupSchedule}'
+        gitlab.toolbox.backups.cron.extraArgs: '--skip registry --skip uploads --skip artifacts --skip lfs --skip packages --skip terraform_state'
+        gitlab.toolbox.backups.cron.persistance.enabled: true
+        gitlab.toolbox.backups.cron.persistance.storageClass: gp2
+        gitlab.toolbox.backups.cron.persistance.size: !Sub '${BackupVolumeSize}Gi'
+        gitlab.toolbox.backups.objectStorage.config.secret: !GetAtt KubeSecrets.Outputs.ObjectStorageKubeSecretName
+        gitlab.toolbox.backups.objectStorage.config.key: !GetAtt KubeSecrets.Outputs.BackupSecretKey
 
         # webservice
         ## Adjust min replicas to match number of AZs
