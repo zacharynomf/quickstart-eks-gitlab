@@ -331,8 +331,8 @@ Resources:
         DBHost: !GetAtt Database.Outputs.PraefectEndpointAddress
         DBPort: !Ref DBPort
         DBName: !Ref DBPraefectName
-        DBMasterUsername: !Sub "{{resolve:secretsmanager:${Database.Outputs.PraefectSecretName}:SecretString:username}}"
-        DBMasterUserPassword: !Sub "{{resolve:secretsmanager:${Database.Outputs.PraefectSecretName}:SecretString:password}}"
+        DBUsername: !Sub "{{resolve:secretsmanager:${Database.Outputs.PraefectSecretName}:SecretString:username}}"
+        DBUserPassword: !Sub "{{resolve:secretsmanager:${Database.Outputs.PraefectSecretName}:SecretString:password}}"
         VPCID: !Ref VPCID
         PraefectSubnetIds: !If 
           - Using3AvailabilityZones
@@ -490,7 +490,11 @@ Resources:
                   service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
                   service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "ssl"
                   service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "${SslCertificateArn}"
-
+                # Deploy internal load balancer 
+                internal:
+                  enabled: true
+                  annotations:
+                    service.beta.kubernetes.io/aws-load-balancer-internal: 0.0.0.0/0
         - SslCertificateArn: !If [AcmIngressConfigured, !GetAtt Infrastructure.Outputs.SslCertificateArn, ""]
           
       Values:

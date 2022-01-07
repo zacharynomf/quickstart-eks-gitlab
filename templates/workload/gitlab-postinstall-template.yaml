@@ -88,6 +88,18 @@ Resources:
       Name: !Sub 'service/${HelmChartName}-nginx-ingress-controller'
       JsonPath: '{.status.loadBalancer.ingress[0].hostname}'
       Retries: 3
+  InternalLoadBalancerQuery:
+    Type: AWSQS::Kubernetes::Get
+    # Dependency to ensure queries are not executed in parallel - seen some errors when they run concurrently
+    DependsOn: LoadBalancerQuery
+    # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Get
+    Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
+    Properties:
+      ClusterName: !Ref ClusterName
+      Namespace: !Ref HelmChartNamespace
+      Name: !Sub 'service/${HelmChartName}-nginx-ingress-controller-internal'
+      JsonPath: '{.status.loadBalancer.ingress[0].hostname}'
+      Retries: 3
   LoadBalancerParameter:
     Type: AWS::SSM::Parameter
     Properties:
@@ -100,7 +112,7 @@ Resources:
   RootCAQuery:
     Type: AWSQS::Kubernetes::Get
     # Dependency to ensure queries are not executed in parallel - seen some errors when they run concurrently
-    DependsOn: LoadBalancerQuery
+    DependsOn: InternalLoadBalancerQuery
     # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Get
     Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
@@ -149,7 +161,7 @@ Resources:
       Type: CNAME
       TTL: 900
       ResourceRecords:
-        - !GetAtt  LoadBalancerQuery.Response
+        - !GetAtt  InternalLoadBalancerQuery.Response
   GitLabDNSRecord:
     Type: AWS::Route53::RecordSet
     Condition: RegisterDns
@@ -170,7 +182,7 @@ Resources:
       Type: CNAME
       TTL: 900
       ResourceRecords:
-        - !GetAtt  LoadBalancerQuery.Response
+        - !GetAtt  InternalLoadBalancerQuery.Response
   RegistryDNSRecord:
     Type: AWS::Route53::RecordSet
     Condition: RegisterDns
