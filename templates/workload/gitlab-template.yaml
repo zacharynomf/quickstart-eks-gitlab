@@ -348,8 +348,6 @@ Resources:
         PraefectReplicasCount: !Ref NumberOfPraefectReplicas
         PraefectPort: !Ref PraefectPort
         GitalyPort: !Ref GitalyPort
-        FunctionsBucketName: !GetAtt Functions.Outputs.FunctionsBucketName
-        QSS3KeyPrefix: !Ref QSS3KeyPrefix
 
   Gitaly:
     Type: AWS::CloudFormation::Stack
