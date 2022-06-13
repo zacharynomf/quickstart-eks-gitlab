@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Deploys Database instance or cluster (qs-1rpegts6r)
+Description: Deploys GitLab databases (qs-1skk6s476)
 
 # Lint rules to ignore
 Metadata:
@@ -9,21 +9,23 @@ Metadata:
         - W9002
         - W9003
         - W9004
-        - E9101
         - E0002
 
 Parameters:
 
+  EnvironmentName:
+    Type: String
+
 # Network Parameters
   VPCID:
     Type: 'AWS::EC2::VPC::Id'
-  PrivateSubnet1ID:
-    Type: 'AWS::EC2::Subnet::Id'
-  PrivateSubnet2ID:
-    Type: 'AWS::EC2::Subnet::Id'
-  CustomDBSecurityGroup:
+  VPCCIDR:
     Type: String
-    Default: ''
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+  Subnet1ID:
+    Type: 'AWS::EC2::Subnet::Id'
+  Subnet2ID:
+    Type: 'AWS::EC2::Subnet::Id'
 
 # Database Parameters
   AuroraDBEngineVersion:
@@ -39,17 +41,15 @@ Parameters:
     MaxLength: "64"
     MinLength: "0"
     Type: String
+  DBPraefectName: 
+    AllowedPattern: "[a-zA-Z0-9]*"
+    MaxLength: "64"
+    MinLength: "0"
+    Type: String   
   DBUserName:
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
     MaxLength: "16"
     MinLength: "1"
-    Type: String
-  DBUserPassword:
-    AllowedPattern: >-
-      ^(?=^.{8,255}$)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)((?=.*[^A-Za-z0-9])(?!.*[@/"'])).*$
-    MaxLength: "64"
-    MinLength: "8"
-    NoEcho: "True"
     Type: String
   DBPort:
     Type: Number
@@ -80,7 +80,60 @@ Conditions:
 
 Resources:
 
-  AuroraDatabase:
+# Database security groups
+  DatabaseSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: 'Allow access to database port'
+      SecurityGroupEgress: 
+        - CidrIp: 0.0.0.0/0
+          FromPort: -1
+          IpProtocol: '-1'
+          ToPort: -1
+      SecurityGroupIngress: 
+        - CidrIp: !Ref VPCCIDR 
+          FromPort: !Ref DBPort
+          ToPort: !Ref DBPort
+          IpProtocol: tcp
+      VpcId: !Ref VPCID
+      Tags:
+      - Key: Name
+        Value: !Sub RDSSecurityGroup-${AWS::StackName}
+  RDSSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !GetAtt DatabaseSecurityGroup.GroupId
+      IpProtocol: '-1'
+      SourceSecurityGroupId: !Ref DatabaseSecurityGroup
+      Description: 'Self Reference'
+
+# PostgreSQL Password
+
+  GitLabDBPassword:
+    Type: 'AWS::SecretsManager::Secret'
+    Properties:
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/secrets/gitlab-db-password'
+      Description: "GitLab DB Password"
+      GenerateSecretString:
+        SecretStringTemplate: !Sub '{"username": "${DBUserName}"}'
+        GenerateStringKey: "password"
+        PasswordLength: 30
+        ExcludeCharacters: "\"@/\\'"
+        RequireEachIncludedType: True
+
+  PraefectDBPassword:
+    Type: 'AWS::SecretsManager::Secret'
+    Properties:
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/secrets/praefect-db-password'
+      Description: "Praefect DB Password"
+      GenerateSecretString:
+        SecretStringTemplate: !Sub '{"username": "${DBUserName}"}'
+        GenerateStringKey: "password"
+        PasswordLength: 30
+        ExcludeCharacters: "\"@/\\'"
+        RequireEachIncludedType: True
+
+  GitLabAuroraDatabase:
     Type: AWS::CloudFormation::Stack
     Condition: UsingAurora
     Metadata: { cfn-lint: { config: { ignore_checks: [E9101] } } } # E9101 Ignoring 'master' in Aurora PostgreSQL quickstart parameter names
@@ -93,15 +146,36 @@ Resources:
         DBEngineVersion: !Ref AuroraDBEngineVersion
         DBInstanceClass: !Ref AuroraDBInstanceClass
         DBName: !Ref DBName
-        DBMasterUsername: !Ref DBUserName
-        DBMasterUserPassword: !Ref DBUserPassword
+        DBMasterUsername: !Sub "{{resolve:secretsmanager:${GitLabDBPassword}:SecretString:username}}"
+        DBMasterUserPassword: !Sub "{{resolve:secretsmanager:${GitLabDBPassword}:SecretString:password}}"
         DBPort: !Ref DBPort
         VPCID: !Ref VPCID
-        Subnet1ID: !Ref PrivateSubnet1ID
-        Subnet2ID: !Ref PrivateSubnet2ID
-        CustomDBSecurityGroup: !Ref CustomDBSecurityGroup
+        Subnet1ID: !Ref Subnet1ID
+        Subnet2ID: !Ref Subnet2ID
+        CustomDBSecurityGroup: !GetAtt DatabaseSecurityGroup.GroupId
 
-  RDSDatabase:
+  PraefectAuroraDatabase:
+    Type: AWS::CloudFormation::Stack
+    Condition: UsingAurora
+    Metadata: { cfn-lint: { config: { ignore_checks: [E9101] } } } # E9101 Ignoring 'master' in Aurora PostgreSQL quickstart parameter names
+    Properties:
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-aurora-postgresql/templates/aurora_postgres.template.yaml'
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        DBEngineVersion: !Ref AuroraDBEngineVersion
+        DBInstanceClass: !Ref AuroraDBInstanceClass
+        DBName: !Ref DBPraefectName
+        DBMasterUsername: !Sub "{{resolve:secretsmanager:${PraefectDBPassword}:SecretString:username}}"
+        DBMasterUserPassword: !Sub "{{resolve:secretsmanager:${PraefectDBPassword}:SecretString:password}}"
+        DBPort: !Ref DBPort
+        VPCID: !Ref VPCID
+        Subnet1ID: !Ref Subnet1ID
+        Subnet2ID: !Ref Subnet2ID
+        CustomDBSecurityGroup: !GetAtt DatabaseSecurityGroup.GroupId
+
+  GitLabRDSDatabase:
     Type: AWS::CloudFormation::Stack
     Condition: UsingRDS
     Metadata: { cfn-lint: { config: { ignore_checks: [ E9101 ] } } } # E9101 Ignoring 'master' in RDS PostgreSQL quickstart parameter names
@@ -114,30 +188,43 @@ Resources:
         DBEngineVersion: !Ref RDSDBEngineVersion
         DBInstanceClass: !Ref RDSDBInstanceClass
         DBName: !Ref DBName
-        DBMasterUsername: !Ref DBUserName
-        DBMasterUserPassword: !Ref DBUserPassword
+        DBMasterUsername: !Sub "{{resolve:secretsmanager:${GitLabDBPassword}:SecretString:username}}"
+        DBMasterUserPassword: !Sub "{{resolve:secretsmanager:${GitLabDBPassword}:SecretString:password}}"
         DBPort: !Ref DBPort
         VPCID: !Ref VPCID
-        Subnet1ID: !Ref PrivateSubnet1ID
-        Subnet2ID: !Ref PrivateSubnet2ID
-        CustomDBSecurityGroup: !Ref CustomDBSecurityGroup
+        Subnet1ID: !Ref Subnet1ID
+        Subnet2ID: !Ref Subnet2ID
+        CustomDBSecurityGroup: !GetAtt DatabaseSecurityGroup.GroupId
+
+  PraefectRDSDatabase:
+    Type: AWS::CloudFormation::Stack
+    Condition: UsingRDS
+    Metadata: { cfn-lint: { config: { ignore_checks: [ E9101 ] } } } # E9101 Ignoring 'master' in RDS PostgreSQL quickstart parameter names
+    Properties:
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-rds-postgres/templates/rds_postgres.template.yaml'
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        DBEngineVersion: !Ref RDSDBEngineVersion
+        DBInstanceClass: !Ref RDSDBInstanceClass
+        DBName: !Ref DBPraefectName
+        DBMasterUsername: !Sub "{{resolve:secretsmanager:${PraefectDBPassword}:SecretString:username}}"
+        DBMasterUserPassword: !Sub "{{resolve:secretsmanager:${PraefectDBPassword}:SecretString:password}}"
+        DBPort: !Ref DBPort
+        VPCID: !Ref VPCID
+        Subnet1ID: !Ref Subnet1ID
+        Subnet2ID: !Ref Subnet2ID
+        CustomDBSecurityGroup: !GetAtt DatabaseSecurityGroup.GroupId
 
 Outputs:
-  DBName:
-    Description: "Database Name"
-    Value: !Ref DBName
-  DBMasterUsername:
-    Description: "Database Master Username"
-    Value: !Ref DBUserPassword
-  RDSEndPointAddress:
-    Description: "Database Endpoint Address"
-    Value: !If [UsingAurora, !Sub '${AuroraDatabase.Outputs.RDSEndPointAddress}', !Sub '${RDSDatabase.Outputs.RDSEndPointAddress}']
-  RDSEndPointPort:
-    Description: "Database EndPoint Port"
-    Value: !If [UsingAurora, !Sub '${AuroraDatabase.Outputs.RDSEndPointPort}', !Sub '${RDSDatabase.Outputs.RDSEndPointPort}']
-  RDSReadEndPointAddress:
-    Description: "Database Read Endpoint Address"
-    Value: !If [UsingAurora, !Sub '${AuroraDatabase.Outputs.RDSReadEndPointAddress}', !Sub '${RDSDatabase.Outputs.RDSEndPointAddress}']
-  RDSEndPoints:
-    Description: "Full Database End Points"
-    Value: !If [UsingAurora, !Sub '${AuroraDatabase.Outputs.RDSEndPointAddress}:${AuroraDatabase.Outputs.RDSEndPointPort}/${AuroraDatabase.Outputs.DBName}', !Sub '${RDSDatabase.Outputs.RDSEndPointAddress}:${RDSDatabase.Outputs.RDSEndPointPort}/${RDSDatabase.Outputs.DBName}']
+  DatabaseSecretName:
+    Value: !Ref GitLabDBPassword
+  PraefectSecretName:
+    Value: !Ref PraefectDBPassword
+  GitLabEndpointAddress:
+    Value: !If [UsingAurora, !Sub '${GitLabAuroraDatabase.Outputs.RDSEndPointAddress}', !Sub '${GitLabRDSDatabase.Outputs.RDSEndPointAddress}']
+  GitLabReadEndpointAddress:
+    Value: !If [UsingAurora, !Sub '${GitLabAuroraDatabase.Outputs.RDSReadEndPointAddress}', !Sub '${GitLabRDSDatabase.Outputs.RDSEndPointAddress}']
+  PraefectEndpointAddress:
+    Value: !If [UsingAurora, !Sub '${PraefectAuroraDatabase.Outputs.RDSEndPointAddress}', !Sub '${PraefectRDSDatabase.Outputs.RDSEndPointAddress}']

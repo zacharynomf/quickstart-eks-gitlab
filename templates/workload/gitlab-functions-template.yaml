@@ -27,7 +27,7 @@ Conditions:
 Resources:
 
   # Using lambda packages from EKS quickstart. 
-  # NOTE: This creates a sependency on EKS QS implementaton.
+  # NOTE: This creates a dependency on EKS QS implementaton.
   # Consider this safe as DeleteBucketContents lambda is generic enough.
 
   CrHelperLayer:
@@ -78,7 +78,6 @@ Resources:
       Prefix: !Ref 'QSS3KeyPrefix'
       Objects:
         - functions/packages/CfnSesDomain/lambda.zip
-        - functions/packages/CreateDatabase/lambda.zip
         - functions/packages/CleanupACMDNSValidation/lambda.zip
         - functions/packages/SmtpPasswordGenerator/lambda.zip
         - functions/packages/UpdateDnsRecord/lambda.zip
