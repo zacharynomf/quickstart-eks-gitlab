@@ -70,10 +70,13 @@ Metadata:
           - ConfigureContainerInsights
           - ConfigureGrafana
       - Label:
-          default: Amazon Aurora Postgres configuration
+          default: GitLab database configuration
         Parameters:
-          - DBEngineVersion
-          - DBInstanceClass
+          - UsingAurora
+          - AuroraDBEngineVersion
+          - AuroraDBInstanceClass
+          - RDSDBEngineVersion
+          - RDSDBInstanceClass
           - DBName
           - DBPraefectName
           - DBUserName
@@ -189,12 +192,16 @@ Metadata:
         default: Configure Container Insights
       ConfigureGrafana:
         default: Provision and integrate Grafana
-    # Amazon RDS configuration
+    # Database configuration
+      UsingAurora:
+        default: Use Amazon Aurora
       AuroraDBEngineVersion:
         default: GitLab Aurora PostgreSQL version
+      AuroraDBInstanceClass:
+        default: GitLab Aurora PostgreSQL instance class
       RDSDBEngineVersion:
         default: GitLab RDS PostgreSQL version
-      DBInstanceClass:
+      RDSDBInstanceClass:
         default: GitLab database instance class
       DBName:
         default: GitLab database name
@@ -204,8 +211,6 @@ Metadata:
         default: Database admin username
       DBPort:
         default: Database port
-      UsingAurora:
-        default: No
     # Cache configuration
       CacheMode:
         default: Where to provision Redis
@@ -453,6 +458,11 @@ Parameters:
     Description: Choose "Yes" to provision Grafana to EKS and enable GitLab integration with it.
 
 # Database Parameters
+  UsingAurora:
+    Type: String
+    AllowedValues: [ 'Yes', 'No' ]
+    Default: 'No'
+    Description: "Amazon RDS is the default database engine. Set to [Yes] if Amazon Aurora need to be used."
   AuroraDBEngineVersion:
     Description: |
       Select Database Engine Version.
@@ -474,6 +484,15 @@ Parameters:
       - 11.8
       - 11.9
       - 12.4
+  AuroraDBInstanceClass:
+    Description: |
+      The name of the compute and memory capacity class of the database instance.
+      This Quickstart deploys Multi-AZ Postgres replicas in different Availability Zones.
+      The instance class is applied to both primary and standby instances.
+      The instance class you choose must support the needed PostgreSQL version: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html
+    Default: db.r5.large
+    AllowedPattern: "db\\.[a-z0-9]*\\.[a-z0-9]*"
+    Type: String
   RDSDBEngineVersion:
     Description: Select Database Engine Version
     Type: String
@@ -494,15 +513,6 @@ Parameters:
       - 13.1
       - 13.2
       - 13.3
-  AuroraDBInstanceClass:
-    Description: |
-      The name of the compute and memory capacity class of the database instance.
-      This Quickstart deploys Multi-AZ Postgres replicas in different Availability Zones.
-      The instance class is applied to both primary and standby instances.
-      The instance class you choose must support the needed PostgreSQL version: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html
-    Default: db.r5.large
-    AllowedPattern: "db\\.[a-z0-9]*\\.[a-z0-9]*"
-    Type: String
   RDSDBInstanceClass:
     Description: |
       The name of the compute and memory capacity class of the database instance.
@@ -541,10 +551,6 @@ Parameters:
     ConstraintDescription: 'Must be in the range [1115-65535].'
     MinValue: 1150
     MaxValue: 65535
-  UsingAurora:
-    Default: 'No'
-    Description: "Amazon RDS is the default database engine. Set to [Yes] if Amazon Aurora need to be used."
-    Type: String
 
 # Cache Parameters
   CacheMode:
