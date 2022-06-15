@@ -42,6 +42,8 @@ Parameters:
 # Cluster Parameters
   KubeClusterName:
     Type: String
+  OIDCIssuerURLWithoutProtocol:
+    Type: String
   ConfigureContainerInsights:
     Type: String
     AllowedValues: [ 'Yes', 'No' ]
@@ -388,6 +390,8 @@ Resources:
         SSEAlgorithm: !Ref ObjectStorageSSEAlgorithm
         KMSKeyID: !Ref ObjectStorageKMSKeyID
         EnvironmentName: !Ref EnvironmentName
+        HelmChartNamespace: !Ref HelmChartNamespace
+        OIDCIssuerURLWithoutProtocol: !Ref OIDCIssuerURLWithoutProtocol
         DeleteBucketContentsFunctionArn: !GetAtt Functions.Outputs.DeleteBucketContentsFunctionArn
         DeleteBucketContentsRoleName: !GetAtt Functions.Outputs.DeleteBucketContentsRoleName
 
@@ -438,8 +442,6 @@ Resources:
         HelmChartNamespace: !Ref HelmChartNamespace
         HelmChartName: !Ref HelmChartName
         DatabasePassword: !Sub '{{resolve:secretsmanager:${Database.Outputs.DatabaseSecretName}:SecretString:password}}'
-        StorageAccessKeyId: !Sub '{{resolve:secretsmanager:${ObjectStorage.Outputs.CredentialsSecretName}:SecretString:accessKeyId}}'
-        StorageSecretAccessKey: !Sub '{{resolve:secretsmanager:${ObjectStorage.Outputs.CredentialsSecretName}:SecretString:secretAccessKey}}'
         RegistryBucket: !GetAtt ObjectStorage.Outputs.RegistryBucket
         SmtpPassword: !If
           - CreateEmailDomain
@@ -480,7 +482,21 @@ Resources:
                 proxyBodySize: ${IngressProxyBodySize}
                 annotations:
                   nginx.ingress.kubernetes.io/proxy-body-size: ${IngressProxyBodySize}
-
+              serviceAccount:
+                annotations:
+                  eks.amazonaws.com/role-arn: ${ServiceAccountRoleArn}
+            toolbox:
+              serviceAccount:
+                annotations:
+                  eks.amazonaws.com/role-arn: ${ServiceAccountRoleArn}
+            sidekiq:
+              serviceAccount:
+                annotations:
+                  eks.amazonaws.com/role-arn: ${ServiceAccountRoleArn}
+          registry:
+            serviceAccount:
+              annotations:
+                eks.amazonaws.com/role-arn: ${ServiceAccountRoleArn}
           nginx-ingress:
             controller:
               service:
@@ -494,6 +510,7 @@ Resources:
                   annotations:
                     service.beta.kubernetes.io/aws-load-balancer-internal: 0.0.0.0/0
         - SslCertificateArn: !If [AcmIngressConfigured, !GetAtt Infrastructure.Outputs.SslCertificateArn, ""]
+          ServiceAccountRoleArn: !GetAtt ObjectStorage.Outputs.ServiceAccountRoleArn
           
       Values:
         # domain name
@@ -503,6 +520,19 @@ Resources:
         # Config that only applies to the defaults on initial install
         # see for additional details: https://gitlab.com/gitlab-org/gitlab-foss/-/issues/66124
         global.appConfig.initialDefaults.signupEnabled: false
+
+        # Enable service accounts (see ValueYaml above for service accounts annotations).
+        # We are using default SA names but provide them explicitly (they are also used in the trust policy for the SA role).
+        global.serviceAccount.enabled: true
+        global.serviceAccount.create: false
+        gitlab.webservice.serviceAccount.create: true
+        gitlab.webservice.serviceAccount.name: gitlab-webservice
+        gitlab.sidekiq.serviceAccount.create: true
+        gitlab.sidekiq.serviceAccount.name: gitlab-sidekiq
+        gitlab.toolbox.serviceAccount.create: true
+        gitlab.toolbox.serviceAccount.name: gitlab-toolbox
+        gitlab.registry.serviceAccount.create: true
+        gitlab.registry.serviceAccount.name: gitlab-registry
 
         # Self signed TLS certs by default - see https://docs.gitlab.com/charts/installation/tls.html
         certmanager.install: false
