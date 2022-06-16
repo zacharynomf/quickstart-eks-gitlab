@@ -524,14 +524,10 @@ Resources:
         # Enable service accounts (see ValueYaml above for service accounts annotations).
         # We are using default SA names but provide them explicitly (they are also used in the trust policy for the SA role).
         global.serviceAccount.enabled: true
-        global.serviceAccount.create: false
-        gitlab.webservice.serviceAccount.create: true
+        global.serviceAccount.create: true
         gitlab.webservice.serviceAccount.name: gitlab-webservice
-        gitlab.sidekiq.serviceAccount.create: true
         gitlab.sidekiq.serviceAccount.name: gitlab-sidekiq
-        gitlab.toolbox.serviceAccount.create: true
         gitlab.toolbox.serviceAccount.name: gitlab-toolbox
-        gitlab.registry.serviceAccount.create: true
         gitlab.registry.serviceAccount.name: gitlab-registry
 
         # Self signed TLS certs by default - see https://docs.gitlab.com/charts/installation/tls.html
