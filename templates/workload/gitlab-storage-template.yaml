@@ -20,6 +20,10 @@ Parameters:
     Default: ''
   EnvironmentName:
     Type: String 
+  HelmChartNamespace:
+    Type: String
+  OIDCIssuerURLWithoutProtocol:
+    Type: String
   DeleteBucketContentsFunctionArn:
     Type: String
   DeleteBucketContentsRoleName:
@@ -203,80 +207,83 @@ Resources:
               - !Sub "arn:${AWS::Partition}:s3:::${BackupBucket}/*"
               - !Sub "arn:${AWS::Partition}:s3:::${BackupTempBucket}/*"
 
-  ObjectStorageGroup:
-    Type: AWS::IAM::Group
+  ObjectStorageServiceAccountRole:
+    Type: AWS::IAM::Role
     Properties:
-      Path: /quickstart/gitlab/
+      # see https://docs.gitlab.com/charts/advanced/external-object-storage/aws-iam-roles.html
+      # for the list of storage account names we need to provide S3 permissions to.
+      AssumeRolePolicyDocument: !Sub |
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Federated": "arn:${AWS::Partition}:iam::${AWS::AccountId}:oidc-provider/${OIDCIssuerURLWithoutProtocol}"
+              },
+              "Action": "sts:AssumeRoleWithWebIdentity",
+              "Condition": {
+                "StringEquals": {
+                  "${OIDCIssuerURLWithoutProtocol}:sub": [
+                    "system:serviceaccount:${HelmChartNamespace}:gitlab-registry",
+                    "system:serviceaccount:${HelmChartNamespace}:gitlab-webservice",
+                    "system:serviceaccount:${HelmChartNamespace}:gitlab-sidekiq",
+                    "system:serviceaccount:${HelmChartNamespace}:gitlab-toolbox"
+                  ]
+                }
+              }
+            }
+          ]
+        }
       Policies:
-      - PolicyName: objectStorageAccess
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          # Common object storage permissions
-          - Effect: Allow
-            Action:
-              - s3:ListBucket
-            Resource: 
-              - !Sub "arn:${AWS::Partition}:s3:::${ArtifactsBucket}"
-              - !Sub "arn:${AWS::Partition}:s3:::${LfsBucket}"
-              - !Sub "arn:${AWS::Partition}:s3:::${UploadsBucket}"
-              - !Sub "arn:${AWS::Partition}:s3:::${PackagesBucket}"
-              - !Sub "arn:${AWS::Partition}:s3:::${TerraformBucket}"
-              - !Sub "arn:${AWS::Partition}:s3:::${PseudonymizerBucket}"
-              - !Sub "arn:${AWS::Partition}:s3:::${RegistryBucket}"
-              - !Sub "arn:${AWS::Partition}:s3:::${BackupBucket}"
-              - !Sub "arn:${AWS::Partition}:s3:::${BackupTempBucket}"
-          - Effect: Allow
-            Action:
-              - s3:*Object
-            Resource: 
-              - !Sub "arn:${AWS::Partition}:s3:::${ArtifactsBucket}/*"
-              - !Sub "arn:${AWS::Partition}:s3:::${LfsBucket}/*"
-              - !Sub "arn:${AWS::Partition}:s3:::${UploadsBucket}/*"
-              - !Sub "arn:${AWS::Partition}:s3:::${PackagesBucket}/*"
-              - !Sub "arn:${AWS::Partition}:s3:::${TerraformBucket}/*"
-              - !Sub "arn:${AWS::Partition}:s3:::${PseudonymizerBucket}/*"
-              - !Sub "arn:${AWS::Partition}:s3:::${RegistryBucket}/*"
-              - !Sub "arn:${AWS::Partition}:s3:::${BackupBucket}/*"
-              - !Sub "arn:${AWS::Partition}:s3:::${BackupTempBucket}/*"
-          # Additional registry & backup permissions below
-          - Effect: Allow
-            Action:
-              - s3:GetBucketLocation
-              - s3:ListBucketMultipartUploads
-            Resource: 
-              - !Sub "arn:${AWS::Partition}:s3:::${RegistryBucket}"
-              - !Sub "arn:${AWS::Partition}:s3:::${BackupBucket}"
-              - !Sub "arn:${AWS::Partition}:s3:::${BackupTempBucket}"
-          - Effect: Allow
-            Action:
-              - s3:ListMultipartUploadParts
-              - s3:AbortMultipartUpload
-            Resource: 
-              - !Sub "arn:${AWS::Partition}:s3:::${RegistryBucket}/*"
-              - !Sub "arn:${AWS::Partition}:s3:::${BackupBucket}/*"
-              - !Sub "arn:${AWS::Partition}:s3:::${BackupTempBucket}/*"
-
-  GitLabObjectStorageUser:
-    Type: AWS::IAM::User
-    Properties:
-      Path: /quickstart/gitlab/
-      Groups: 
-        - !Ref ObjectStorageGroup
-
-  GitLabObjectStorageKeys:
-    Type: AWS::IAM::AccessKey
-    Properties:
-      Status: Active
-      UserName:
-        Ref: GitLabObjectStorageUser
-
-  GitLabObjectStorageKeysSecret:
-    Type: 'AWS::SecretsManager::Secret'
-    Properties:
-      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/storage/credentials' 
-      Description: "GitLab Object Storage access keys"
-      SecretString: !Sub '{"accessKeyId": "${GitLabObjectStorageKeys}", "secretAccessKey": "${GitLabObjectStorageKeys.SecretAccessKey}"}'
+        - PolicyName: root
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            # Common object storage permissions
+            - Effect: Allow
+              Action:
+                - s3:ListBucket
+              Resource: 
+                - !Sub "arn:${AWS::Partition}:s3:::${ArtifactsBucket}"
+                - !Sub "arn:${AWS::Partition}:s3:::${LfsBucket}"
+                - !Sub "arn:${AWS::Partition}:s3:::${UploadsBucket}"
+                - !Sub "arn:${AWS::Partition}:s3:::${PackagesBucket}"
+                - !Sub "arn:${AWS::Partition}:s3:::${TerraformBucket}"
+                - !Sub "arn:${AWS::Partition}:s3:::${PseudonymizerBucket}"
+                - !Sub "arn:${AWS::Partition}:s3:::${RegistryBucket}"
+                - !Sub "arn:${AWS::Partition}:s3:::${BackupBucket}"
+                - !Sub "arn:${AWS::Partition}:s3:::${BackupTempBucket}"
+            - Effect: Allow
+              Action:
+                - s3:*Object
+              Resource: 
+                - !Sub "arn:${AWS::Partition}:s3:::${ArtifactsBucket}/*"
+                - !Sub "arn:${AWS::Partition}:s3:::${LfsBucket}/*"
+                - !Sub "arn:${AWS::Partition}:s3:::${UploadsBucket}/*"
+                - !Sub "arn:${AWS::Partition}:s3:::${PackagesBucket}/*"
+                - !Sub "arn:${AWS::Partition}:s3:::${TerraformBucket}/*"
+                - !Sub "arn:${AWS::Partition}:s3:::${PseudonymizerBucket}/*"
+                - !Sub "arn:${AWS::Partition}:s3:::${RegistryBucket}/*"
+                - !Sub "arn:${AWS::Partition}:s3:::${BackupBucket}/*"
+                - !Sub "arn:${AWS::Partition}:s3:::${BackupTempBucket}/*"
+            # Additional registry & backup permissions below
+            - Effect: Allow
+              Action:
+                - s3:GetBucketLocation
+                - s3:ListBucketMultipartUploads
+              Resource: 
+                - !Sub "arn:${AWS::Partition}:s3:::${RegistryBucket}"
+                - !Sub "arn:${AWS::Partition}:s3:::${BackupBucket}"
+                - !Sub "arn:${AWS::Partition}:s3:::${BackupTempBucket}"
+            - Effect: Allow
+              Action:
+                - s3:ListMultipartUploadParts
+                - s3:AbortMultipartUpload
+              Resource: 
+                - !Sub "arn:${AWS::Partition}:s3:::${RegistryBucket}/*"
+                - !Sub "arn:${AWS::Partition}:s3:::${BackupBucket}/*"
+                - !Sub "arn:${AWS::Partition}:s3:::${BackupTempBucket}/*"
 
   ArtifactsBucketParameter:
     Type: AWS::SSM::Parameter
@@ -342,6 +349,8 @@ Resources:
       Value: !Ref BackupTempBucket
 
 Outputs:
+  ServiceAccountRoleArn:
+    Value: !GetAtt ObjectStorageServiceAccountRole.Arn
   ArtifactsBucket: 
     Value: !Ref ArtifactsBucket
   LfsBucket: 
@@ -360,6 +369,3 @@ Outputs:
     Value: !Ref BackupBucket
   BackupTempBucket: 
     Value: !Ref BackupTempBucket
-
-  CredentialsSecretName:
-    Value: !Ref GitLabObjectStorageKeysSecret
