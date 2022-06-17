@@ -280,6 +280,7 @@ Resources:
     Properties:
       Type: String
       Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/domain-name'
+      Description: "GitLab domain name"
       Value: !Ref DomainName
 
   HostedZoneNameParameter:
@@ -296,6 +297,7 @@ Resources:
     Properties:
       Type: String
       Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/hosted-zone-id'
+      Description: "GitLab Route53 public hosted zone ID"
       Value: !Ref HostedZone
 
   PrivateHostedZoneIdParameter:
@@ -303,6 +305,7 @@ Resources:
     Properties:
       Type: String
       Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/private-hosted-zone-id'
+      Description: "GitLab Route53 private hosted zone ID"
       Value: !Ref PrivateHostedZone
 
   CertificateArnParameter:
@@ -311,7 +314,17 @@ Resources:
     Properties:
       Type: String
       Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/certificate-arn'
+      Description: "GitLab ACM certificate ARN"
       Value: !Ref SslCertificate
+
+  SmtpDomainValidationEntries:
+    Type: AWS::SSM::Parameter
+    Condition: EmailDomainRequested
+    Properties:
+      Type: String
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/smtp-validation-entries'
+      Description: "GitLab SMTP domain validation entries"
+      Value: !Join ["\n", !GetAtt SESDomain.ZoneFileEntries]
 
   SmtpCredentialsSecret:
     Type: 'AWS::SecretsManager::Secret'
@@ -320,14 +333,6 @@ Resources:
       Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/smtp-credentials'
       Description: "GitLab SMTP credentials"
       SecretString: !Sub '{"username": "${SmtpKeys}", "password": "${SmtpPasswordGenerator.Password}"}'
-
-  SmtpDomainValidationEntries:
-    Type: AWS::SSM::Parameter
-    Condition: EmailDomainRequested
-    Properties:
-      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/smtp-validation-entries'
-      Description: "GitLab SMTP domain validation entries"
-      Value: !Join ["\n", !GetAtt SESDomain.ZoneFileEntries]
 
 Outputs:
   PraefectSecurityGroupID:
