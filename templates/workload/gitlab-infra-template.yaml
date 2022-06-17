@@ -52,7 +52,8 @@ Parameters:
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
   HostedZoneRequested: !Equals  [!Ref CreateHostedZone, 'Yes']
-  EmailDomainRequested: !And
+  EmailDomainRequested: !Equals [!Ref CreateEmailDomain, 'Yes']
+  EmailDomainWithRoute53Validation: !And
     - !Equals [!Ref CreateEmailDomain, 'Yes']
     - !Condition HostedZoneRequested
   CertificateRequested: !And
@@ -200,7 +201,7 @@ Resources:
 #    Or if you don't use Route 53, see "Return Values" for other DNS options.)
   Route53RecordsForSES:
     Type: AWS::Route53::RecordSetGroup
-    Condition: EmailDomainRequested
+    Condition: EmailDomainWithRoute53Validation
     Properties:
       HostedZoneId: !Ref HostedZone
       # The Route53RecordSets attribute specifies all DNS records needed:
@@ -279,6 +280,7 @@ Resources:
     Properties:
       Type: String
       Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/domain-name'
+      Description: "GitLab domain name"
       Value: !Ref DomainName
 
   HostedZoneNameParameter:
@@ -295,6 +297,7 @@ Resources:
     Properties:
       Type: String
       Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/hosted-zone-id'
+      Description: "GitLab Route53 public hosted zone ID"
       Value: !Ref HostedZone
 
   PrivateHostedZoneIdParameter:
@@ -302,6 +305,7 @@ Resources:
     Properties:
       Type: String
       Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/private-hosted-zone-id'
+      Description: "GitLab Route53 private hosted zone ID"
       Value: !Ref PrivateHostedZone
 
   CertificateArnParameter:
@@ -310,7 +314,17 @@ Resources:
     Properties:
       Type: String
       Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/certificate-arn'
+      Description: "GitLab ACM certificate ARN"
       Value: !Ref SslCertificate
+
+  SmtpDomainValidationEntries:
+    Type: AWS::SSM::Parameter
+    Condition: EmailDomainRequested
+    Properties:
+      Type: String
+      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/smtp-validation-entries'
+      Description: "GitLab SMTP domain validation entries"
+      Value: !Join ["\n", !GetAtt SESDomain.ZoneFileEntries]
 
   SmtpCredentialsSecret:
     Type: 'AWS::SecretsManager::Secret'
