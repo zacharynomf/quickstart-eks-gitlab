@@ -1,30 +1,30 @@
 [submodule "submodules/quickstart-aws-vpc"]
 	path = submodules/quickstart-aws-vpc
-	url = git@github.com:aws-quickstart/quickstart-aws-vpc.git
+	url = https://github.com/aws-quickstart/quickstart-aws-vpc.git
 	branch = main
 [submodule "submodules/quickstart-amazon-eks"]
 	path = submodules/quickstart-amazon-eks
-	url = git@github.com:aws-quickstart/quickstart-amazon-eks.git
+	url = https://github.com/aws-quickstart/quickstart-amazon-eks.git
 	branch = main
 [submodule "submodules/quickstart-amazon-aurora-postgresql"]
 	path = submodules/quickstart-amazon-aurora-postgresql
-	url = git@github.com:aws-quickstart/quickstart-amazon-aurora-postgresql.git
+	url = https://github.com/aws-quickstart/quickstart-amazon-aurora-postgresql.git
 	branch = main
 [submodule "docs/boilerplate"]
 	path = docs/boilerplate
-	url = git@github.com:aws-quickstart/quickstart-documentation-base-common.git
+	url = https://github.com/aws-quickstart/quickstart-documentation-base-common.git
 	branch = main
 [submodule "scripts/qs-cfn-lint-rules"]
 	path = scripts/qs-cfn-lint-rules
-	url = git@github.com:aws-quickstart/qs-cfn-lint-rules.git
+	url = https://github.com/aws-quickstart/qs-cfn-lint-rules.git
 	branch = main
 [submodule "functions/source/CfnSesDomain/aws-cfn-ses-domain"]
 	path = functions/source/CfnSesDomain/aws-cfn-ses-domain
-	url = git@github.com:medmunds/aws-cfn-ses-domain.git
+	url = https://github.com/medmunds/aws-cfn-ses-domain.git
         branch = main
 [submodule "submodules/aws-cfn-ses-domain"]
 	path = submodules/aws-cfn-ses-domain
-	url = git@github.com:medmunds/aws-cfn-ses-domain.git
+	url = https://github.com/medmunds/aws-cfn-ses-domain.git
         branch = main 
 [submodule "submodules/quickstart-amazon-rds-postgres"]
 	path = submodules/quickstart-amazon-rds-postgres
