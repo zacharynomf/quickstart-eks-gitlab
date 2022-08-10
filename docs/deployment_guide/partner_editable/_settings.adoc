@@ -1,14 +1,14 @@
 :quickstart-project-name: quickstart-repo-name
-:quickstart-github-org: aws-quickstart
-:partner-product-name: Full Product Name
-:partner-product-short-name: Product Name
-:partner-company-name: Example Company Name, Ltd.
-:doc-month: January
+:quickstart-github-org: quickstart-eks-gitlab
+:partner-product-name: GitLab
+:partner-product-short-name: GitLab
+:partner-company-name: GitLab Inc.
+:doc-month: August
 :doc-year: 2022
-:partner-contributors: John Smith, {partner-company-name}
+:partner-contributors: Darwin Sanoy, {partner-company-name}
 // :other-contributors: Akua Mansa, Trek10
-:aws-contributors: Janine Singh, AWS IoT Partner team
-:aws-ia-contributors: Toni Jones, AWS Integration & Automation team
-:deployment_time: 15 minutes
+:aws-contributors: Dmitry Kolomiets, AWS WWCO ProServe team
+:aws-ia-contributors: Andrew Gargan & Troy Lindsay, AWS Integration & Automation team
+:deployment_time: 1 to 2 hours
 :default_deployment_region: us-east-1
 // :private_repo:
