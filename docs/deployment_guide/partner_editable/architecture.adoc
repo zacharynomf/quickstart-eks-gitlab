@@ -156,7 +156,7 @@ For large {partner-product-short-name} deployments you can also adjust CPU and m
 More about backups in https://docs.gitlab.com/charts/backup-restore/[{partner-product-short-name} documentation^].
 
 === {partner-product-short-name} Telemetry and Monitoring
-=== CloudWatch Container Insights
+==== CloudWatch Container Insights
 {partner-product-short-name} Quickstart integrates EKS cluster with https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html[CloudWatch Container Insights^] to collect, aggregate, and summarise metrics and logs if *ConfigureContainerInsights* parameter is set to `Yes`.
 
 Logs and metrics can be accessed from CloudWatch console:
