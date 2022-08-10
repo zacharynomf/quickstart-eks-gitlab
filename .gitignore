@@ -1,2 +1,15 @@
-/functions/packages
-/docs/generated/
+# TaskCat
+taskcat_outputs/
+.taskcat/
+.taskcat_overrides.yml
+functions/packages
+*.zip
+
+# Docs 2.0
+docs/generated/
+
+# macOS
+.DS_Store
+
+# IDE workspace settings
+.vscode/
