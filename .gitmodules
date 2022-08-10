@@ -10,10 +10,6 @@
 	path = submodules/quickstart-amazon-aurora-postgresql
 	url = https://github.com/aws-quickstart/quickstart-amazon-aurora-postgresql.git
 	branch = main
-[submodule "docs/boilerplate"]
-	path = docs/boilerplate
-	url = https://github.com/aws-quickstart/quickstart-documentation-base-common.git
-	branch = main
 [submodule "scripts/qs-cfn-lint-rules"]
 	path = scripts/qs-cfn-lint-rules
 	url = https://github.com/aws-quickstart/qs-cfn-lint-rules.git
