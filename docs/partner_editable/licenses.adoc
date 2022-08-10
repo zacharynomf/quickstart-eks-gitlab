@@ -1,4 +1,0 @@
-// DONE: 2021-05 by DJS
-// Include details about the license and how they can sign up. If no license is required, clarify that. 
-
-_<license information>This Quick Start creates an instance of {partner-product-short-name} Enterprise Edition with a free license (unlicensed). Additional features available in https://about.gitlab.com/pricing/self-managed/feature-comparison/[Premium or Ultimate^], can be enabled by purchasing by following the information in the https://about.gitlab.com/pricing/licensing-faq/[Licensing and Subscription FAQ^] or by contacting https://about.gitlab.com/sales/[Gitlab Sales^] for a trial license. Once your instance is running, you can use the admin section to add a license file as described in the https://about.gitlab.com/pricing/licensing-faq/[Licensing and Subscription FAQ^]_
