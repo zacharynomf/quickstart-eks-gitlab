@@ -9,7 +9,7 @@ AWS Cloud.
 :xrefstyle: short
 [#architecture1]
 .Quick Start architecture for {partner-product-short-name} on AWS
-image::../images/architecture_diagram.png[Architecture,width=100%,height=100%]
+image::../docs/deployment_guide/images/architecture_diagram.png[Architecture]
 
 === Architecture Details
 .Key to architecture and best practice compliance tags
@@ -164,7 +164,7 @@ Logs and metrics can be accessed from CloudWatch console:
 :xrefstyle: short
 [#cloudwatch-container-insights]
 .CloudWatch Container Insights
-image::../images/cloudwatch-container-insights.png[CloudWatch Container Insights,width=100%,height=100%]
+image::../docs/deployment_guide/images/cloudwatch-container-insights.png[CloudWatch Container Insights]
 
 ==== Prometheus metrics
 {partner-product-short-name} exposes Prometheus metrics under `/-/metrics` of the {partner-product-short-name} Ingress. Optional Grafana integration can be enabled by setting *ConfigureGrafana* parameter to ‘Yes’.
@@ -172,7 +172,7 @@ image::../images/cloudwatch-container-insights.png[CloudWatch Container Insights
 :xrefstyle: short
 [#grafana]
 .Grafana
-image::../images/grafana.png[Grafana,width=100%,height=100%]
+image::../docs/deployment_guide/images/grafana.png[Grafana]
 
 More about Grafana integration in https://docs.gitlab.com/charts/charts/globals.html#configure-grafana-integration[{partner-product-short-name} documentation^].
 
@@ -184,7 +184,7 @@ Please see the prerequisites for Amazon EKS Console access configuration in http
 :xrefstyle: short
 [#aws-eks-console]
 .AWS EKS Console
-image::../images/aws-eks-console.png[AWS EKS Console,width=100%,height=100%]
+image::../docs/deployment_guide/images/aws-eks-console.png[AWS EKS Console]
 
 === Exports
 Upon successful {partner-product-short-name} deployment, the following SSM parameters and Secrets Manages secrets are exposed:
