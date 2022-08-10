@@ -32,7 +32,7 @@ best practices, to provide you with your own virtual network on AWS.^1^ ^[AWS-WA
 * S3 buckets for {partner-product-short-name} object storage including Git-lfs ^[GL-RAR][AWS-WA]^
 * In the public subnets:
 ** Managed network address translation (NAT) gateways to allow outbound
-internet access for resources in the private subnets.^1^ 
+internet access for resources in the private subnets.^1^
 * In the private subnets:
 ** A group of AutoScaling Kubernetes EC2 nodes.^2^ ^[AWS-WA]^
 ** An Amazon RDS cluster for {partner-product-short-name} and Praefect databases. ^[GL-RAR][AWS-WA]^
@@ -45,17 +45,14 @@ internet access for resources in the private subnets.^1^
 ** Amazon CloudWatch Container Insights integration. ^[AWS-WA]^
 ** Amazon CloudWatch Agent for Instance compute. ^[AWS-WA]^
 * Optionally (on by default):
-** In one public subnet, a Linux bastion host in an Auto Scaling group to allow 
-inbound Secure Shell (SSH) access to Amazon Elastic Compute Cloud (Amazon EC2) 
-instances in private subnets. The bastion host is also configured with the Kubernetes 
-`kubectl` command line interface (CLI) and the `helm` v3 CLI for managing the Kubernetes 
+** In one public subnet, a Linux bastion host in an Auto Scaling group to allow inbound Secure Shell (SSH) access to Amazon Elastic Compute Cloud (Amazon EC2) instances in private subnets. The bastion host is also configured with the Kubernetes `kubectl` command line interface (CLI) and the `helm` v3 CLI for managing the Kubernetes
 cluster as well as the AWS CLI V2 for general AWS management. ^[AWS-WA]^
 ** Amazon Route53 Hosted zone for DNS configuration. ^[AWS-WA]^
 ** AWS Certificate Manager TLS certificate. ^[AWS-WA]^
 ** Amazon Simple Email Service domain for outgoing email messages. ^[AWS-WA]^
 ** IaC parameters and outputs stored in AWS Parameter Store. ^[AWS-WA]^
 
-[.small]#^1^The template that deploys the Quick Start into an existing VPC skips 
+[.small]#^1^The template that deploys the Quick Start into an existing VPC skips
 the components and prompts you for your existing VPC configuration.#
 
 [.small]#^2^The template that deploys the Quick Start into an existing EKS cluster skips
@@ -104,7 +101,7 @@ There are two databases deployed to the same cluster:
 * {partner-product-short-name} database
 * Praefect tracking database
 
-Praefect requires a separate tracking database as described in https://docs.gitlab.com/ee/administration/gitaly/praefect.html[Gitaly Cluster documentation^]. 
+Praefect requires a separate tracking database as described in https://docs.gitlab.com/ee/administration/gitaly/praefect.html[Gitaly Cluster documentation^].
 
 More about external database configuration in https://docs.gitlab.com/charts/advanced/external-db/[{partner-product-short-name} documentation^].
 
@@ -182,7 +179,7 @@ More about Grafana integration in https://docs.gitlab.com/charts/charts/globals.
 ==== Amazon EKS Console
 Amazon EKS Console gives you a single place to see the status of your Kubernetes clusters, applications, and associated cloud resources.
 
-Please see the prerequisites for Amazon EKS Console access configuration in https://docs.aws.amazon.com/eks/latest/userguide/view-workloads.html[AWS documentation^]. 
+Please see the prerequisites for Amazon EKS Console access configuration in https://docs.aws.amazon.com/eks/latest/userguide/view-workloads.html[AWS documentation^].
 
 :xrefstyle: short
 [#aws-eks-console]
@@ -195,7 +192,7 @@ Upon successful {partner-product-short-name} deployment, the following SSM param
 .SSM parameters
 [cols="3,1,2"]
 |===
-|Name | Type | Description 
+|Name | Type | Description
 
 |/quickstart/gitlab/`{env-name}`/infra/domain-name
 |SSM
@@ -215,46 +212,46 @@ Upon successful {partner-product-short-name} deployment, the following SSM param
 
 |/quickstart/gitlab/`{env-name}`/storage/buckets/artifacts
 |SSM
-|S3 Artifacts bucket name 
+|S3 Artifacts bucket name
 
 |/quickstart/gitlab/`{env-name}`/storage/buckets/backup
 |SSM
-|S3 Backup bucket name 
+|S3 Backup bucket name
 
 |/quickstart/gitlab/`{env-name}`/storage/buckets/backup-tmp
 |SSM
-|S3 Backup Temp bucket name 
+|S3 Backup Temp bucket name
 
 |/quickstart/gitlab/`{env-name}`/storage/buckets/lfs
 |SSM
-|S3 LFS bucket name 
+|S3 LFS bucket name
 
 |/quickstart/gitlab/`{env-name}`/storage/buckets/packages
 |SSM
-|S3 Packages bucket name 
+|S3 Packages bucket name
 
 |/quickstart/gitlab/`{env-name}`/storage/buckets/pseudonymizer
 |SSM
-|S3 Pseudonymizer bucket name 
+|S3 Pseudonymizer bucket name
 
 |/quickstart/gitlab/`{env-name}`/storage/buckets/registry
 |SSM
-|S3 Registry bucket name 
+|S3 Registry bucket name
 
 |/quickstart/gitlab/`{env-name}`/storage/buckets/terraform
 |SSM
-|S3 Terraform bucket name 
+|S3 Terraform bucket name
 
 |/quickstart/gitlab/`{env-name}`/storage/buckets/uploads
 |SSM
-|S3 Uploads bucket name 
+|S3 Uploads bucket name
 
 |===
 
 .Secret Manager secrets
 [cols="3,1,2"]
 |===
-|Name | Type | Description 
+|Name | Type | Description
 
 |quickstart/gitlab/`{env-name}`/infra/smtp-credentials
 |Secret
@@ -262,7 +259,7 @@ Upon successful {partner-product-short-name} deployment, the following SSM param
 
 |/quickstart/gitlab/`{env-name}`/storage/credentials
 |Secret
-|S3 object storage access credentials 
+|S3 object storage access credentials
 
 |/quickstart/gitlab/`{env-name}`/secrets/rails
 |Secret
