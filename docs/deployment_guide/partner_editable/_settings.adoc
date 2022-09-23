@@ -5,7 +5,7 @@
 :partner-product-edition: {partner-product-name} Enterprise Edition
 :partner-company-name: GitLab Inc.
 :partner-company-short-name: GitLab
-:doc-month: August
+:doc-month: October
 :doc-year: 2022
 :partner-contributors: Darwin Sanoy, {partner-company-name}
 // :other-contributors: Akua Mansa, Trek10
