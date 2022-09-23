@@ -27,16 +27,16 @@ As shown in <<architecture1>>, the Quick Start sets up the following:
 * A highly available architecture that spans two or three Availability Zones. ^[AWS-WA]^
 * A VPC configured with public and private subnets, according to AWS best practices, to provide you with your own virtual network on AWS.^1^ ^[AWS-WA]^
 * An Amazon Elastic Kubernetes Service (Amazon EKS) cluster, which creates the Kubernetes control plane.^2^ ^[AWS-WA]^
-* Amazon Simple Storage Service (Amazon S3) buckets for {partner-product-short-name} object storage including https://git-lfs.github.com/[Git large file storage (git-lfs)] ^[GL-RAR][AWS-WA]^
+* Multiple Amazon Simple Storage Service (Amazon S3) buckets. See <<Object storage for {partner-product-short-name} storage types>>. ^[GL-RAR][AWS-WA]^
 * AWS Secrets Manager secrets for securely storing credentials.
 * In the public subnets:
 ** Managed network address translation (NAT) gateways to allow outbound internet access for resources in the private subnets.^1^
-** Elastic Load Balancing (ELB) PaaS for external access. ^[AWS-WA]^
 * In the private subnets:
 ** An Auto Scaling Group of Amazon Elastic Compute Cloud (Amazon EC2) Kubernetes nodes.^2^ ^[AWS-WA]^
 ** An Amazon Relational Database Service (Amazon RDS) cluster for {partner-product-short-name} and Praefect databases. ^[GL-RAR][AWS-WA]^
-** An Amazon ElastiCache: Redis instance for caching. ^[GL-RAR][AWS-WA]^
+** An Amazon ElastiCache: Redis cluster for caching. ^[GL-RAR][AWS-WA]^
 ** An Amazon S3 object storage PaaS for all non-git file systems and git-lfs ^[GL-RAR][AWS-WA]^
+** Elastic Load Balancing (ELB) for external access. ^[AWS-WA]^
 ** An internal ELB instance for load balancing requests. ^[GL-RAR][AWS-WA]^
 ** An Auto Scaling Group (ASG) with Gitaly nodes spread across Availability Zones. https://docs.gitlab.com/ee/administration/reference_architectures/10k_users.html#cloud-native-hybrid-reference-architecture-with-helm-charts-alternative[{partner-product-short-name}'s cloud native hybrid reference architecture^] calls for Gitaly to be implemented on Amazon EC2 instance compute and to utilize non-NFS storage for the file system containing Git repositories. ^[GL-RAR][AWS-WA]^
 ** A Praefect node ASG spread across Availability Zones. https://docs.gitlab.com/ee/administration/reference_architectures/10k_users.html#cloud-native-hybrid-reference-architecture-with-helm-charts-alternative[{partner-product-short-name}'s cloud native hybrid reference architecture^] calls for Praefect to be implemented on Amazon EC2 instance compute. ^[GL-RAR][AWS-WA]^
@@ -116,7 +116,7 @@ For more information about the external database configuration, see the https://
 The {partner-product-short-name} Quick Start creates Amazon S3 buckets for the following use cases:
 
 * Artifacts
-* Git&#8209;LFS
+* https://git-lfs.github.com/[Git large file storage (git-lfs)]
 * Uploads
 * Packages
 * Terraform
