@@ -6,7 +6,7 @@ project:
     KeyPairName: --overridden--
     RemoteAccessCIDR: 127.0.0.1/32
     QSS3BucketName: $[taskcat_autobucket]
-    QSS3BucketRegion: $[taskcat_current_region]
+    QSS3BucketRegion: us-east-1
     QSS3KeyPrefix: quickstart-eks-gitlab/
   lambda_source_path: functions/source
   lambda_zip_path: functions/packages
@@ -44,3 +44,82 @@ tests:
       RDSDBInstanceClass: db.t3.small
     regions:
     - eu-central-1
+
+#Gitaly must be set to 3 instances
+#technically running graviton RDS and Elasticache could
+#still be considered x86 because these are PaaS
+  smallest-possible-x86:
+    parameters:
+      AvailabilityZones: $[taskcat_genaz_2]
+      NumberOfAZs: 2
+      EKSPublicAccessEndpoint: Disabled
+      ProvisionBastionHost: Enabled
+      DomainName: qsgsm5.devops4the.cloud
+      CreateSslCertificate: 'Yes'
+      SslCertificateIssuerEmail: gitlab@$[taskcat_random-string].com
+      ConfigureContainerInsights: 'Yes'
+      ConfigureGrafana: 'Yes'
+      CreateHostedZone: 'Yes'
+      SMTPDomain: CreateNew
+      ConfigureRunner: 'No'
+      PriviligedMode: 'No'
+      KeyPairName: eks-quickstart
+      NumberOfNodes: 2
+      NodeInstanceType: t3.medium
+      RDSDBInstanceClass: db.t3.small
+      CacheMode: External
+      CacheNodes: 2
+      CacheNodeType: cache.t3.small
+      NumberOfGitalyReplicas: 3
+      GitalyInstanceType: t3a.small
+      NumberOfPraefectReplicas: 3
+      PraefectInstanceType: t3a.micro
+      KeyPairName: eks-quickstart
+      GitalyPraefectInstanceArchitecture: x86_64
+    regions:
+    - eu-west-1
+    - eu-central-1
+    - us-east-1
+    - us-west-2
+    - ap-south-1
+    - ca-central-1
+
+#The cluster cannot use ARM yet - must specific x86 instances.
+#Gitaly must be set to 3 instances
+#14.9.0 is the first release that has ARM packages for AL2.
+  smallest-possible-arm:
+    parameters:
+      GitLabVersion: 14.9.0
+      AvailabilityZones: $[taskcat_genaz_2]
+      NumberOfAZs: 2
+      EKSPublicAccessEndpoint: Disabled
+      ProvisionBastionHost: Enabled
+      DomainName: qsgsmg3.devops4the.cloud
+      CreateSslCertificate: 'Yes'
+      SslCertificateIssuerEmail: gitlab@$[taskcat_random-string].com
+      ConfigureContainerInsights: 'Yes'
+      ConfigureGrafana: 'Yes'
+      CreateHostedZone: 'Yes'
+      SMTPDomain: CreateNew
+      ConfigureRunner: 'No'
+      PriviligedMode: 'No'
+      KeyPairName: eks-quickstart
+      NumberOfNodes: 2
+      NodeInstanceType: t3.medium
+      RDSDBInstanceClass: db.t4g.small
+      CacheMode: External
+      CacheNodes: 2
+      CacheNodeType: cache.t4g.small
+      NumberOfGitalyReplicas: 3
+      GitalyInstanceType: t4g.small
+      NumberOfPraefectReplicas: 3
+      PraefectInstanceType: t4g.micro
+      KeyPairName: eks-quickstart
+      GitalyPraefectInstanceArchitecture: arm64
+    regions:
+    - eu-west-1
+    - eu-central-1
+    - us-east-1
+    - us-west-2
+    - ap-south-1
+    - ca-central-1
