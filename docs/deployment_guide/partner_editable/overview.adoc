@@ -18,7 +18,7 @@ In addition to reference architecture compliance, this Quick Start has these add
 * https://aws.amazon.com/quickstart/?solutions-all.sort-by=item.additionalFields.sortDate&solutions-all.sort-order=desc[As an AWS service catalog item] - AWS alternative to ServiceNow self service automation - could be used by large customers or partners to create parameter customized versions
 * https://aws.amazon.com/controltower/partners/[As an AWS Control Tower partner solution] - allowing vending of {partner-company-short-name} instances into AWS accounts managed by AWS Control Tower.
 
-=== Quick Start active open source community
+=== Open source community
 
 * Quick Starts are managed as open source with special attention given by AWS Quick Start team and the vendor ({partner-company-short-name} in this case) whose software is the focus of the Quick Start.
 * All Quick Starts are quality tested using CI in multiple regions when they are changed or when taking new versions of dependent Quick Starts.
