@@ -2,6 +2,7 @@
 :quickstart-github-org: quickstart-eks-gitlab
 :partner-product-name: GitLab
 :partner-product-short-name: GitLab
+:partner-product-long-name: GitLab hybrid reference architecture for Amazon EKS
 :partner-product-edition: {partner-product-name} Enterprise Edition
 :partner-company-name: GitLab Inc.
 :partner-company-short-name: GitLab

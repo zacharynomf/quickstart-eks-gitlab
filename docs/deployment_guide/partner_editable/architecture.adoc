@@ -1,64 +1,62 @@
 :xrefstyle: short
 
-Deploying this Quick Start with default parameters builds the following {partner-product-short-name} environment in the
-AWS Cloud.
+Deploying this Quick Start with default parameters builds the following {partner-product-short-name} environment in the AWS Cloud.
 
 // Replace this example diagram with your own. Follow our wiki guidelines: https://w.amazon.com/bin/view/AWS_Quick_Starts/Process_for_PSAs/#HPrepareyourarchitecturediagram. Upload your source PowerPoint file to the GitHub {deployment name}/docs/images/ directory in its repository.
 
-=== Architecture Diagram
+=== Architecture diagram
+
 :xrefstyle: short
 [#architecture1]
 .Quick Start architecture for {partner-product-short-name} on AWS
 image::../docs/deployment_guide/images/architecture_diagram.png[Architecture]
 
-=== Architecture Details
 .Key to architecture and best practice compliance tags
 [cols="^1,7"]
 |===
 |Tag|Meaning
 
-|^[AWS-WA]^|Compliant with **AWS W**ell **A**rchitected - including favoring PaaS to externalize scaling and availability management and HA / Self-Healing for non-PaaS resources.
-|^[GL-RAR]^|Compliant with a **G**it**L**ab **R**eference **A**rchitecture **R**equirement or **R**ecommendation - only applied to items where the Reference Architectures actually express an opinion.
+|^[AWS-WA]^|Compliant with **AWS W**ell **A**rchitected - including favoring platform&#8209;as&#8209;a&#8209;service (PaaS) to externalize scaling and availability management and high&#8209;availability (HA) / self&#8209;healing for non&#8209;PaaS resources.
+|^[GL-RAR]^|Compliant with a **G**it**L**ab **R**eference **A**rchitecture **R**equirement or **R**ecommendation - only applied to items where the reference architectures are opinionated.
 |===
 
-The result of this automation is a completely operational {partner-product-short-name} Instance.
+The result of this automation is a completely operational {partner-product-short-name} instance.
 
 As shown in <<architecture1>>, the Quick Start sets up the following:
 
 * A highly available architecture that spans two or three Availability Zones. ^[AWS-WA]^
-* A VPC configured with public and private subnets, according to AWS
-best practices, to provide you with your own virtual network on AWS.^1^ ^[AWS-WA]^
-* An Amazon EKS cluster, which creates the Kubernetes control plane.^2^ ^[AWS-WA]^
-* S3 buckets for {partner-product-short-name} object storage including Git-lfs ^[GL-RAR][AWS-WA]^
+* A VPC configured with public and private subnets, according to AWS best practices, to provide you with your own virtual network on AWS.^1^ ^[AWS-WA]^
+* An Amazon Elastic Kubernetes Service (Amazon EKS) cluster, which creates the Kubernetes control plane.^2^ ^[AWS-WA]^
+* Amazon Simple Storage Service (Amazon S3) buckets for {partner-product-short-name} object storage including https://git-lfs.github.com/[Git large file storage (git-lfs)] ^[GL-RAR][AWS-WA]^
+* AWS Secrets Manager secrets for securely storing credentials.
 * In the public subnets:
-** Managed network address translation (NAT) gateways to allow outbound
-internet access for resources in the private subnets.^1^
+** Managed network address translation (NAT) gateways to allow outbound internet access for resources in the private subnets.^1^
+** Elastic Load Balancing (ELB) PaaS for external access. ^[AWS-WA]^
 * In the private subnets:
-** A group of AutoScaling Kubernetes EC2 nodes.^2^ ^[AWS-WA]^
-** An Amazon RDS cluster for {partner-product-short-name} and Praefect databases. ^[GL-RAR][AWS-WA]^
-** Elasticache for Redis PaaS. ^[GL-RAR][AWS-WA]^
-** S3 Object storage PaaS for all non-git file systems and git-lfs ^[GL-RAR][AWS-WA]^
-** Uses AWS ELB for internal load balancer - Load balancing PaaS. ^[GL-RAR][AWS-WA]^
-** AWS ELB Load Balancing PaaS for external access. ^[AWS-WA]^
-** An ASG with Gitaly nodes spread across Availability Zones. https://docs.gitlab.com/ee/administration/reference_architectures/10k_users.html#cloud-native-hybrid-reference-architecture-with-helm-charts-alternative[{partner-product-short-name}'s Cloud Native Hybrid Reference Architecture^] calls for Gitaly to be implemented on EC2 Instance compute and to utilize Non-NFS storage for the file system containing Git repositories. ^[GL-RAR][AWS-WA]^
-** An ASG with Praefect nodes spread across Availability Zones. https://docs.gitlab.com/ee/administration/reference_architectures/10k_users.html#cloud-native-hybrid-reference-architecture-with-helm-charts-alternative[{partner-product-short-name}'s Cloud Native Hybrid Reference Architecture^] calls for Praefect to be implemented on EC2 Instance compute. ^[GL-RAR][AWS-WA]^
+** An Auto Scaling Group of Amazon Elastic Compute Cloud (Amazon EC2) Kubernetes nodes.^2^ ^[AWS-WA]^
+** An Amazon Relational Database Service (Amazon RDS) cluster for {partner-product-short-name} and Praefect databases. ^[GL-RAR][AWS-WA]^
+** An Amazon ElastiCache: Redis instance for caching. ^[GL-RAR][AWS-WA]^
+** An Amazon S3 object storage PaaS for all non-git file systems and git-lfs ^[GL-RAR][AWS-WA]^
+** An internal ELB instance for load balancing requests. ^[GL-RAR][AWS-WA]^
+** An Auto Scaling Group (ASG) with Gitaly nodes spread across Availability Zones. https://docs.gitlab.com/ee/administration/reference_architectures/10k_users.html#cloud-native-hybrid-reference-architecture-with-helm-charts-alternative[{partner-product-short-name}'s cloud native hybrid reference architecture^] calls for Gitaly to be implemented on Amazon EC2 instance compute and to utilize non-NFS storage for the file system containing Git repositories. ^[GL-RAR][AWS-WA]^
+** A Praefect node ASG spread across Availability Zones. https://docs.gitlab.com/ee/administration/reference_architectures/10k_users.html#cloud-native-hybrid-reference-architecture-with-helm-charts-alternative[{partner-product-short-name}'s cloud native hybrid reference architecture^] calls for Praefect to be implemented on Amazon EC2 instance compute. ^[GL-RAR][AWS-WA]^
 ** Amazon CloudWatch Container Insights integration. ^[AWS-WA]^
-** Amazon CloudWatch Agent for Instance compute. ^[AWS-WA]^
+** Amazon CloudWatch agent for instance compute. ^[AWS-WA]^
 * Optionally (on by default):
-** In one public subnet, a Linux bastion host in an Auto Scaling group to allow inbound Secure Shell (SSH) access to Amazon Elastic Compute Cloud (Amazon EC2) instances in private subnets. The bastion host is also configured with the Kubernetes `kubectl` command line interface (CLI) and the `helm` v3 CLI for managing the Kubernetes
-cluster as well as the AWS CLI V2 for general AWS management. ^[AWS-WA]^
-** Amazon Route53 Hosted zone for DNS configuration. ^[AWS-WA]^
-** AWS Certificate Manager TLS certificate. ^[AWS-WA]^
-** Amazon Simple Email Service domain for outgoing email messages. ^[AWS-WA]^
-** IaC parameters and outputs stored in AWS Parameter Store. ^[AWS-WA]^
+** In one public subnet, a Linux bastion host in an Auto Scaling group to allow inbound Secure Shell (SSH) access to Amazon Elastic Compute Cloud (Amazon EC2) instances in private subnets. The bastion host is also configured with the Kubernetes `kubectl` command line interface (CLI) and the `helm` CLI for managing the Kubernetes cluster as well as the AWS CLI for general AWS management. ^[AWS-WA]^
+** An Amazon Route 53 hosted zone for DNS name resolution. ^[AWS-WA]^
+** An AWS Certificate Manager certificate for TLS traffic encryption. ^[AWS-WA]^
+** An Amazon Simple Email Service (Amazon SES) domain for outgoing email messages. ^[AWS-WA]^
+** AWS Systems Manager Parameter Store parameters for storing infrastructure as code (IaC) parameters and outputs. ^[AWS-WA]^
 
-[.small]#^1^The template that deploys the Quick Start into an existing VPC skips
-the components and prompts you for your existing VPC configuration.#
+[.small]#^1^The template that deploys the Quick Start into an existing VPC skips the components and prompts you for your existing VPC configuration.#
 
-[.small]#^2^The template that deploys the Quick Start into an existing EKS cluster skips
-the components and prompts you for your existing EKS configuration.#
+[.small]#^2^The template that deploys the Quick Start into an existing EKS cluster skips the components and prompts you for your existing EKS configuration.#
 
-=== Bundled Provisioning of Container Registry, Backup, Log Aggregation and Monitoring
+=== Bundling
+
+==== Bundled provisioning of container registry, backup, log aggregation and monitoring
+
 - Uses Amazon Linux 2 throughout - which benefits from Amazon specific optimizations for performance and compute density for both EKS and EC2 hosts. ^[AWS-WA]^
 - All {partner-product-short-name} logs are automatically aggregated into CloudWatch logs via CloudWatch Instance Agent and CloudWatch Container Insights. ^[AWS-WA]^
 - EKS workload monitoring via CloudWatch Container Insights. ^[AWS-WA]^
@@ -69,30 +67,32 @@ the components and prompts you for your existing EKS configuration.#
 
 === Security
 
-==== Application Secrets
+==== Application secrets
+
 ** Stores generated secrets in AWS Secrets Manager (e.g. generates a proper initial root password) ^[AWS-WA]^
 
-==== EKS Cluster Administration
-The {partner-product-short-name} Kubernetes endpoint can be private, a bastion host must be deployed in order to do direct cluster management (it will be preloaded with AWS, EKS and Kubernetes management utilities and IAM permissions for cluster management). The bastion host is setup with SSH keys, but can also be accessed more securely using the preconfigured SSM Session Manager. Additionally, the bastion host has command audit logging enabled and the log is uploaded to CloudWatch.
+==== Amazon EKS cluster administration
 
-==== Data Encryption
+The {partner-product-short-name} Kubernetes endpoint can be private, a bastion host must be deployed in order to do direct cluster management (it will be preloaded with AWS, EKS and Kubernetes management utilities and IAM permissions for cluster management). The bastion host is setup with SSH keys, but can also be accessed more securely using AWS Systems Manager (SSM) Session Manager. Additionally, the bastion host has command audit logging enabled and the log is uploaded to CloudWatch Logs.
+
+==== Data encryption
 
 * Data in Transit:
-** SSL for front end http. ^[AWS-WA]^
-** SSL for {partner-product-short-name} to S3. ^[AWS-WA]^
-** SSL for {partner-product-short-name} to PostgreSQL RDS. ^[AWS-WA]^
-** SSL for {partner-product-short-name} to Redis Elasticache. ^[AWS-WA]^
+** SSL for front end HTTP. ^[AWS-WA]^
+** SSL for {partner-product-short-name} to Amazon S3. ^[AWS-WA]^
+** SSL for {partner-product-short-name} to Amazon RDS: PostgreSQL. ^[AWS-WA]^
+** SSL for {partner-product-short-name} to Amazon ElastiCache: Redis. ^[AWS-WA]^
 ** SSL for {partner-product-short-name} to Runner. ^[AWS-WA]^
-** SSL Not Yet Available for {partner-product-short-name} to Praefect to Gitaly. ^[AWS-WA]^
-* Data at Rest (AWS Managed Keys):
-** S3 Encryption ^[AWS-WA]^
-** PostgreSQL RDS Encryption ^[AWS-WA]^
-** Redis Elasticache Encryption ^[AWS-WA]^
-** Gitaly EBS Encryption (Git File System) ^[AWS-WA]^
-** Praefect Data (PostgreSQL RDS). ^[AWS-WA]^
+** SSL not yet available for {partner-product-short-name} to Praefect to Gitaly. ^[AWS-WA]^
+* Data at rest (AWS managed keys):
+** Amazon S3 Server&#8209;Side encryption ^[AWS-WA]^
+** Amazon RDS: PostgreSQL encryption ^[AWS-WA]^
+** Amazon ElastiCache: Redis encryption ^[AWS-WA]^
+** Amazon Elastic Block Store (Amazon EBS) encryption ^[AWS-WA]^
 
 === Database
-{partner-product-short-name} Quickstart deploys Highly Available PostgreSQL database cluster using https://aws.amazon.com/quickstart/architecture/aurora-postgresql/[Amazon Aurora PostgreSQL Quickstart^].
+
+The {partner-product-short-name} Quick Start deploys a highly available (HA) PostgreSQL database cluster using the https://aws.amazon.com/quickstart/architecture/aurora-postgresql/[Amazon Aurora PostgreSQL Quick Start^].
 
 Depending on the projected size of your {partner-product-short-name} deployment you may want to adjust database instance size using *DBInstanceClass* parameter.
 
@@ -103,83 +103,89 @@ There are two databases deployed to the same cluster:
 
 Praefect requires a separate tracking database as described in https://docs.gitlab.com/ee/administration/gitaly/praefect.html[Gitaly Cluster documentation^].
 
-More about external database configuration in https://docs.gitlab.com/charts/advanced/external-db/[{partner-product-short-name} documentation^].
+For more information about the external database configuration, see the https://docs.gitlab.com/charts/advanced/external-db/[{partner-product-short-name} documentation^].
 
-=== {partner-product-short-name} Storage
+=== Storage
 
 ==== Git repository storage
-* EBS Volumes on Gitaly Cluster instances. ^[GL-RAR]
 
-==== Object storage for {partner-product-short-name} storage types.
-{partner-product-short-name} Quickstart creates the following S3 buckets:
+* Amazon EBS volumes on Gitaly cluster instances. ^[GL-RAR]^
 
-* ArtifactsBucket
-* LfsBucket
-* UploadsBucket
-* PackagesBucket
-* TerraformBucket
-* PseudonymizerBucket
-* RegistryBucket
-* BackupBucket
-* BackupTempBucket
+==== Object storage for {partner-product-short-name} storage types
 
-S3 policies can be applied to these storages for retentions, storage tier management, cleanup and out of region replication.
+The {partner-product-short-name} Quick Start creates Amazon S3 buckets for the following use cases:
 
-Contents of the bucket encrypted by default with SSE-S3. Names of the buckets are generated by CloudFormation and exported as SSM parameters (see *Exports* section).
+* Artifacts
+* Git&#8209;LFS
+* Uploads
+* Packages
+* Terraform
+* Pseudonymizer
+* Registry
+* Backup
+* Backup temp
 
-More about external object storage in https://docs.gitlab.com/charts/advanced/external-object-storage/[{partner-product-short-name} documentation^].
+If desired, apply S3 policies to these buckets for managing retention, storage tier, and replication.
 
-=== {partner-product-short-name} Backups
+The contents of each bucket is encrypted by default with Amazon S3 server&#8209;side encryption (SSE-S3). The name of each bucket is auto&#8209;generated and exported as SSM parameters (see the <<Exports>> section).
 
-==== Scheduling Backups
+For more information about external object storage, see the https://docs.gitlab.com/charts/advanced/external-object-storage/[{partner-product-short-name} documentation^].
 
-Backup schedule is controlled by cron expression and default value is `pass:[0 1 * * * *]` (daily at 1am). You can set a different schedule using *BackupSchedule* parameter.
+=== Backups
+
+==== Scheduling backups
+
+The backup schedule is controlled by a cron expression and the default value is `pass:[0 1 * * * *]` (daily at 1am). If desired, you can set a different schedule using the *BackupSchedule* parameter.
 
 ==== Content of the backups
 
-Backups include {partner-product-short-name} database snapshot and contents of {partner-product-short-name} projects (Git repositories, Wiki pages). Backups do *not* include contents of S3 buckets (see Object storage for a list of buckets). The main reason behind this decision:
+Backups include {partner-product-short-name} database snapshots and the contents of {partner-product-short-name} projects, such as Git repositories, wiki pages, et cetera. Backups do *not* include the contents of Amazon S3 buckets (see object storage for a list of buckets). The main reasons behind this decision are:
 
-* Contents of these buckets may be very large (pipeline artifacts, docker images, etc.) and that may affect stability and performance of the backup jobs
-* S3 is a https://aws.amazon.com/s3/faqs/#Durability_.26_Data_Protection[durable storage^]
-* S3 storage policies also enable out of region replication and management of storage class migration to control costs for older data.
+* Contents of these buckets may be very large (pipeline artifacts, Docker images, etc.) and that may affect stability and performance of the backup jobs.
+* Amazon S3 is a https://aws.amazon.com/s3/faqs/#Durability_.26_Data_Protection[durable storage^] option.
+* Amazon S3 storage policies also enable out of region replication and management of storage class migration to control costs for older data.
 
 If needed, complete backup may be created using backup-utility as described in https://docs.gitlab.com/charts/backup-restore/[{partner-product-short-name} documentation^].
 
-==== Backup/Restore resources
+==== Backup/restore resources
 
-NOTE: Disk volume required for backups is about *2x larger than backup tarball itself*. This is due to the fact that all resources have to be downloaded first and packaged to tarball file which also stored locally. Consider the size of you {partner-product-short-name} database and projects (mainly Git repositories) to set the size of the underlying EBS volumes appropriately using *BackupVolumeSize* parameter.
+NOTE: The disk volume required for backups is about *2x larger than backup tarball itself*. This is due to the fact that all resources have to be downloaded first and packaged to a tarball file which also stored locally. Consider the size of you {partner-product-short-name} database and projects (mainly Git repositories) to set the size of the underlying EBS volumes appropriately using *BackupVolumeSize* parameter.
 
-Default Quick Start configuration tested on backups of 20Gb average size, took about 30 minutes to create and upload to S3 bucket.
+In testing, the average size of backups for the default configuration were 20GB, and took about 30 minutes to create and upload to the Amazon S3 bucket.
 
-For large {partner-product-short-name} deployments you can also adjust CPU and memory requirements for backup and restore pods using *BackupCpu* and *BackupMemory* parameters.
+For large {partner-product-short-name} deployments, you can also adjust the CPU and memory requirements for backup and restore pods using *BackupCpu* and *BackupMemory* parameters.
 
-More about backups in https://docs.gitlab.com/charts/backup-restore/[{partner-product-short-name} documentation^].
+For more information about backups, see the https://docs.gitlab.com/charts/backup-restore/[{partner-product-short-name} documentation^].
 
-=== {partner-product-short-name} Telemetry and Monitoring
-==== CloudWatch Container Insights
-{partner-product-short-name} Quickstart integrates EKS cluster with https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html[CloudWatch Container Insights^] to collect, aggregate, and summarise metrics and logs if *ConfigureContainerInsights* parameter is set to `Yes`.
+=== Telemetry and monitoring
 
-Logs and metrics can be accessed from CloudWatch console:
+==== Amazon CloudWatch Container Insights
+
+The {partner-product-short-name} Quick Start integrates the Amazon EKS cluster with https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html[Amazon CloudWatch Container Insights^] to collect, aggregate, and summarize metrics & logs if *ConfigureContainerInsights* parameter is set to `Yes`.
+
+You can access these logs and metrics from the Amazon CloudWatch console:
 
 :xrefstyle: short
 [#cloudwatch-container-insights]
-.CloudWatch Container Insights
-image::../docs/deployment_guide/images/cloudwatch-container-insights.png[CloudWatch Container Insights]
+.Amazon CloudWatch container insights
+image::../docs/deployment_guide/images/cloudwatch-container-insights.png[Amazon CloudWatch Container Insights]
 
 ==== Prometheus metrics
-{partner-product-short-name} exposes Prometheus metrics under `/-/metrics` of the {partner-product-short-name} Ingress. Optional Grafana integration can be enabled by setting *ConfigureGrafana* parameter to ‘Yes’.
+
+{partner-product-short-name} exposes Prometheus metrics under `/-/metrics` of the {partner-product-short-name} Ingress. Optionally, you can also enable a Grafana integration by setting the *ConfigureGrafana* parameter to `Yes`.
 
 :xrefstyle: short
 [#grafana]
 .Grafana
 image::../docs/deployment_guide/images/grafana.png[Grafana]
 
-More about Grafana integration in https://docs.gitlab.com/charts/charts/globals.html#configure-grafana-integration[{partner-product-short-name} documentation^].
+For more information about the Grafana integration, see the https://docs.gitlab.com/charts/charts/globals.html#configure-grafana-integration[{partner-product-short-name} documentation^].
 
-==== Amazon EKS Console
-Amazon EKS Console gives you a single place to see the status of your Kubernetes clusters, applications, and associated cloud resources.
+==== Amazon EKS console
 
-Please see the prerequisites for Amazon EKS Console access configuration in https://docs.aws.amazon.com/eks/latest/userguide/view-workloads.html[AWS documentation^].
+The Amazon EKS Console gives you a single place to see the status of your Kubernetes clusters, applications, and associated cloud resources.
+
+Please see the prerequisites for Amazon EKS Console access configuration in the https://docs.aws.amazon.com/eks/latest/userguide/view-workloads.html[AWS documentation^].
 
 :xrefstyle: short
 [#aws-eks-console]
@@ -187,7 +193,8 @@ Please see the prerequisites for Amazon EKS Console access configuration in http
 image::../docs/deployment_guide/images/aws-eks-console.png[AWS EKS Console]
 
 === Exports
-Upon successful {partner-product-short-name} deployment, the following SSM parameters and Secrets Manages secrets are exposed:
+
+Upon successful {partner-product-short-name} deployment, the following AWS Systems Manager (SSM) parameters and AWS Secrets Manager secrets are exposed:
 
 .SSM parameters
 [cols="3,1,2"]
