@@ -107,16 +107,6 @@ echo {base64-encoded-password} | base64 -d | pbcopy
 
 A {partner-product-short-name} instance of any type (does not have to be running on Kubernetes) can integrate to a Kubernetes cluster for Review Apps and AutoDevOps to pre&#8209;production and production environments. For production deployments, the cluster containing your {partner-product-short-name} instance should not be used for this purpose due to the level of privileges required to deploy Review Apps and AutoDevOps to the cluster.
 
-=== Operations
-
-There are no specific things to account for in operating {partner-product-short-name} on AWS. When {partner-product-short-name} relies on AWS services like CloudWatch and S3, then the AWS&#8209;specific practices for those services are applicable, but as long as these services are correctly integrated, they are abstracted in {partner-product-short-name}. Services configuration may also provide benefits that are not anticipated by {partner-product-short-name}. For instance, using S3 storage policies for replicating backups to another region.
-
-{partner-product-short-name} has distinctive SRE management concerns that will need to be monitored and adjusted. Aspects of {partner-product-short-name} operations can be impacted by instance type choices, provisioned IOPS, and other cloud&#8209;level implementation decisions.
-
-{partner-product-short-name} provides the https://gitlab.com/gitlab-org/quality/performance[{partner-product-short-name} Performance Tool (gpt)^] and https://gitlab.com/gitlab-org/quality/performance/-/wikis/Benchmarks/Latest[Reference Architecture performance benchmarks^] created by the tool for the reference of {partner-product-short-name} instance site&#8209;reliability engineers (SREs). If your instance will be highly scaled, you should run the gpt tool against it for a baseline performance. This will help with scale planning.
-
-Please consult the https://docs.gitlab.com[{partner-product-short-name} Documentation^] for general operations and usage information.
-
 ==== Log monitoring using CloudWatch Logs
 
 ----
