@@ -2,6 +2,22 @@
 
 == Predeployment steps
 
+=== Security considerations
+
+The infrastructure that {partner-product-short-name} is deployed on must be secured according to that infrastructure's security best practices. The {partner-product-short-name} Quick Start incorporates general security best practices, but if you have specific requirements that aren't covered, the templates can be customized to meet your needs. For additional information, see the https://about.gitlab.com/blog/2020/05/20/gitlab-instance-security-best-practices/[security best practices^].
+
+==== Public internet access
+
+WARNING: The {partner-product-short-name} instance will be configured with an internet ingress by default.
+
+If the {partner-product-short-name} instance will be connected to the public internet, the industry advised security precautions and due diligences of public internet services should be applied to it, including (but not limited to), {partner-product-short-name} updates and patching and infrastructure updates and patching. Leveraging AWS hardened services for the front&#8209;end can help improve the security posture, such as, AWS Load Balancers, DNS, edge network services, SES for SMTP, et cetera).
+
+By default, the Quick Start enables a secure administrative mode by configuring the EKS cluster without a public endpoint and a bastion host. The bastion host comes with cluster administration tools pre&#8209;installed such as kubectl, eksctl, AWS CLI, and Helm. The SSM agent is also pre&#8209;installed and SSM session manager permissions are configured. This means that even the bastion host does not need to have a port publicly exposed in order to get a console session- either through the AWS Management Console or a workstation installation of the AWS CLI with the SSM extensions.
+
+For production setups, {partner-product-short-name} Runner should not be deployed to the cluster that runs {partner-product-short-name}, *especially in privileged mode*.
+
+{partner-product-short-name} publishes new releases (including security hotfixes) on the https://about.gitlab.com/releases/categories/releases/[Releases blog^].
+
 === Instance version selection
 
 The version of {partner-product-short-name} that will be deployed depends on the {partner-product-short-name} Helm chart version you select when launching this Quick Start. Here is the https://docs.gitlab.com/charts/installation/version_mappings.html[documentation for mapping {partner-product-short-name} Helm chart versions to {partner-product-short-name} product versions^].
@@ -9,10 +25,6 @@ The version of {partner-product-short-name} that will be deployed depends on the
 === Migration considerations
 
 If you are migrating an existing {partner-product-short-name} instance to one built by this Quick Start, it is critical to have the new instance version match the old instance version during migration. {partner-product-short-name} version upgrades can be done on the old instance before migration or on the new instance after migration, but not during a migration using mismatched versions. **This includes the versions of all underlying components such as PostgreSQL and Redis.**
-
-=== Internet ingress
-
-The {partner-product-short-name} instance will be configured with an internet ingress by default.
 
 === Instances types, sizes, and numbers
 

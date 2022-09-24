@@ -132,17 +132,3 @@ CloudWatch metrics are collected for instances and containers.  These metrics ca
 ===== Using Prometheus
 
 The Quick Start wires up {partner-product-short-name} to Prometheus deployed to the cluster to expose all {partner-product-short-name} surfaced application metrics. The Grafana deployment option enables "in&#8209;instance" Grafana capabilities with these metrics.
-
-=== Security
-
-The infrastructure that {partner-product-short-name} is deployed on must be secured according to that infrastructure's security best practices. {partner-product-short-name} has reasonable security out&#8209;of&#8209;the&#8209;box, but as with all complex products it can be configured with tighter security if required. For additional information, see the https://about.gitlab.com/blog/2020/05/20/gitlab-instance-security-best-practices/[security best practices^].
-
-==== Public internet access
-
-If the {partner-product-short-name} instance will be connected to the public internet, the industry advised security precautions and due diligences of public internet services should be applied to it, including (but not limited to), {partner-product-short-name} updates and patching and infrastructure updates and patching. Leveraging AWS hardened services for the front&#8209;end can help improve the security posture, such as, AWS Load Balancers, DNS, edge network services, SES for SMTP, et cetera).
-
-The Quick Start does enable a more secure administrative mode by enabling the EKS cluster to be configured without a public endpoint and then configuring the Bastion host. The bastion host comes with cluster administration tools pre&#8209;installed such as kubectl, eksctl, AWS CLI, and Helm. The SSM agent is also pre&#8209;installed and SSM session manager permissions are configured. This means that even the Bastion host does not need to have a port publicly exposed in order to get a console session- either through the AWS Management Console or a workstation installation of the AWS CLI with the SSM extensions.
-
-For production setups, {partner-product-short-name} Runner should not be deployed to the cluster that runs {partner-product-short-name}, *especially in privileged mode*.
-
-{partner-product-short-name} publishes new releases (including security hotfixes) on the https://about.gitlab.com/releases/categories/releases/[Releases blog^].
