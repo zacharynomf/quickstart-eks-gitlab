@@ -26,7 +26,7 @@ The version of {partner-product-short-name} that will be deployed depends on the
 
 WARNING: If you are migrating an existing {partner-product-short-name} instance to one built by this Quick Start, it is critical to have the new instance version match the old instance version during migration. {partner-product-short-name} version upgrades can be done on the old instance before migration or on the new instance after migration, but not during a migration using mismatched versions. This includes the versions of all underlying components such as PostgreSQL and Redis.
 
-=== Instances types, sizes, and numbers
+=== Component sizing
 
 This Quick Start is capable of creating {partner-product-short-name} cloud native reference architecture compliant {partner-product-short-name} instances. {partner-product-short-name} reference architectures have a "Cloud Native Hybrid" section that gives a manifest of required resources that can be used while deploying the template. For additional information, see the https://docs.gitlab.com/ee/install/aws/gitlab_hybrid_on_aws.html#gitlab-cloud-native-hybrid-on-aws[documentation].
 
