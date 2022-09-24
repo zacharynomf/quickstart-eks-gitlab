@@ -99,11 +99,13 @@ echo {base64-encoded-password} | base64 -d | pbcopy
 . For user specify `root`.
 . Use the password retrieved earlier.
 
-=== Kubernetes cluster provisioning
+=== Integrating Kubernetes
+
+==== Provisioning new Kubernetes clusters
 
 {partner-product-short-name} can be configured to provision Amazon EKS clusters into AWS accounts. It requires configuration of an AWS IAM Role (and potentially an IAM user) for {partner-product-short-name} authentication in an AWS account. Each account where clusters will be provisioned also require at least one IAM Role for EKS cluster provisioning to be defined. For additional information, see the https://docs.gitlab.com/ee/user/project/clusters/add_eks_clusters.html#configure-amazon-authentication[{partner-product-short-name} documentation].
 
-=== Integrating with existing clusters
+==== Integrating with existing Kubernetes clusters
 
 A {partner-product-short-name} instance of any type (does not have to be running on Kubernetes) can integrate to a Kubernetes cluster for Review Apps and AutoDevOps to pre&#8209;production and production environments. For production deployments, the cluster containing your {partner-product-short-name} instance should not be used for this purpose due to the level of privileges required to deploy Review Apps and AutoDevOps to the cluster.
 

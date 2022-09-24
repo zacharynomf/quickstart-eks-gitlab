@@ -34,8 +34,8 @@ This Quick Start is capable of creating {partner-product-short-name} cloud nativ
 
 The following items need to be deployed after the {partner-product-short-name} instance is operational. They are noted here so that plans can be made around deploying them. Further instructions are available in the following <<Postdeployment steps>> sections:
 
-* <<Integrating with existing clusters>>
-* <<Kubernetes cluster provisioning>>
+* <<Provisioning new Kubernetes clusters>>
+* <<Integrating with existing Kubernetes clusters>>
 
 ==== Deploying {partner-product-short-name} Runners
 
