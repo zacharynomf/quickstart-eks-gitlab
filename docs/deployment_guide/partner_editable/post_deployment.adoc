@@ -36,7 +36,16 @@ echo {base64-encoded-password} | base64 -d | pbcopy
 
 === Accessing the EKS cluster
 
-NOTE: Using the bastion host for cluster administration has the following advantages: all the kubernetes utilities are pre-installed, it has permissions to the cluster and it is the only way to access the cluster if you setup the Quick Start to not expose a public endpoint for the cluster. If using the bastion host, complete these steps on that machine.
+[TIP]
+====
+Using the bastion host for EKS cluster administration has the following advantages:
+
+. Kubernetes cluster administration utilities are pre&#8209;installed.
+. It has permissions to access the cluster.
+. It is one of the few ways to access the cluster if you configured the {partner-product-short-name} instance to not expose a public endpoint for the cluster.
+====
+
+If using the bastion host, complete these steps on that machine.
 
 ==== Connecting to the bastion host
 
