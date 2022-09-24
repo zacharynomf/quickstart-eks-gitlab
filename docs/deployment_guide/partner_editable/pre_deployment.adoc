@@ -32,7 +32,9 @@ This Quick Start is capable of creating {partner-product-short-name} cloud nativ
 
 === Post-installation considerations
 
-The following items need to be deployed after the {partner-product-short-name} instance is operational. They are noted here so that plans can be made around deploying them. Further instructions are available in the following <<Postdeployment steps>> sections:
+==== Kubernetes considerations
+
+If you intend to integrate the {partner-product-short-name} instance with one or more new or existing Kubernetes cluster once operational, see the following sections to ensure your {partner-product-short-name} instance is configured appropriately:
 
 * <<Provisioning new Kubernetes clusters>>
 * <<Integrating with existing Kubernetes clusters>>
