@@ -20,7 +20,7 @@ For production setups, {partner-product-short-name} Runner should not be deploye
 
 === Instance version selection
 
-The version of {partner-product-short-name} that will be deployed depends on the {partner-product-short-name} Helm chart version you select when launching this Quick Start. Here is the https://docs.gitlab.com/charts/installation/version_mappings.html[documentation for mapping {partner-product-short-name} Helm chart versions to {partner-product-short-name} product versions^].
+The version of {partner-product-short-name} that will be deployed depends on the {partner-product-short-name} Helm chart version you select when launching this Quick Start. For additional information about mapping {partner-product-short-name} Helm chart versions to {partner-product-short-name} product versions, see the https://docs.gitlab.com/charts/installation/version_mappings.html[documentation^].
 
 === Migration considerations
 
