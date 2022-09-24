@@ -194,9 +194,10 @@ image::../docs/deployment_guide/images/aws-eks-console.png[AWS EKS Console]
 
 === Exports
 
-Upon successful {partner-product-short-name} deployment, the following AWS Systems Manager (SSM) parameters and AWS Secrets Manager secrets are exposed:
+Upon successful {partner-product-short-name} deployment, the following AWS Systems Manager (SSM) Parameter Store parameters and AWS Secrets Manager secrets are exposed:
 
-.SSM parameters
+[#ssm1]
+.AWS Systems Manager (SSM) Parameter Store parameters
 [cols="3,1,2"]
 |===
 |Name | Type | Description
@@ -215,7 +216,7 @@ Upon successful {partner-product-short-name} deployment, the following AWS Syste
 
 |/quickstart/gitlab/`{env-name}`/cluster/name
 |SSM
-|EKS Cluster name
+|EKS cluster name
 
 |/quickstart/gitlab/`{env-name}`/storage/buckets/artifacts
 |SSM
@@ -255,12 +256,13 @@ Upon successful {partner-product-short-name} deployment, the following AWS Syste
 
 |===
 
-.Secret Manager secrets
+[#secrets1]
+.AWS Secrets Manager secrets
 [cols="3,1,2"]
 |===
 |Name | Type | Description
 
-|quickstart/gitlab/`{env-name}`/infra/smtp-credentials
+|/quickstart/gitlab/`{env-name}`/infra/smtp-credentials
 |Secret
 |SMTP server credentials
 
