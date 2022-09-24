@@ -107,12 +107,6 @@ echo {base64-encoded-password} | base64 -d | pbcopy
 
 A {partner-product-short-name} instance of any type (does not have to be running on Kubernetes) can integrate to a Kubernetes cluster for Review Apps and AutoDevOps to pre&#8209;production and production environments. For production deployments, the cluster containing your {partner-product-short-name} instance should not be used for this purpose due to the level of privileges required to deploy Review Apps and AutoDevOps to the cluster.
 
-==== Log monitoring using CloudWatch Logs
-
-----
-aws logs tail --since 1d --follow /aws/log/path
-----
-
 ==== Performance monitoring
 
 ===== Using CloudWatch Metrics
