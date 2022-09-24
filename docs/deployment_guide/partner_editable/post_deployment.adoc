@@ -55,13 +55,6 @@ If using the bastion host, complete these steps on that machine.
 . On the *Connect to instance...* page, select the *Session Manager* tab.
 . Click the orange *Connect* button.
 . Wait for several seconds to be placed in a shell console.
-. Switch to the root user where kubectl is preconfigured.
-
-----
-sudo su
-----
-
-[start=3]
 . Test with this command:
 
 ----
