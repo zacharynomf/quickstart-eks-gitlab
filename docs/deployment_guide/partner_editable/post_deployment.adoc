@@ -6,7 +6,7 @@ When deployed for production grade implementations, this Quick Start does not se
 
 === First login
 
-. Go to the https://console.aws.amazon.com/secretsmanager[AWS Secrets Manager console^] in the Region where {partner-product-short-name} was deployed and click on the secret ending in *initial-root-password*.
+. Go to the https://console.aws.amazon.com/secretsmanager[AWS Secrets Manager console^] in the Region where {partner-product-short-name} was deployed and click on the secret ending in *initial-root-password*, which is also listed in <<secrets1>>.
 . Click the *Retrieve secret value* button.
 . Decode the base64 encoded password with (the password will be in your copy / paste buffer):
 
