@@ -34,11 +34,11 @@ echo {base64-encoded-password} | base64 -d | pbcopy
 * If you get the message `default backend - 404` you probably forgot to prefix the domain with `gitlab.` in your hosts file and in your browser.
 ====
 
-=== Accessing Kubernetes
+=== Accessing the EKS cluster
 
 NOTE: Using the bastion host for cluster administration has the following advantages: all the kubernetes utilities are pre-installed, it has permissions to the cluster and it is the only way to access the cluster if you setup the Quick Start to not expose a public endpoint for the cluster. If using the bastion host, complete these steps on that machine.
 
-==== Connect to the bastion host
+==== Connecting to the bastion host
 
 . Open the https://console.aws.amazon.com/ec2/v2/home?Instances:[Amazon EC2 Console^] in the Region where {partner-product-short-name} was deployed.
 . Locate the instance named *EKSBastion*
@@ -59,7 +59,7 @@ sudo su
 /usr/local/bin/kubectl get pods --all-namespaces
 ----
 
-=== Enable outbound email
+=== Enabling outbound email
 
 Amazon Simple Email Service (Amazon SES) is purposely created in "sandbox" mode to prevent spam abuse using massively scaled email services. You must enable it manually.
 
