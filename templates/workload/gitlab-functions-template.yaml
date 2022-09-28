@@ -45,7 +45,6 @@ Resources:
   DeleteBucketContentsFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: !Sub ['${Prefix}-DeleteBucketContents', {Prefix: !FindInMap [Config, GitLabPrefix, Value]}]
       Handler: lambda_function.lambda_handler
       MemorySize: 128
       Role: !GetAtt DeleteBucketContentsRole.Arn
