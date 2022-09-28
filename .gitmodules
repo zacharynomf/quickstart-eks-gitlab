@@ -6,10 +6,6 @@
 	path = submodules/quickstart-amazon-aurora-postgresql
 	url = https://github.com/aws-quickstart/quickstart-amazon-aurora-postgresql.git
 	branch = main
-[submodule "scripts/qs-cfn-lint-rules"]
-	path = scripts/qs-cfn-lint-rules
-	url = https://github.com/aws-quickstart/qs-cfn-lint-rules.git
-	branch = main
 [submodule "functions/source/CfnSesDomain/aws-cfn-ses-domain"]
 	path = functions/source/CfnSesDomain/aws-cfn-ses-domain
 	url = https://github.com/medmunds/aws-cfn-ses-domain.git
