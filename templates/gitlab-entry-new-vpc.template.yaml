@@ -112,6 +112,7 @@ Metadata:
       - Label: 
           default: GitLab Git repository storage configuration
         Parameters:
+          - GitalyPraefectInstanceArchitecture
           - NumberOfGitalyReplicas
           - GitalyInstanceType
           - GitalyVolumeSize
@@ -248,6 +249,8 @@ Metadata:
       GitLabVersion:
         default: GitLab application version
     # GitLab Git repository storage configuration
+      GitalyPraefectInstanceArchitecture:
+        default: Architecture of Gitaly and Praefect Instances
       GitalyInstanceType:
         default: Gitaly instance type
       NumberOfGitalyReplicas:
@@ -636,9 +639,18 @@ Parameters:
   GitLabVersion:
     Type: String
     Description: Version of GitLab application - must correspond to helm chart version above. See https://docs.gitlab.com/charts/installation/version_mappings.html.
-    Default: '14.5.2'
+    Default: '14.9.0'
 
 # Gitaly Storage Parameters
+  GitalyPraefectInstanceArchitecture:
+    Type: String
+    Description: |
+      Pick x86_64 or arm64. Architecture of both GitalyInstanceType and PraefectInstanceType must match this arch value.
+      NOTE: ARM for Amazon Linux is not supported before GitLab 14.9.0 and this stack will fail if that combination is specified.
+    Default: x86_64
+    AllowedValues:
+     - x86_64
+     - arm64
   NumberOfGitalyReplicas:
     Type: Number
     Default: 3
@@ -667,7 +679,6 @@ Parameters:
     Description: |
       Praefect coordinates Gitaly cluster replication. Number of Praefect replicas to deploy in GitLab cluster.
       The replicas will be distributed across Availability Zones selected.
-      3 are required because Prafect replicas perform voting for data consistency and so an odd number are needed.
   PraefectInstanceType:
     Type: String
     Default: t3.medium
@@ -877,6 +888,7 @@ Resources:
         HelmChartVersion: !Ref HelmChartVersion
         GitLabVersion: !Ref GitLabVersion
         # Gitaly Storage Parameters
+        GitalyPraefectInstanceArchitecture: !Ref GitalyPraefectInstanceArchitecture
         NumberOfGitalyReplicas: !Ref NumberOfGitalyReplicas
         GitalyInstanceType: !Ref GitalyInstanceType
         GitalyVolumeSize: !Ref GitalyVolumeSize

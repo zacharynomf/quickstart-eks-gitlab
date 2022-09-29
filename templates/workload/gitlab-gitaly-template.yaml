@@ -240,7 +240,20 @@ Resources:
           commands:
             100_gitlab_yum_repo:
               command:  curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh | bash
-            
+
+            # 105_gitlab_distro_mapping:
+            #   command: !Sub |
+            #     IFS='.' read -r major minor patch <<< '${GitLabVersion}'; if [ ${major} -ge 15 ]; then sed -i 's/\\/el\\/7/\\/amazon\\/2/g' /etc/yum.repos.d/gitlab_gitlab*.repo; else sed -i 's/\\/amazon\\/2/\\/el\\/7/g' /etc/yum.repos.d/gitlab_gitlab*.repo; fi; yum clean all ; yum makecache;
+
+            105_gitlab_distro_mapping:
+              command:
+                Fn::Join:
+                  - ""
+                  - - "echo 'WARNING: ARM for Amazon Linux is not supported before GitLab 14.9.0 and this stack will fail if that combination is specified.'; IFS='.' read -r major minor patch <<< '"
+                    - Ref: "GitLabVersion"
+                    - "'; if [[ ${major} -ge 15 || (${major} -eq 14 && ${minor} -ge 9) ]]; then sed -i 's/\\/el\\/7/\\/amazon\\/2/g' /etc/yum.repos.d/gitlab_gitlab*.repo; else sed -i 's/\\/amazon\\/2/\\/el\\/7/g' /etc/yum.repos.d/gitlab_gitlab*.repo; fi; yum clean all ; yum makecache;"
+#                    - "'; if [[ ${major} -ge 14 ]]; then sed -i 's/\\/el\\/7/\\/amazon\\/2/g' /etc/yum.repos.d/gitlab_gitlab*.repo; else sed -i 's/\\/amazon\\/2/\\/el\\/7/g' /etc/yum.repos.d/gitlab_gitlab*.repo; fi; yum clean all ; yum makecache;"
+
             200_update_yum:
               command: yum update -y --exclude=gitlab-ee*
 
@@ -271,7 +284,8 @@ Resources:
                 gitlab_workhorse['enable'] = false
                 gitaly['enable'] = true
                 grafana['enable'] = false
-                
+                gitlab_kas['enable'] = false
+
                 ## Prevent database connections during 'gitlab-ctl reconfigure'
                 gitlab_rails['rake_cache_clear'] = false
                 gitlab_rails['auto_migrate'] = false
@@ -282,7 +296,7 @@ Resources:
 
                 gitaly['auth_token'] = '${PraefectInternalToken}'
                 gitlab_shell['secret_token'] = '${GitLabShellToken}'
-                
+
                 git_data_dirs({
                   "gitaly-0" => {
                     "path" => "/gitlab-data"
@@ -308,11 +322,11 @@ Resources:
                 mount /dev/sdg /gitlab-data
                 echo "/dev/sdg /gitlab-data ext4 defaults 0 0" >> /etc/fstab
                 chown -R git:git /gitlab-data/
-                
+
               mode: "000700"
               owner: root
               group: root
-                
+
           commands:
             01_mount_gitaly_volume:
               command: source /etc/gitlab/mount_gitaly_volume.sh
