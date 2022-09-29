@@ -75,12 +75,7 @@ tests:
       KeyPairName: eks-quickstart
       GitalyPraefectInstanceArchitecture: x86_64
     regions:
-    - eu-west-1
-    - eu-central-1
-    - us-east-1
-    - us-west-2
     - ap-south-1
-    - ca-central-1
 
 #The cluster cannot use ARM yet - must specific x86 instances.
 #Gitaly must be set to 3 instances
@@ -114,9 +109,4 @@ tests:
       KeyPairName: eks-quickstart
       GitalyPraefectInstanceArchitecture: arm64
     regions:
-    - eu-west-1
-    - eu-central-1
-    - us-east-1
-    - us-west-2
-    - ap-south-1
     - ca-central-1
