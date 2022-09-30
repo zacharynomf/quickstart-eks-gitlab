@@ -12,9 +12,6 @@ Metadata:
 Parameters:
   ClusterName:
     Type: String
-  ClusterNodeInstanceRoleName:
-    Type: String
-    Default: eks-quickstart-ManagedNodeInstance
   CloudWatchAgentImage:
     Type: String
     Default: amazon/cloudwatch-agent:latest
@@ -24,43 +21,7 @@ Parameters:
 
 Resources:
 
-  # 0. Prerequisites
-  # Attach a policy (clone of CloudWatchAgentServerPolicy managed policy)
-  # to be able to send logs/metrics to CloudWatch / Container Insights
-  # see https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-prerequisites.html
-  CloudWatchAccessPolicy:
-    Type: AWS::IAM::Policy
-    Metadata:
-      cfn-lint:
-        config:
-          ignore_checks:
-            - EIAMPolicyWildcardResource
-          ignore_reasons:
-            EIAMPolicyWildcardResource: This is exact clone of CloudWatchAgentServerPolicy managed policy - see https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-prerequisites.html
-    Properties:
-      PolicyName: !Sub CloudWatchAgentServerPolicy-${AWS::StackName}
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Resource: "*"
-            Action:
-              - 'cloudwatch:PutMetricData'
-              - 'ec2:DescribeVolumes'
-              - 'ec2:DescribeTags'
-              - 'logs:PutLogEvents'
-              - 'logs:DescribeLogStreams'
-              - 'logs:DescribeLogGroups'
-              - 'logs:CreateLogStream'
-              - 'logs:CreateLogGroup'
-          - Effect: Allow
-            Resource: !Sub 'arn:${AWS::Partition}:ssm:*:*:parameter/AmazonCloudWatch-*'
-            Action:
-              - 'ssm:GetParameter'
-      Roles:
-        - !Ref ClusterNodeInstanceRoleName
-
-  # 1. Set Up the CloudWatch Agent to Collect Cluster Metrics 
+  # 1. Set Up the CloudWatch Agent to Collect Cluster Metrics
   # https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-setup-metrics.html
   CloudWatchNamespace:
     Type: AWSQS::Kubernetes::Resource
