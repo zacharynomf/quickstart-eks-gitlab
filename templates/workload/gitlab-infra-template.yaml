@@ -114,7 +114,7 @@ Resources:
       ValidationMethod: DNS
       DomainValidationOptions:
         - DomainName: !Sub "*.${DomainName}"
-          HostedZoneId: !Ref HostedZone
+          HostedZoneId: !If [HostedZoneToBeCreated, !Ref HostedZone, !Ref PublicHostedZoneId]
 
 
   CleanupACMDNSValidationLambdaRole:
@@ -147,7 +147,7 @@ Resources:
                   - route53:ChangeResourceRecordSets
                 Resource: !Sub
                   - "arn:${AWS::Partition}:route53:::hostedzone/${HostedZoneID}"
-                  - HostedZoneID: !Ref HostedZone
+                  - HostedZoneID: !If [HostedZoneToBeCreated, !Ref HostedZone, !Ref PublicHostedZoneId]
 
   CleanupACMDNSValidationLambdaFunction:
     Type: AWS::Lambda::Function
@@ -166,7 +166,7 @@ Resources:
     Properties:
       ServiceToken: !GetAtt "CleanupACMDNSValidationLambdaFunction.Arn"
       ACMArn: !Ref SslCertificate
-      HostedZoneId: !Ref HostedZone
+      HostedZoneId: !If [HostedZoneToBeCreated, !Ref HostedZone, !Ref PublicHostedZoneId]
 
 # 3. Define the Custom::SES_Domain's Lambda Function via a nested stack.
   CfnSESResources:
@@ -206,7 +206,7 @@ Resources:
     Type: AWS::Route53::RecordSetGroup
     Condition: EmailDomainWithRoute53Validation
     Properties:
-      HostedZoneId: !Ref HostedZone
+      HostedZoneId: !If [HostedZoneToBeCreated, !Ref HostedZone, !Ref PublicHostedZoneId]
       # The Route53RecordSets attribute specifies all DNS records needed:
       RecordSets: !GetAtt SESDomain.Route53RecordSets
 
