@@ -23,9 +23,11 @@ Parameters:
 
   DomainName:
     Type: String
-  CreateHostedZone:
+  PublicDNS:
     Type: String
-    AllowedValues: ["Yes", "No"]
+    AllowedValues: [ 'Disabled', 'UseExisting', 'CreateNew' ]
+  PublicHostedZoneId:
+    Type: String
   CreateEmailDomain:
     Type: String
     AllowedValues: ["Yes", "No"]
@@ -51,14 +53,15 @@ Parameters:
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
-  HostedZoneRequested: !Equals  [!Ref CreateHostedZone, 'Yes']
+  HostedZoneInUse: !Not [!Equals  [!Ref PublicDNS, 'Disabled']]
+  HostedZoneToBeCreated: !Equals  [!Ref PublicDNS, 'CreateNew']
   EmailDomainRequested: !Equals [!Ref CreateEmailDomain, 'Yes']
   EmailDomainWithRoute53Validation: !And
     - !Equals [!Ref CreateEmailDomain, 'Yes']
-    - !Condition HostedZoneRequested
+    - !Condition HostedZoneInUse
   CertificateRequested: !And
     - !Equals [!Ref CreateSslCertificate, 'Yes']
-    - !Condition HostedZoneRequested
+    - !Condition HostedZoneInUse
 
 Resources:
 
@@ -90,7 +93,7 @@ Resources:
 # 1. Create a new hosted zone for subdomain
   HostedZone:
     Type: AWS::Route53::HostedZone
-    Condition: HostedZoneRequested
+    Condition: HostedZoneToBeCreated
     Properties:
       Name: !Sub "${DomainName}."
   # Always create private hosted zone, even if public is not requested
@@ -285,7 +288,7 @@ Resources:
 
   HostedZoneNameParameter:
     Type: AWS::SSM::Parameter
-    Condition: HostedZoneRequested
+    Condition: HostedZoneInUse
     Properties:
       Type: String
       Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/hosted-zone-name'
@@ -293,12 +296,15 @@ Resources:
 
   HostedZoneIdParameter:
     Type: AWS::SSM::Parameter
-    Condition: HostedZoneRequested
+    Condition: HostedZoneInUse
     Properties:
       Type: String
       Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/hosted-zone-id'
       Description: "GitLab Route53 public hosted zone ID"
-      Value: !Ref HostedZone
+      Value: !If
+      - HostedZoneToBeCreated
+      - !Ref HostedZone
+      - !Ref PublicHostedZoneId 
 
   PrivateHostedZoneIdParameter:
     Type: AWS::SSM::Parameter
@@ -344,7 +350,10 @@ Outputs:
     Condition: EmailDomainRequested
     Value: !Ref SmtpCredentialsSecret
   HostedZoneId:
-    Condition: HostedZoneRequested
-    Value: !Ref HostedZone
+    Condition: HostedZoneInUse
+    Value: !If
+      - HostedZoneToBeCreated
+      - !Ref HostedZone
+      - !Ref PublicHostedZoneId    
   PrivateHostedZoneId:
     Value: !Ref PrivateHostedZone

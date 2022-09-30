@@ -14,9 +14,11 @@ Parameters:
 # Infra Parameters
   DomainName:
     Type: String
-  CreateHostedZone:
+  PublicDNS:
     Type: String
-    AllowedValues: [ 'Yes', 'No' ]
+    AllowedValues: [ 'Disabled', 'UseExisting', 'CreateNew' ]
+  PublicHostedZoneId:
+    Type: String
   CreateSslCertificate:
     Type: String
     AllowedValues: [ 'Yes', 'No' ]
@@ -195,8 +197,8 @@ Conditions:
   ConfigureGrafana: !Equals [!Ref ConfigureGrafana, 'Yes']
   OutgoingEmailEnabled: !Not [!Equals [!Ref SMTPDomain, 'Disabled']]
   CreateEmailDomain: !Equals [!Ref SMTPDomain, 'CreateNew']
-  CreateHostedZone: !Equals [!Ref CreateHostedZone, 'Yes']
-  AcmIngressConfigured: !And [!Equals [!Ref CreateHostedZone, 'Yes'], !Equals [!Ref CreateSslCertificate, 'Yes']] 
+  HostedZoneInUse: !Not [!Equals  [!Ref PublicDNS, 'Disabled']]
+  AcmIngressConfigured: !And [!Equals [!Ref CreateSslCertificate, 'Yes'], !Condition HostedZoneInUse] 
   HelmChartNamespaceCreate: !Equals [!Ref HelmChartNamespaceCreate, 'CreateNew']
   CreateCacheCluster: !Equals [!Ref CacheMode, 'External']
   ConfigureRunner: !Equals [!Ref ConfigureRunner, 'Yes']
@@ -268,7 +270,8 @@ Resources:
         VPCCIDR: !Ref VPCCIDR
         PraefectPort: !Ref PraefectPort
         DomainName: !Ref DomainName
-        CreateHostedZone: !Ref CreateHostedZone
+        PublicDNS: !Ref PublicDNS
+        PublicHostedZoneId: !Ref PublicHostedZoneId
         CreateEmailDomain: !If [CreateEmailDomain, 'Yes', 'No'] 
         CreateSslCertificate: !Ref CreateSslCertificate
         FunctionsBucketName: !GetAtt Functions.Outputs.FunctionsBucketName
@@ -643,7 +646,7 @@ Resources:
         HelmChartNamespace: !Ref HelmChartNamespace
         HelmChartName: !Ref HelmChartName
         DomainName: !Ref DomainName
-        HostedZoneId: !If [CreateHostedZone, !GetAtt Infrastructure.Outputs.HostedZoneId, '']
+        HostedZoneId: !If [HostedZoneInUse, !GetAtt Infrastructure.Outputs.HostedZoneId, '']
         PrivateHostedZoneId: !GetAtt Infrastructure.Outputs.PrivateHostedZoneId
         EnvironmentName: !Ref EnvironmentName
         ConfigureGrafana: !Ref ConfigureGrafana

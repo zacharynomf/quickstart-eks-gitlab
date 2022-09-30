@@ -91,7 +91,8 @@ Metadata:
           default: GitLab infrastructure configuration
         Parameters:
           - DomainName
-          - CreateHostedZone
+          - PublicDNS
+          - PublicHostedZoneId
           - CreateSslCertificate
       - Label:
           default: GitLab SMTP configuration
@@ -222,8 +223,10 @@ Metadata:
     # GitLab infrastructure configuration
       DomainName: 
         default: GitLab DNS name
-      CreateHostedZone: 
-        default: Create Route 53 hosted zone
+      PublicDNS:
+        default: Public DNS
+      PublicHostedZoneId:
+        default: Public Hosted Zone Id
       CreateSslCertificate: 
         default: Request AWS Certificate Manager SSL certificate
     # GitLab SMTP configuration
@@ -584,11 +587,17 @@ Parameters:
   DomainName:
     Type: String
     Description: The domain name for the GitLab server.
-  CreateHostedZone:
+  PublicDNS:
     Type: String
-    Description: Choose "Yes" if you want to create Amazon Route 53 to manage DNS for GitLab domain.
-    AllowedValues: [ 'Yes', 'No' ]
-    Default: 'No'
+    AllowedValues: [ 'Disabled', 'UseExisting', 'CreateNew' ]
+    Default: 'Disabled'
+    Description: |
+      Choose "UseExisting" to provide public hosted zone Id where GitLab DNS records should be created. 
+      Choose "CreateNew" to provision a new Route 53 public hosted zone with provided Domain Name and create GitLab DNS records there.
+  PublicHostedZoneId:
+    Type: String
+    Description: Provide Route 53 public hosted zone Id if you selected "UseExisting" above.
+    Default: ''
   CreateSslCertificate:
     Type: String
     Description: Choose "Yes" if you want to request  AWS Certificate Manager SSL certificate for GitLab domain.
@@ -873,7 +882,8 @@ Resources:
         CacheNodeType: !Ref CacheNodeType
         # Infra Parameters
         DomainName: !Ref DomainName
-        CreateHostedZone: !Ref CreateHostedZone
+        PublicDNS: !Ref PublicDNS
+        PublicHostedZoneId: !Ref PublicHostedZoneId
         CreateSslCertificate: !Ref CreateSslCertificate
         # SMTP Parameters
         SMTPDomain: !Ref SMTPDomain
