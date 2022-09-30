@@ -226,7 +226,7 @@ Metadata:
       PublicDNS:
         default: Public DNS
       PublicHostedZoneId:
-        default: Public Hosted Zone Id
+        default: Public Hosted Zone ID
       CreateSslCertificate: 
         default: Request AWS Certificate Manager SSL certificate
     # GitLab SMTP configuration
