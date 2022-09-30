@@ -634,28 +634,28 @@ Parameters:
     Default: gitlab
   HelmChartVersion:
     Type: String
-    AllowedPattern: '^(4\.(1|2|3|4|5|6|7|8|9|10|11|12)\.\d*|5\.(2|3|4|5|6|7|8|9|10)\.\d*)$'
+    AllowedPattern: '^(4\.(1|2|3|4|5|6|7|8|9|10|11|12)\.\d+|5\.(2|3|4|5|6|7|8|9|10)\.\d+)$'
     ConstraintDescription: |
-      Only GitLab versions 4.1-12 and 5.2-10 are currently tested and supported. 
+      Only GitLab versions 4.1-12 and 5.2-10 are currently tested and supported.
       The version format must be 'x.y.z' where all positions are numbers.
     Description: |
-      Version of GitLab application - must correspond to helm chart version above. 
+      Version of GitLab application - must correspond to helm chart version above.
       See https://docs.gitlab.com/charts/installation/version_mappings.html.
     Default: '5.10.0'
   GitLabVersion:
     Type: String
-    AllowedPattern: '^(13\.(1|2|3|4|5|6|7|8|9|10|11|12)\.\d*|14\.(2|3|4|5|6|7|8|9|10)\.\d*)$'
+    AllowedPattern: '^(13\.(1|2|3|4|5|6|7|8|9|10|11|12)\.\d+|14\.(2|3|4|5|6|7|8|9|10)\.\d+)$'
     ConstraintDescription: |
-      Only GitLab versions 13.1-12 and 14.2-10 are currently tested and supported. 
+      Only GitLab versions 13.1-12 and 14.2-10 are currently tested and supported.
       The version format must be 'x.y.z' where all positions are numbers.
     Description: |
-      Version of GitLab application - must correspond to helm chart version above. 
+      Version of GitLab application - must correspond to helm chart version above.
       See https://docs.gitlab.com/charts/installation/version_mappings.html.
     Default: '14.10.0'
     # While the AllowedPatterns for HelmChartVersion and GitLabVersion are verbose, they allows control over the
     # maximum minor version including limiting it to 12 or less or completely eliminating minor versions in a series 
     # For example, GitLab 14 only went to 14.10 and 14.1 did not work as CNH only on AWS due to classic load balancer.
-    # PATTERN LIKE: ^(13\.(1|2|3|4|5|6|7|8|9|10|11|12)\.\d*|14\.(1|2|3|4|5|6|7|8|9|10)\.\d*)$
+    # PATTERN LIKE: ^(13\.(1|2|3|4|5|6|7|8|9|10|11|12)\.\d+|14\.(1|2|3|4|5|6|7|8|9|10)\.\d+)$
     # It is also easy to understand
 
 # Gitaly Storage Parameters
