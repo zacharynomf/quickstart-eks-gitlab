@@ -49,6 +49,8 @@ tests:
 #still be considered x86 because these are PaaS
   smallest-possible-x86:
     parameters:
+      GitLabVersion: 14.10.5
+      HelmChartVersion: 5.10.5
       AvailabilityZones: $[taskcat_genaz_2]
       NumberOfAZs: 2
       EKSPublicAccessEndpoint: Disabled
@@ -76,13 +78,15 @@ tests:
       GitalyPraefectInstanceArchitecture: x86_64
     regions:
     - ap-south-1
+    - us-east-1
 
 #The cluster cannot use ARM yet - must specific x86 instances.
 #Gitaly must be set to 3 instances
 #14.9.0 is the first release that has ARM packages for AL2.
   smallest-possible-arm:
     parameters:
-      GitLabVersion: 14.9.0
+      GitLabVersion: 14.10.5
+      HelmChartVersion: 5.10.5
       AvailabilityZones: $[taskcat_genaz_2]
       NumberOfAZs: 2
       EKSPublicAccessEndpoint: Disabled
@@ -110,3 +114,4 @@ tests:
       GitalyPraefectInstanceArchitecture: arm64
     regions:
     - ca-central-1
+    - us-east-1
