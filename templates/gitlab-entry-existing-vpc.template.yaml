@@ -224,7 +224,7 @@ Metadata:
       PublicDNS:
         default: Public DNS
       PublicHostedZoneId:
-        default: Public Hosted Zone Id
+        default: Public Hosted Zone ID
       CreateSslCertificate:
         default: Request AWS Certificate Manager SSL certificate
     # GitLab SMTP configuration
@@ -564,11 +564,11 @@ Parameters:
     AllowedValues: [ 'Disabled', 'UseExisting', 'CreateNew' ]
     Default: 'Disabled'
     Description: |
-      Choose "UseExisting" to provide public hosted zone Id where GitLab DNS records should be created. 
+      Choose "UseExisting" to provide public hosted zone ID where GitLab DNS records should be created. 
       Choose "CreateNew" to provision a new Route 53 public hosted zone with provided Domain Name and create GitLab DNS records there.
   PublicHostedZoneId:
     Type: String
-    Description: Provide Route 53 public hosted zone Id if you selected "UseExisting" above.
+    Description: Provide Route 53 public hosted zone ID if you selected "UseExisting" above.
     Default: ''
   CreateSslCertificate:
     Type: String
