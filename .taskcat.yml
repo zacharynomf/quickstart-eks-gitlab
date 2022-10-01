@@ -8,7 +8,6 @@ project:
     QSS3BucketRegion: $[taskcat_current_region]
   lambda_source_path: functions/source
   lambda_zip_path: functions/packages
-  s3_bucket: ''
 
 tests:
 
