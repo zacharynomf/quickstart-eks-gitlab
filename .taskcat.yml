@@ -35,8 +35,8 @@ tests:
       DomainName: devops.$[taskcat_random-string].com
       ConfigureContainerInsights: 'Yes'
       ConfigureGrafana: 'Yes'
-      CreateHostedZone: 'Yes'
       CacheMode: External
+      PublicDNS: CreateNew
       SMTPDomain: CreateNew
       ConfigureRunner: 'Yes'
       PrivilegedMode: 'Yes'
@@ -58,7 +58,7 @@ tests:
       SslCertificateIssuerEmail: gitlab@$[taskcat_random-string].com
       ConfigureContainerInsights: 'Yes'
       ConfigureGrafana: 'Yes'
-      CreateHostedZone: 'Yes'
+      PublicDNS: CreateNew
       SMTPDomain: CreateNew
       ConfigureRunner: 'No'
       PriviligedMode: 'No'
@@ -92,7 +92,7 @@ tests:
       SslCertificateIssuerEmail: gitlab@$[taskcat_random-string].com
       ConfigureContainerInsights: 'Yes'
       ConfigureGrafana: 'Yes'
-      CreateHostedZone: 'Yes'
+      PublicDNS: CreateNew
       SMTPDomain: CreateNew
       ConfigureRunner: 'No'
       PriviligedMode: 'No'

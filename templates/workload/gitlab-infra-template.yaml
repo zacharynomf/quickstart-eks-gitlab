@@ -23,9 +23,11 @@ Parameters:
 
   DomainName:
     Type: String
-  CreateHostedZone:
+  PublicDNS:
     Type: String
-    AllowedValues: ["Yes", "No"]
+    AllowedValues: [ 'Disabled', 'UseExisting', 'CreateNew' ]
+  PublicHostedZoneId:
+    Type: String
   CreateEmailDomain:
     Type: String
     AllowedValues: ["Yes", "No"]
@@ -51,14 +53,15 @@ Parameters:
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
-  HostedZoneRequested: !Equals  [!Ref CreateHostedZone, 'Yes']
+  HostedZoneInUse: !Not [!Equals  [!Ref PublicDNS, 'Disabled']]
+  HostedZoneToBeCreated: !Equals  [!Ref PublicDNS, 'CreateNew']
   EmailDomainRequested: !Equals [!Ref CreateEmailDomain, 'Yes']
   EmailDomainWithRoute53Validation: !And
     - !Equals [!Ref CreateEmailDomain, 'Yes']
-    - !Condition HostedZoneRequested
+    - !Condition HostedZoneInUse
   CertificateRequested: !And
     - !Equals [!Ref CreateSslCertificate, 'Yes']
-    - !Condition HostedZoneRequested
+    - !Condition HostedZoneInUse
 
 Resources:
 
@@ -90,7 +93,7 @@ Resources:
 # 1. Create a new hosted zone for subdomain
   HostedZone:
     Type: AWS::Route53::HostedZone
-    Condition: HostedZoneRequested
+    Condition: HostedZoneToBeCreated
     Properties:
       Name: !Sub "${DomainName}."
   # Always create private hosted zone, even if public is not requested
@@ -111,7 +114,7 @@ Resources:
       ValidationMethod: DNS
       DomainValidationOptions:
         - DomainName: !Sub "*.${DomainName}"
-          HostedZoneId: !Ref HostedZone
+          HostedZoneId: !If [HostedZoneToBeCreated, !Ref HostedZone, !Ref PublicHostedZoneId]
 
 
   CleanupACMDNSValidationLambdaRole:
@@ -144,7 +147,7 @@ Resources:
                   - route53:ChangeResourceRecordSets
                 Resource: !Sub
                   - "arn:${AWS::Partition}:route53:::hostedzone/${HostedZoneID}"
-                  - HostedZoneID: !Ref HostedZone
+                  - HostedZoneID: !If [HostedZoneToBeCreated, !Ref HostedZone, !Ref PublicHostedZoneId]
 
   CleanupACMDNSValidationLambdaFunction:
     Type: AWS::Lambda::Function
@@ -163,7 +166,7 @@ Resources:
     Properties:
       ServiceToken: !GetAtt "CleanupACMDNSValidationLambdaFunction.Arn"
       ACMArn: !Ref SslCertificate
-      HostedZoneId: !Ref HostedZone
+      HostedZoneId: !If [HostedZoneToBeCreated, !Ref HostedZone, !Ref PublicHostedZoneId]
 
 # 3. Define the Custom::SES_Domain's Lambda Function via a nested stack.
   CfnSESResources:
@@ -203,7 +206,7 @@ Resources:
     Type: AWS::Route53::RecordSetGroup
     Condition: EmailDomainWithRoute53Validation
     Properties:
-      HostedZoneId: !Ref HostedZone
+      HostedZoneId: !If [HostedZoneToBeCreated, !Ref HostedZone, !Ref PublicHostedZoneId]
       # The Route53RecordSets attribute specifies all DNS records needed:
       RecordSets: !GetAtt SESDomain.Route53RecordSets
 
@@ -285,7 +288,7 @@ Resources:
 
   HostedZoneNameParameter:
     Type: AWS::SSM::Parameter
-    Condition: HostedZoneRequested
+    Condition: HostedZoneInUse
     Properties:
       Type: String
       Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/hosted-zone-name'
@@ -293,12 +296,15 @@ Resources:
 
   HostedZoneIdParameter:
     Type: AWS::SSM::Parameter
-    Condition: HostedZoneRequested
+    Condition: HostedZoneInUse
     Properties:
       Type: String
       Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/hosted-zone-id'
       Description: "GitLab Route53 public hosted zone ID"
-      Value: !Ref HostedZone
+      Value: !If
+      - HostedZoneToBeCreated
+      - !Ref HostedZone
+      - !Ref PublicHostedZoneId 
 
   PrivateHostedZoneIdParameter:
     Type: AWS::SSM::Parameter
@@ -344,7 +350,10 @@ Outputs:
     Condition: EmailDomainRequested
     Value: !Ref SmtpCredentialsSecret
   HostedZoneId:
-    Condition: HostedZoneRequested
-    Value: !Ref HostedZone
+    Condition: HostedZoneInUse
+    Value: !If
+      - HostedZoneToBeCreated
+      - !Ref HostedZone
+      - !Ref PublicHostedZoneId    
   PrivateHostedZoneId:
     Value: !Ref PrivateHostedZone
