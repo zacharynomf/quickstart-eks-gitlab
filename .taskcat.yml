@@ -6,7 +6,6 @@ project:
     RemoteAccessCIDR: 127.0.0.1/32
     QSS3BucketName: $[taskcat_autobucket]
     QSS3BucketRegion: $[taskcat_current_region]
-    QSS3KeyPrefix: quickstart-eks-gitlab/
   lambda_source_path: functions/source
   lambda_zip_path: functions/packages
   s3_bucket: ''
