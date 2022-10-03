@@ -3,7 +3,7 @@ Description: Deploys a GitLab cluster in a new VPC (qs-1rpegtrun)
 Metadata:
   QuickStartDocumentation:
     EntrypointName: Launch into a new VPC
-    Order: Index 1
+    Order: 1
   LintSpellExclude:
     - Kubernetes
     - Helm

@@ -3,7 +3,7 @@ Description: Deploys a GitLab cluster into an existing VPC (qs-1rpegts2a)
 Metadata:
   QuickStartDocumentation:
     EntrypointName: Launch into an existing VPC
-    Order: Index b
+    Order: 2
   LintSpellExclude:
     - Kubernetes
     - Helm
