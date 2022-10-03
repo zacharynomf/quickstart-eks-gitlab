@@ -1,10 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Deploys a GitLab cluster into an existing VPC (qs-1rpegts2a)
 Metadata:
-  cfn-lint:
-    config:
-      ignore_checks:
-        - E0002
   QuickStartDocumentation:
     EntrypointName: Launch into an existing VPC
     Order: Index b
@@ -789,11 +785,6 @@ Resources:
   # https://aws-quickstart.github.io/quickstart-amazon-eks/#_configure_advanced_options
   EKSConfigSet:
     Type: AWS::CloudFormation::Stack
-    Metadata:
-      cfn-lint:
-        config:
-          ignore_checks:
-            - W9901
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-eks/templates/amazon-eks-advanced-configuration.template.yaml
@@ -807,11 +798,6 @@ Resources:
   EKSStack:
     Type: AWS::CloudFormation::Stack
     DependsOn: EKSConfigSet
-    Metadata:
-      cfn-lint:
-        config:
-          ignore_checks:
-            - W9901
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-eks/templates/amazon-eks-entrypoint-existing-vpc.template.yaml
@@ -858,11 +844,6 @@ Resources:
 
   GitLabStack:
     Type: AWS::CloudFormation::Stack
-    Metadata:
-      cfn-lint:
-        config:
-          ignore_checks:
-            - W9901
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-template.yaml

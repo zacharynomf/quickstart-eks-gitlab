@@ -1,10 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Deploys a GitLab cluster in a new VPC (qs-1rpegtrun)
 Metadata:
-  cfn-lint:
-    config:
-      ignore_checks:
-        - E0002
   QuickStartDocumentation:
     EntrypointName: Launch into a new VPC
     Order: Index 1
@@ -819,11 +815,6 @@ Conditions:
 Resources:
   VPCStack:
     Type: AWS::CloudFormation::Stack
-    Metadata:
-      cfn-lint:
-        config:
-          ignore_checks:
-            - W9901
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-eks/submodules/quickstart-aws-vpc/templates/aws-vpc.template.yaml
@@ -846,11 +837,6 @@ Resources:
   # https://aws-quickstart.github.io/quickstart-amazon-eks/#_configure_advanced_options
   GitLab:
     Type: AWS::CloudFormation::Stack
-    Metadata:
-      cfn-lint:
-        config:
-          ignore_checks:
-            - W9901
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/gitlab-entry-existing-vpc.template.yaml
