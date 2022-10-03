@@ -689,7 +689,9 @@ Parameters:
   ObjectStorageKMSKeyID:
     Type: String
     Description: Provide KMS key ID to be used for encryption if KMS encryption is selected.
-    Default: none
+    AllowedPattern: ^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}|$
+    ConstraintDescription: Must be a valid KMS key ID.
+    Default: ''
   BackupSchedule:
     Type: String
     Description: cron expression that is used to run GitLab backup jobs (default is daily at 1am).
