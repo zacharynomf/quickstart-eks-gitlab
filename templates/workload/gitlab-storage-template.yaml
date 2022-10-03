@@ -30,7 +30,7 @@ Parameters:
     Type: String
 
 Conditions:
-  UseKMS: !Equals [!Ref KMSKeyID, 'aws:kms']
+  UseKMS: !Equals [!Ref SSEAlgorithm, aws:kms]
 
 Resources:
 
