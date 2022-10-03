@@ -718,7 +718,7 @@ Parameters:
     Description: |
       GitLab will be configured to use object storage for everything that is capable of using it (artifacts, packages, lfs, etc.).
       Encryption algorithm for GitLab object storage artifacts.
-    AllowedValues: [AES256, aws:kms]
+    AllowedValues: [AES256]
     Default: AES256
   ObjectStorageKMSKeyID:
     Type: String
