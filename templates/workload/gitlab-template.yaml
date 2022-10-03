@@ -92,7 +92,7 @@ Parameters:
 # Object Storage Parameters
   ObjectStorageSSEAlgorithm:
     Type: String
-    AllowedValues: [ 'AES256', 'aws:kms' ]
+    AllowedValues: [AES256, aws:kms]
   ObjectStorageKMSKeyID:
     Type: String
 
