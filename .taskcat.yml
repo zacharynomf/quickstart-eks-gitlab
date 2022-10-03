@@ -6,10 +6,11 @@ project:
     RemoteAccessCIDR: 127.0.0.1/32
     QSS3BucketName: $[taskcat_autobucket]
     QSS3BucketRegion: $[taskcat_current_region]
-    QSS3KeyPrefix: quickstart-eks-gitlab/
+  package_lambda: true
   lambda_source_path: functions/source
   lambda_zip_path: functions/packages
-  s3_bucket: ''
+  build_submodules: true
+  s3_regional_buckets: true
 
 tests:
 
@@ -22,9 +23,9 @@ tests:
       DomainName: devops.$[taskcat_random-string].com
       RDSDBInstanceClass: db.t3.small
     regions:
-    - eu-west-1
-    - us-east-1
-    - us-west-2
+      - eu-west-1
+      - us-east-1
+      - us-west-2
 
   deploy-in-2-az-with-optional-features:
     parameters:
@@ -42,7 +43,7 @@ tests:
       PrivilegedMode: 'Yes'
       RDSDBInstanceClass: db.t3.small
     regions:
-    - eu-central-1
+      - eu-central-1
 
 #Gitaly must be set to 3 instances
 #technically running graviton RDS and Elasticache could
@@ -77,8 +78,12 @@ tests:
       KeyPairName: eks-quickstart
       GitalyPraefectInstanceArchitecture: x86_64
     regions:
-    - ap-south-1
-    - us-east-1
+      - ap-south-1
+      - ca-central-1
+      - eu-central-1
+      - eu-west-1
+      - us-east-1
+      - us-west-2
 
 #The cluster cannot use ARM yet - must specific x86 instances.
 #Gitaly must be set to 3 instances
@@ -113,5 +118,9 @@ tests:
       KeyPairName: eks-quickstart
       GitalyPraefectInstanceArchitecture: arm64
     regions:
-    - ca-central-1
-    - us-east-1
+      - ap-south-1
+      - ca-central-1
+      - eu-central-1
+      - eu-west-1
+      - us-east-1
+      - us-west-2
