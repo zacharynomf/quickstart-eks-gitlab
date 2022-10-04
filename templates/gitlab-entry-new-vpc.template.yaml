@@ -286,90 +286,108 @@ Parameters:
 # Basic Configuration
   EnvironmentName:
     Type: String
+    Description: >-
+      Name of the GitLab environment (leave empty to use dynamically generated
+      name). Environment name is used to generate unique resource names.
+      Multiple GitLab environments with different names can be deployed in the
+      same region.
     Default: ''
-    Description: |
-      Name of the GitLab environment (leave empty to use dynamically generated name). 
-      Environment name is used to generate unique resource names.
-      Multiple GitLab environments with different names can be deployed in the same region.
   AvailabilityZones:
-    Description: List of Availability Zones to use for the subnets in the VPC. Pick only as many as match what was selected for Number of Availability Zones (NumberofAZs).
     Type: List<AWS::EC2::AvailabilityZone::Name>
+    Description: >-
+      List of Availability Zones to use for the subnets in the VPC. Pick only
+      as many as match what was selected for Number of Availability Zones
+      (NumberofAZs).
   KeyPairName:
-    Description: Name of an existing public/private key pair, which allows you
-      to securely connect to your instance after it launches. If the selection list is blank, you must create a keypair in the target region, refresh this form and select it.
     Type: AWS::EC2::KeyPair::KeyName
+    Description: >-
+      Name of an existing public/private key pair, which allows you to securely
+      connect to your instance after it launches. If the selection list is
+      blank, you must create a key pair in the target region, refresh this form
+      and select it.
     AllowedPattern: .+
     ConstraintDescription: SSH key pair must be provided.
 
 # VPC parameters
   NumberOfAZs:
+    Type: String
+    Description: >-
+      Number of Availability Zones to use in the VPC. This must match your
+      selections in the list of Availability Zones parameter.
     AllowedValues: [2, 3]
     Default: 2
-    Description: Number of Availability Zones to use in the VPC. This must match your
-      selections in the list of Availability Zones parameter.
-    Type: String
   VPCCIDR:
+    Type: String
+    Description: CIDR block for the VPC.
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: >-
       CIDR block parameter must be in the form x.x.x.x/16-28.
     Default: 10.0.0.0/16
-    Description: CIDR block for the VPC.
-    Type: String    
   PrivateSubnet1CIDR:
+    Type: String
+    Description: >-
+      CIDR block for private subnet 1 located in Availability Zone 1.
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: >-
       CIDR block parameter must be in the form x.x.x.x/16-28.
     Default: 10.0.0.0/19
-    Description: CIDR block for private subnet 1 located in Availability Zone 1.
-    Type: String
   PrivateSubnet2CIDR:
+    Type: String
+    Description: >-
+      CIDR block for private subnet 2 located in Availability Zone 2.
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: >-
       CIDR block parameter must be in the form x.x.x.x/16-28.
     Default: 10.0.32.0/19
-    Description: CIDR block for private subnet 2 located in Availability Zone 2.
-    Type: String
   PrivateSubnet3CIDR:
+    Type: String
+    Description: >-
+      CIDR block for private subnet 3, located in Availability Zone 3.
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: >-
       CIDR block parameter must be in the form x.x.x.x/16-28.
     Default: 10.0.64.0/19
-    Description: CIDR block for private subnet 3, located in Availability Zone 3.
-    Type: String
   PublicSubnet1CIDR:
+    Type: String
+    Description: >-
+      CIDR block for the public (DMZ) subnet 1 located in Availability Zone 1.
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: >-
       CIDR block parameter must be in the form x.x.x.x/16-28.
     Default: 10.0.128.0/20
-    Description: CIDR block for the public (DMZ) subnet 1 located in Availability
-      Zone 1.
-    Type: String
   PublicSubnet2CIDR:
+    Type: String
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    ConstraintDescription: >-
+      CIDR block parameter must be in the form x.x.x.x/16-28.
     Default: 10.0.144.0/20
-    Description: CIDR block for the public (DMZ) subnet 2 located in Availability
-      Zone 2.
-    Type: String
+    Description: >-
+      CIDR block for the public (DMZ) subnet 2 located in Availability Zone 2.
   PublicSubnet3CIDR:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16–28
-    Default: 10.0.160.0/20
-    Description: CIDR block for the public (DMZ) subnet 3, located in Availability
-      Zone 3.
     Type: String
+    Description: >-
+      CIDR block for the public (DMZ) subnet 3, located in Availability Zone 3.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: >-
+      CIDR block parameter must be in the form x.x.x.x/16-28.
+    Default: 10.0.160.0/20
 
 # Bastion parameters
   ProvisionBastionHost:
     Type: String
+    Description: >-
+      Choose 'Enabled' to provision a bastion host to access EKS cluster.
+      Bastion host includes kubectl and helm tools already configured for EKS
+      cluster access. Bastion host is recommended for EKS cluster management in
+      production environments as a more secure option than a public EKS API
+      endpoint. Select a larger instance size to do performance testing from
+      the bastion host using GitLab Performance Tool (gpt).
     AllowedValues: [Enabled, Disabled]
     Default: Disabled
-    Description: |
-      Choose 'Enabled' to provision a bastion host to access EKS cluster.
-      Bastion host includes kubectl and helm tools already configured for EKS cluster access.
-      Bastion host is recommended for EKS cluster management in production environments as a more secure option than a public EKS API endpoint.
-      Select a larger instance size to do performance testing from the bastion host using GitLab Performance Tool (gpt).
   BastionInstanceType:
+    Type: String
+    Description: >-
+      Instance type for the bastion host.
     AllowedValues:
       - t2.nano
       - t2.micro
@@ -390,79 +408,91 @@ Parameters:
       - m4.2xlarge
       - m4.4xlarge
     Default: t3.micro
-    Type: String
-    Description: Instance type for the bastion host.
   RemoteAccessCIDR:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
-    Description: CIDR IP range that is permitted to access the bastions. We recommend
-      that you set this value to a trusted IP range. If the BastionHost is enabled, then this parameter is required
     Type: String
+    Description: >-
+      CIDR IP range that is permitted to access the bastions. We recommend
+      that you set this value to a trusted IP range. If the BastionHost is
+      enabled, then this parameter is required.
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x.
 # Cluster parameters
   EKSPublicAccessEndpoint:
     Type: String
+    Description: >-
+      Configure access to the Kubernetes API server endpoint from outside of
+      your VPC. Public API endpoint is not recommended for production
+      environments. Use bastion host for cluster management instead.
     AllowedValues: [Enabled, Disabled]
     Default: Disabled
-    Description: |
-      Configure access to the Kubernetes API server endpoint from outside of your VPC.
-      Public API endpoint is not recommended for production environments. Use bastion host for cluster management instead.
   AdditionalEKSAdminUserArn:
-    Default: ''
-    Description: (Optional) IAM user Amazon Resource Name (ARN) to be granted administrative access to the EKS cluster.
     Type: String
+    Description: >-
+      (Optional) IAM user Amazon Resource Name (ARN) to be granted
+      administrative access to the EKS cluster.
+    Default: ''
   AdditionalEKSAdminRoleArn:
-    Default: ''
-    Description: (Optional) IAM role Amazon Resource Name (ARN) to be granted administrative access to the EKS cluster.
     Type: String
+    Description: >-
+      (Optional) IAM role Amazon Resource Name (ARN) to be granted
+      administrative access to the EKS cluster.
+    Default: ''
   NodeInstanceType:
-    Default: t3.large
+    Type: String
+    Description: EC2 instance type of EKS nodes.
     AllowedValues: [t3a.nano, t3.nano, t2.nano, t3a.micro, t3.micro, t2.micro, t3a.small, t1.micro, t3.small, t2.small, a1.medium, c6g.medium, t3a.medium, c6gd.medium, m6g.medium, t3.medium, m1.small, m6gd.medium, t2.medium, r6g.medium, a1.large, r6gd.medium, m3.medium, c6g.large, t3a.large, c6gd.large, m6g.large, c5a.large, t3.large, c5.large, c5ad.large, m5a.large, m1.medium, m6gd.large, t2.large, c5d.large, m5.large, m4.large, c4.large, r6g.large, a1.xlarge, m5ad.large, c3.large, c5n.large, r5a.large, m5d.large, r6gd.large, m5n.large, r5.large, c1.medium, r5ad.large, r4.large, m3.large, c6g.xlarge, m5dn.large, r5d.large, r5n.large, t3a.xlarge, c6gd.xlarge, m6g.xlarge, c5a.xlarge, i3.large, r3.large, t3.xlarge, r5dn.large, c5.xlarge, c5ad.xlarge, m5a.xlarge, m1.large, m6gd.xlarge, t2.xlarge, z1d.large, m5.xlarge, c5d.xlarge, c4.xlarge, m4.xlarge, r6g.xlarge, a1.2xlarge, m5ad.xlarge, c3.xlarge, c5n.xlarge, m5d.xlarge, r5a.xlarge, i3en.large, r6gd.xlarge, m5n.xlarge, m2.xlarge, r5.xlarge, r5ad.xlarge, m3.xlarge, r4.xlarge, m5dn.xlarge, c6g.2xlarge, r5d.xlarge, r5n.xlarge, t3a.2xlarge, c6gd.2xlarge, c5a.2xlarge, m6g.2xlarge, i3.xlarge, t3.2xlarge, r3.xlarge, r5dn.xlarge, c5.2xlarge, m5a.2xlarge, c5ad.2xlarge, m1.xlarge, m6gd.2xlarge, inf1.xlarge, t2.2xlarge, z1d.xlarge, c5d.2xlarge, m5.2xlarge, c4.2xlarge, m4.2xlarge, r6g.2xlarge, a1.metal, a1.4xlarge, m5ad.2xlarge, c3.2xlarge, c5n.2xlarge, r5a.2xlarge, i3en.xlarge, m5d.2xlarge, r6gd.2xlarge, h1.2xlarge, m5n.2xlarge, m2.2xlarge, r5.2xlarge, c1.xlarge, r5ad.2xlarge, g4dn.xlarge, r4.2xlarge, m3.2xlarge, m5dn.2xlarge, c6g.4xlarge, r5d.2xlarge, inf1.2xlarge, r5n.2xlarge, c6gd.4xlarge, c5a.4xlarge, m6g.4xlarge, i3.2xlarge, g2.2xlarge, r3.2xlarge, r5dn.2xlarge, c5.4xlarge, c5ad.4xlarge, m5a.4xlarge, d2.xlarge, m6gd.4xlarge, z1d.2xlarge, g3s.xlarge, g4dn.2xlarge, m5.4xlarge, c5d.4xlarge, c4.4xlarge, m4.4xlarge, r6g.4xlarge, m5ad.4xlarge, x1e.xlarge, c3.4xlarge, i2.xlarge, c5n.4xlarge, p2.xlarge, r5a.4xlarge, i3en.2xlarge, m5d.4xlarge, r6gd.4xlarge, h1.4xlarge, m5n.4xlarge, m2.4xlarge, r5.4xlarge, r5ad.4xlarge, r4.4xlarge, c6g.8xlarge, m5dn.4xlarge, z1d.3xlarge, g3.4xlarge, r5d.4xlarge, r5n.4xlarge, g4dn.4xlarge, c6gd.8xlarge, m6g.8xlarge, c5a.8xlarge, i3.4xlarge, r3.4xlarge, r5dn.4xlarge, i3en.3xlarge, m5a.8xlarge, c5ad.8xlarge, d2.2xlarge, m6gd.8xlarge, c5.9xlarge, m5.8xlarge, c4.8xlarge, r6g.8xlarge, c6g.12xlarge, m5ad.8xlarge, f1.2xlarge, x1e.2xlarge, c3.8xlarge, i2.2xlarge, c5d.9xlarge, m5d.8xlarge, r5a.8xlarge, r6gd.8xlarge, c6gd.12xlarge, c5a.12xlarge, m6g.12xlarge, h1.8xlarge, m5n.8xlarge, inf1.6xlarge, c5n.9xlarge, i3en.24xlarge, i3en.metal, p3.8xlarge, f1.16xlarge, x1.32xlarge, x1e.16xlarge, p2.16xlarge, m4.10xlarge, cc2.8xlarge, r5.8xlarge, c5.12xlarge, c5ad.12xlarge, m5a.12xlarge, r5ad.8xlarge, r4.8xlarge, m6gd.12xlarge, m5dn.8xlarge, c6g.16xlarge, g4dn.8xlarge, c6g.metal, z1d.6xlarge, g3.8xlarge, m5.12xlarge, c5d.12xlarge, r5d.8xlarge, r5n.8xlarge, r6g.12xlarge, c6gd.metal, c6gd.16xlarge, m6g.metal, c5a.16xlarge, m6g.16xlarge, m5ad.12xlarge, i3.8xlarge, g2.8xlarge, r3.8xlarge, r5dn.8xlarge, r5a.12xlarge, m5d.12xlarge, i3en.6xlarge, c5ad.16xlarge, m5a.16xlarge, d2.4xlarge, r6gd.12xlarge, m5n.12xlarge, m6gd.metal, m6gd.16xlarge, p3.16xlarge, x1e.32xlarge, r5.12xlarge, p3.2xlarge, c5.18xlarge, m5.16xlarge, r5ad.12xlarge, m4.16xlarge, r6g.16xlarge, r6g.metal, m5dn.12xlarge, m5ad.16xlarge, f1.4xlarge, x1e.4xlarge, i2.4xlarge, c5d.18xlarge, r5d.12xlarge, r5n.12xlarge, m5d.16xlarge, r5a.16xlarge, r6gd.metal, r6gd.16xlarge, c5a.24xlarge, h1.16xlarge, m5n.16xlarge, c5n.18xlarge, c5n.metal, g4dn.12xlarge, p3dn.24xlarge, r5dn.12xlarge, r5.16xlarge, c5.metal, c5.24xlarge, c5ad.24xlarge, m5a.24xlarge, r5ad.16xlarge, r4.16xlarge, m5dn.16xlarge, g4dn.16xlarge, z1d.metal, z1d.12xlarge, g3.16xlarge, m5.24xlarge, m5.metal, c5d.24xlarge, r5d.16xlarge, c5d.metal, r5n.16xlarge, m5ad.24xlarge, i3.metal, i3.16xlarge, r5dn.16xlarge, m5d.metal, i3en.12xlarge, m5d.24xlarge, r5a.24xlarge, d2.8xlarge, m5n.24xlarge, r5.24xlarge, r5.metal, r5ad.24xlarge, m5dn.24xlarge, x1.16xlarge, x1e.8xlarge, i2.8xlarge, r5d.24xlarge, r5d.metal, r5n.24xlarge, p2.8xlarge, inf1.24xlarge, g4dn.metal, r5dn.24xlarge, t4g.nano, t4g.medium, t4g.large, t4g.micro, t4g.small, t4g.2xlarge, t4g.xlarge]
     ConstraintDescription: Must be a valid EC2 instance type.
-    Description: EC2 instance type of EKS nodes.
-    Type: String
+    Default: t3.large
   NodeVolumeSize:
     Type: Number
-    Default: 100
+    Description: >-
+      Capacity of EBS volume used by EKS nodes, in GB. Note that in default
+      configuration no GitLab data is stored on EBS volumes.
     MinValue: 20
-    Description: |
-      Capacity of EBS volume used by EKS nodes, in GB.
-      Note that in default configuration no GitLab data is stored on EBS volumes.
+    Default: 100
   NumberOfNodes:
+    Type: Number
+    Description: >-
+      Number of Amazon EKS node instances. Should have a minimum value matching
+      the number of Availability Zones configured for GitLab deployment.
     Default: 3
-    Description: |
-      Number of Amazon EKS node instances.
-      Should have a minimum value matching the number of Availability Zones configured for GitLab deployment.
-    Type: Number
   MaxNumberOfNodes:
-    Default: 6
-    Description: Maximum number of Amazon EKS node instances. The default is three.
     Type: Number
+    Description: >-
+      Maximum number of Amazon EKS node instances. The default is three.
+    Default: 6
   ConfigureContainerInsights:
     Type: String
-    AllowedValues: [ 'Yes', 'No' ]
-    Default: 'Yes'
-    Description: |
+    Description: >-
       Choose 'No' to disable integration with CloudWatch Container Insights.
-      Container insights ensure pod performance metrics and logs are collected to CloudWatch - including Gitlab application logs.
+      Container insights ensure pod performance metrics and logs are collected
+      to CloudWatch - including Gitlab application logs.
+    AllowedValues: ['Yes', 'No']
+    Default: 'Yes'
   ConfigureGrafana:
     Type: String
-    AllowedValues: [ 'Yes', 'No' ]
+    Description: >-
+      Choose 'Yes' to provision Grafana to EKS and enable GitLab integration
+      with it.
+    AllowedValues: ['Yes', 'No']
     Default: 'No'
-    Description: Choose 'Yes' to provision Grafana to EKS and enable GitLab integration with it.
 
 # Database Parameters
   UsingAurora:
     Type: String
-    AllowedValues: [ 'Yes', 'No' ]
+    Description: >-
+      Amazon RDS is the default database engine. Set to 'Yes' if Amazon Aurora
+      need to be used.
+    AllowedValues: ['Yes', 'No']
     Default: 'No'
-    Description: Amazon RDS is the default database engine. Set to 'Yes' if Amazon Aurora need to be used.
   AuroraDBEngineVersion:
-    Description: |
-      Select database engine version.
-      The version must be supported by your target version of GitLab: https://docs.gitlab.com/omnibus/settings/database.html#gitlab-140-and-later.
-      And by the Aurora RDS Instance type you choose: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html.
     Type: String
-    Default: 12.4
+    Description: >-
+      Select database engine version. The version must be supported by your
+      target version of GitLab:
+      https://docs.gitlab.com/omnibus/settings/database.html#gitlab-140-and-later
+      and by the Aurora RDS instance type you choose:
+      https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html.
     AllowedValues:
       - 9.6.16
       - 9.6.17
@@ -477,25 +507,22 @@ Parameters:
       - 11.8
       - 11.9
       - 12.4
+    Default: 12.4
   AuroraDBInstanceClass:
-    Description: |
-      The name of the compute and memory capacity class of the database instance.
-      This Quickstart deploys Multi-AZ Postgres replicas in different Availability Zones.
-      The instance class is applied to both primary and standby instances.
-      The instance class you choose must support the needed PostgreSQL version: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html.
-    Default: db.r5.large
+    Type: String
+    Description: >-
+      The name of the compute and memory capacity class of the database
+      instance. This Quickstart deploys Multi-AZ Postgres replicas in different
+      Availability Zones. The instance class is applied to both primary and
+      standby instances. The instance class you choose must support the needed
+      PostgreSQL version:
+      https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html.
     AllowedPattern: ^db\.[a-z0-9]+\.[a-z0-9]+$
-    Type: String
+    Default: db.r5.large
   RDSDBEngineVersion:
-    Description: Select database engine version.
     Type: String
-    Default: 13.3
+    Description: Select database engine version.
     AllowedValues:
-      - 9.6.20
-      - 9.6.21
-      - 9.6.22
-      - 10.15
-      - 10.16
       - 10.17
       - 11.10
       - 11.11
@@ -506,69 +533,77 @@ Parameters:
       - 13.1
       - 13.2
       - 13.3
+    Default: 13.3
   RDSDBInstanceClass:
-    Description: |
-      The name of the compute and memory capacity class of the database instance.
-      This Quickstart deploys Multi-AZ Postgres replicas in different Availability Zones.
-      The instance class is applied to both primary and standby instances.
-      The instance class you choose must support the needed PostgreSQL version: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html.
-    Default: db.r6g.large
+    Type: String
+    Description: >-
+      The name of the compute and memory capacity class of the database
+      instance. This Quickstart deploys Multi-AZ Postgres replicas in different
+      Availability Zones. The instance class is applied to both primary and
+      standby instances. The instance class you choose must support the needed
+      PostgreSQL version:
+      https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html.
     AllowedPattern: ^db\.[a-z0-9]+\.[a-z0-9]+$
-    Type: String
+    Default: db.r6g.large
   DBName:
-    AllowedPattern: ^[a-zA-Z0-9]*$
+    Type: String
     Description: Name of the GitLab Postgres database.
-    MaxLength: 64
     MinLength: 0
-    Default: gitlab
-    Type: String
-  DBPraefectName:
+    MaxLength: 64
     AllowedPattern: ^[a-zA-Z0-9]*$
-    Description: Name of the Praefect Postgres database.
-    MaxLength: 64
-    MinLength: 0
-    Default: praefect
-    Type: String
-  DBUserName:
-    AllowedPattern: ^[a-zA-Z][a-zA-Z0-9]*$
-    ConstraintDescription: Must begin with a letter and contain only alphanumeric characters.
     Default: gitlab
-    Description: The database admin account username.
-    MaxLength: 16
-    MinLength: 1
+  DBPraefectName:
     Type: String
+    Description: Name of the Praefect Postgres database.
+    MinLength: 0
+    MaxLength: 64
+    AllowedPattern: ^[a-zA-Z0-9]*$
+    Default: praefect
+  DBUserName:
+    Type: String
+    Description: The database admin account username.
+    MinLength: 1
+    MaxLength: 16
+    AllowedPattern: ^[a-zA-Z][a-zA-Z0-9]*$
+    ConstraintDescription: >-
+      Must begin with a letter and contain only alphanumeric characters.
+    Default: gitlab
   DBPort:
-    Default: 5432
-    Description: The port the instance will listen for connections on.
     Type: Number
-    ConstraintDescription: Must be in the range [1115-65535].
+    Description: The port the instance will listen for connections on.
     MinValue: 1150
     MaxValue: 65535
+    ConstraintDescription: Must be in the range [1115-65535].
+    Default: 5432
 
 # Cache Parameters
   CacheMode:
     Type: String
+    Description: >-
+      'BuiltIn' will install Redis in the EKS cluster while 'External'
+      provisions Amazon ElastiCache Redis. GitLab Redis in Kubernetes clusters
+      is not GitLab reference architecture compliant and only for training or
+      testing setups.
     AllowedValues: [BuiltIn, External]
     Default: External
-    Description: |
-      'BuiltIn' will install Redis in the EKS cluster while 'External' provisions Amazon ElastiCache Redis.
-      GitLab Redis in Kubernetes clusters is not GitLab reference architecture compliant and only for training or testing setups.
   CacheNodes:
     Type: Number
-    Default: 2
+    Description: >-
+      Provide the number of cache replicas (applicable for both BuiltIn and
+      External cache modes). For BuiltIn cache mode this is the number of
+      replica Redis pods (in addition to primary pod). For External mode this
+      is the total number of nodes used for Redis. This should match the number
+      of Availability Zones you are configuring for.
     MinValue: 2
-    Description: |
-      Provide the number of cache replicas (applicable for both BuiltIn and External cache modes).
-      For BuiltIn cache mode this is the number of replica Redis pods (in addition to primary pod).
-      For External mode this is the total number of nodes used for Redis.
-      This should match the number of Availability Zones you are configuring for.
+    Default: 2
   CacheNodeType:
     Type: String
-    Default: cache.t3.medium
-    Description: |
+    Description: >-
       If you chose to use External cache above, provide cache node type.
-      List of acceptable instance types: https://aws.amazon.com/elasticache/pricing/.
+      List of acceptable instance types:
+      https://aws.amazon.com/elasticache/pricing/.
     AllowedPattern: ^cache\.[a-z0-9]+\.[a-z0-9]+$
+    Default: cache.t3.medium
 
 # Infra Parameters
   DomainName:
@@ -578,46 +613,63 @@ Parameters:
     Type: String
     AllowedValues: [Disabled, UseExisting, CreateNew]
     Default: Disabled
-    Description: |
-      Choose 'UseExisting' to provide public hosted zone ID where GitLab DNS records should be created.
-      Choose 'CreateNew' to provision a new Route 53 public hosted zone with provided domain name and create GitLab DNS records there.
+    Description: >-
+      Choose 'UseExisting' to provide public hosted zone ID where GitLab DNS
+      records should be created. Choose 'CreateNew' to provision a new Route 53
+      public hosted zone with provided domain name and create GitLab DNS
+      records there.
   PublicHostedZoneId:
     Type: String
-    Description: Provide Route 53 public hosted zone ID if you selected 'UseExisting' above.
+    Description: >-
+      Provide Route 53 public hosted zone ID if you selected 'UseExisting'
+      above.
     Default: ''
   CreateSslCertificate:
     Type: String
-    Description: Choose 'Yes' if you want to request  AWS Certificate Manager SSL certificate for GitLab domain.
-    AllowedValues: [ 'Yes', 'No' ]
+    Description: >-
+      Choose 'Yes' if you want to request  AWS Certificate Manager SSL
+      certificate for GitLab domain.
+    AllowedValues: ['Yes', 'No']
     Default: 'No'
 
 # SMTP Parameters
   SMTPDomain:
     Type: String
+    Description: >-
+      Choose 'CreateNew' if you want to create Amazon Simple Email Service
+      domain to send out GitLab notification email messages.
     AllowedValues: [Disabled, CreateNew, UseExisting]
-    Description: Choose 'CreateNew' if you want to create Amazon Simple Email Service domain to send out GitLab notification email messages.
     Default: Disabled
   SMTPHostName:
     Type: String
-    Description: If you chose to use existing SMTP domain above, provide SMTP server host name.
+    Description: >-
+      If you chose to use existing SMTP domain above, provide SMTP server host
+      name.
     Default: ''
   SMTPPort:
     Type: Number
-    Description: If you chose to use existing SMTP domain above, provide SMTP server port.
+    Description: >-
+      If you chose to use existing SMTP domain above, provide SMTP server port.
     Default: 587
   SMTPUsername:
     Type: String
-    Description: If you chose to use existing SMTP domain above, provide SMTP server username.
+    Description: >-
+      If you chose to use existing SMTP domain above, provide SMTP server
+      username.
     Default: ''
   SMTPPassword:
     Type: String
-    Description: If you chose to use existing SMTP domain above, provide SMTP server password.
+    Description: >-
+      If you chose to use existing SMTP domain above, provide SMTP server
+      password.
     Default: ''
 
 # GitLab Helm chart Parameters
   HelmChartNamespaceCreate:
     Type: String
-    Description: Create new or use existing Kubernetes namespace for GitLab chart deployment.
+    Description: >-
+      Create new or use existing Kubernetes namespace for GitLab chart
+      deployment.
     AllowedValues: [CreateNew, UseExisting]
     Default: CreateNew
   HelmChartNamespace:
@@ -630,176 +682,203 @@ Parameters:
     Default: gitlab
   HelmChartVersion:
     Type: String
+    Description: >-
+      Version of GitLab application - must correspond to helm chart version
+      above. See
+      https://docs.gitlab.com/charts/installation/version_mappings.html.
     AllowedPattern: ^(4\.(1|2|3|4|5|6|7|8|9|10|11|12)\.\d+|5\.(2|3|4|5|6|7|8|9|10)\.\d+)$
-    ConstraintDescription: |
-      Only GitLab versions 4.1-12 and 5.2-10 are currently tested and supported.
-      The version format must be 'x.y.z' where all positions are numbers.
-    Description: |
-      Version of GitLab application - must correspond to helm chart version above.
-      See https://docs.gitlab.com/charts/installation/version_mappings.html.
+    ConstraintDescription: >-
+      Only GitLab versions 4.1-12 and 5.2-10 are currently tested and
+      supported. The version format must be 'x.y.z' where all positions are
+      numbers.
     Default: 5.10.0
   GitLabVersion:
     Type: String
+    Description: >-
+      Version of GitLab application - must correspond to helm chart version
+      above. See
+      https://docs.gitlab.com/charts/installation/version_mappings.html.
     AllowedPattern: ^(13\.(1|2|3|4|5|6|7|8|9|10|11|12)\.\d+|14\.(2|3|4|5|6|7|8|9|10)\.\d+)$
-    ConstraintDescription: |
-      Only GitLab versions 13.1-12 and 14.2-10 are currently tested and supported.
-      The version format must be 'x.y.z' where all positions are numbers.
-    Description: |
-      Version of GitLab application - must correspond to helm chart version above.
-      See https://docs.gitlab.com/charts/installation/version_mappings.html.
+    ConstraintDescription: >-
+      Only GitLab versions 13.1-12 and 14.2-10 are currently tested and
+      supported. The version format must be 'x.y.z' where all positions are
+      numbers.
     Default: 14.10.0
-    # While the AllowedPatterns for HelmChartVersion and GitLabVersion are verbose, they allows control over the
-    # maximum minor version including limiting it to 12 or less or completely eliminating minor versions in a series
-    # For example, GitLab 14 only went to 14.10 and 14.1 did not work as CNH only on AWS due to classic load balancer.
+    # While the AllowedPatterns for HelmChartVersion and GitLabVersion are
+    # verbose, they allows control over the maximum minor version including
+    # limiting it to 12 or less or completely eliminating minor versions in a
+    # series. For example, GitLab 14 only went to 14.10 and 14.1 did not work
+    # as CNH only on AWS due to classic load balancer.
     # PATTERN LIKE: ^(13\.(1|2|3|4|5|6|7|8|9|10|11|12)\.\d+|14\.(1|2|3|4|5|6|7|8|9|10)\.\d+)$
-    # It is also easy to understand
+    # It is also easy to understand.
 
 # Gitaly Storage Parameters
   GitalyPraefectInstanceArchitecture:
     Type: String
-    Description: |
-      Pick x86_64 or arm64. Architecture of both GitalyInstanceType and PraefectInstanceType must match this arch value.
-      NOTE: ARM for Amazon Linux is not supported before GitLab 14.9.0 and this stack will fail if that combination is specified.
+    Description: >-
+      Pick x86_64 or arm64. Architecture of both GitalyInstanceType and
+      PraefectInstanceType must match this arch value. NOTE: ARM for
+      Amazon Linux is not supported before GitLab 14.9.0 and this stack will
+      fail if that combination is specified.
+    AllowedValues: [x86_64, arm64]
     Default: x86_64
-    AllowedValues:
-     - x86_64
-     - arm64
   NumberOfGitalyReplicas:
     Type: Number
+    Description: >-
+      Number of Gitaly replicas to deploy in GitLab cluster. The replicas will
+      be distributed across Availability Zones selected.
+    AllowedValues: [3]
     Default: 3
-    AllowedValues: [ 3 ]
-    Description: |
-      Number of Gitaly replicas to deploy in GitLab cluster.
-      The replicas will be distributed across Availability Zones selected.
   GitalyInstanceType:
     Type: String
+    Description: >-
+      Gitaly EC2 instance type. Select an instance from this list:
+      https://aws.amazon.com/ec2/instance-types/.
     Default: t3.medium
-    Description: |
-      Gitaly EC2 instance type.
-      Select an instance from this list: https://aws.amazon.com/ec2/instance-types/.
   GitalyVolumeSize:
     Type: Number
-    Default: 50
+    Description: >-
+      Capacity of EBS volume used by Gitaly replicas (Git repository storage),
+      in GB. Note that this storage is used for Git repositories only. All
+      other GitLab storage types are stored in S3 buckets.
     MinValue: 50
-    Description: |
-      Capacity of EBS volume used by Gitaly replicas (Git repository storage), in GB.
-      Note that this storage is used for Git repositories only.
-      All other GitLab storage types are stored in S3 buckets.
+    Default: 50
   NumberOfPraefectReplicas:
     Type: Number
+    Description: >-
+      Praefect coordinates Gitaly cluster replication. Number of Praefect
+      replicas to deploy in GitLab cluster. The replicas will be distributed
+      across Availability Zones selected.
+    AllowedValues: [3]
     Default: 3
-    AllowedValues: [ 3 ]
-    Description: |
-      Praefect coordinates Gitaly cluster replication. Number of Praefect replicas to deploy in GitLab cluster.
-      The replicas will be distributed across Availability Zones selected.
   PraefectInstanceType:
     Type: String
+    Description: >-
+      Praefect EC2 instance type. Select an instance from this list:
+      https://aws.amazon.com/ec2/instance-types/.
     Default: t3.medium
-    Description: |
-      Praefect EC2 instance type.
-      Select an instance from this list: https://aws.amazon.com/ec2/instance-types/.
 
 # Object Storage Parameters
   ObjectStorageSSEAlgorithm:
     Type: String
-    Description: |
-      GitLab will be configured to use object storage for everything that is capable of using it (artifacts, packages, lfs, etc.).
-      Encryption algorithm for GitLab object storage artifacts.
+    Description: >-
+      GitLab will be configured to use object storage for everything that is
+      capable of using it (artifacts, packages, lfs, etc.). Encryption
+      algorithm for GitLab object storage artifacts.
     AllowedValues: [AES256]
     Default: AES256
   ObjectStorageKMSKeyID:
     Type: String
-    Description: Provide KMS key ID to be used for encryption if KMS encryption is selected.
+    Description: >-
+      Provide KMS key ID to be used for encryption if KMS encryption is
+      selected.
     AllowedPattern: ^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}|$
     ConstraintDescription: Must be a valid KMS key ID.
     Default: ''
   BackupSchedule:
     Type: String
-    Description: cron expression that is used to run GitLab backup jobs (default is daily at 1am).
+    Description: >-
+      Cron expression that is used to run GitLab backup jobs (default is daily
+      at 1am).
     Default: 0 1 * * *
   BackupVolumeSize:
     Type: Number
-    Default: 10
-    MinValue: 10
     Description: Capacity of EBS volume used for GitLab backups, in GB.
+    MinValue: 10
+    Default: 10
 
 # GitLab Runner Parameters
   ConfigureRunner:
     Type: String
-    AllowedValues: [ 'Yes', 'No' ]
+    Description: >-
+      Choose 'Yes' to enable deployment of test GitLab Runner inside the
+      Amazon EKS cluster.
+    AllowedValues: ['Yes', 'No']
     Default: 'No'
-    Description: Choose 'Yes' to enable deployment of test GitLab Runner inside EKS cluster.
   RunnerChartName:
     Type: String
-    Default: runner
     Description: Name of Helm GitLab Runner deployment.
+    Default: runner
   RunnerChartVersion:
     Type: String
-    Default: 0.27.0
     Description: Version of GitLab Runner Helm chart for deployment.
+    Default: 0.27.0
   RunnerImage:
     Type: String
-    Default: ubuntu:20.04
     Description: Default GitLab Runner image.
+    Default: ubuntu:20.04
   MaximumConcurrentJobs:
     Type: Number
-    Default: 10
     Description: The maximum number of concurrent jobs.
+    Default: 10
   PrivilegedMode:
     Type: String
-    Default: 'No'
-    AllowedValues: [ 'Yes', 'No' ]
-    Description: |
+    Description: >-
       Choose 'Yes' to run all containers with the privileged flag enabled.
       This will allow the docker:dind image to run if you need to run Docker.
       For test purposes only. Not recommended for production environments.
+    AllowedValues: ['Yes', 'No']
+    Default: 'No'
 
 # Quickstart location parameters
   QSS3BucketName:
-    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
-    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
-      letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
-      (-).
+    Type: String
+    Description: >-
+      S3 bucket name for the Quick Start assets. This string can include
+      numbers, lowercase letters, and hyphens (-). It cannot start or end with
+      a hyphen (-).
+    AllowedPattern: ^[0-9a-z]+([0-9a-z-]*[0-9a-z])*$
+    ConstraintDescription: >-
+      Quick Start bucket name can include numbers, lowercase letters, and
+      hyphens (-). It cannot start or end with a hyphen (-).
     Default: aws-quickstart
-    Description: S3 bucket name for the Quick Start assets. This string can include
-      numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start
-      or end with a hyphen (-).
-    Type: String
   QSS3BucketRegion:
+    Type: String
+    Description: >-
+      The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is
+      hosted. When using your own bucket, you must specify this value.
     Default: us-east-1
-    Description: The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.
-    Type: String
   QSS3KeyPrefix:
-    AllowedPattern: ^[0-9a-zA-Z-/]*$
-    ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
-      uppercase letters, hyphens (-), and forward slash (/).
-    Default: quickstart-eks-gitlab/
-    Description: S3 key prefix for the Quick Start assets. Quick Start key prefix
-      can include numbers, lowercase letters, uppercase letters, hyphens (-), and
-      forward slash (/).
     Type: String
+    Description: >-
+      S3 key prefix for the Quick Start assets. Quick Start key prefix can
+      include numbers, lowercase letters, uppercase letters, hyphens (-), and
+      forward slash (/).
+    AllowedPattern: ^([0-9a-zA-Z-.]+/)*$
+    ConstraintDescription: >-
+      Quick Start key prefix can include numbers, lowercase letters, uppercase
+      letters, hyphens (-), and forward slash (/).
+    Default: quickstart-eks-gitlab/
   PerAccountSharedResources:
     Type: String
+    Description: >-
+      Choose 'No' if you already deployed another EKS Quick Start stack in
+      your AWS account.
     AllowedValues: [AutoDetect, 'Yes', 'No']
     Default: AutoDetect
-    Description: Choose 'No' if you already deployed another EKS Quick Start stack in your AWS account.
   PerRegionSharedResources:
     Type: String
+    Description: >-
+      Choose 'No' if you already deployed another EKS Quick Start stack in
+      your Region.
     AllowedValues: [AutoDetect, 'Yes', 'No']
     Default: AutoDetect
-    Description: Choose 'No' if you already deployed another EKS Quick Start stack in your Region.
 
 Rules:
   SMTPParameters:
     RuleCondition: !Equals [!Ref SMTPDomain, UseExisting]
     Assertions:
       - Assert: !Not [!Equals [!Ref SMTPHostName, '']]
-        AssertDescription: You must provide SMTP host name if you chose to use existing SMTP server.
+        AssertDescription: >-
+          You must provide SMTP host name if you chose to use existing SMTP
+          server.
   BastionParameters:
     RuleCondition: !Equals [!Ref ProvisionBastionHost, Enabled]
     Assertions:
     - Assert: !Not [!Equals [!Ref RemoteAccessCIDR, '']]
-      AssertDescription: You must provide RemoteAccessCIDR you chose to set ProvisionBastionHost to Enabled.
+      AssertDescription: >-
+        You must provide RemoteAccessCIDR you chose to set ProvisionBastionHost
+        to Enabled.
 
 Conditions:
   Using3AvailabilityZones:  !Equals [!Ref NumberOfAZs, 3]
