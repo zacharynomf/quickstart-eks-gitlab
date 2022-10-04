@@ -894,7 +894,7 @@ Resources:
         - S3Region: !If [UsingDefaultBucket, !Ref AWS::Region, !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
-        AvailabilityZones: !Join [ ',', !Ref AvailabilityZones ]
+        AvailabilityZones: !Join [',', !Ref AvailabilityZones]
         NumberOfAZs: !Ref NumberOfAZs
         PublicSubnet1CIDR: !Ref PublicSubnet1CIDR
         PublicSubnet2CIDR: !Ref PublicSubnet2CIDR
