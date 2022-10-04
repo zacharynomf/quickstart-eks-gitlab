@@ -13,6 +13,7 @@ Metadata:
   SentenceCaseExclude:
     - External
     - Multi
+    - Number
     - Performance
     - Runner
     - Tool
@@ -210,7 +211,7 @@ Metadata:
       PublicDNS:
         default: Public DNS
       PublicHostedZoneId:
-        default: Public Hosted Zone ID
+        default: Public hosted zone ID
       CreateSslCertificate:
         default: Request AWS Certificate Manager SSL certificate
     # GitLab SMTP configuration
@@ -237,7 +238,7 @@ Metadata:
         default: GitLab application version
     # GitLab Git repository storage configuration
       GitalyPraefectInstanceArchitecture:
-        default: Architecture of Gitaly and Praefect Instances
+        default: Architecture of Gitaly and Praefect instances
       GitalyInstanceType:
         default: Gitaly instance type
       NumberOfGitalyReplicas:
