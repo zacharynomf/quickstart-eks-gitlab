@@ -92,9 +92,11 @@ Parameters:
 # Object Storage Parameters
   ObjectStorageSSEAlgorithm:
     Type: String
-    AllowedValues: [ 'AES256', 'aws:kms' ]
+    AllowedValues: [AES256, aws:kms]
   ObjectStorageKMSKeyID:
     Type: String
+    AllowedPattern: ^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}|$
+    ConstraintDescription: Must be a valid KMS key ID.
 
 # Cache Parameters
   CacheMode:

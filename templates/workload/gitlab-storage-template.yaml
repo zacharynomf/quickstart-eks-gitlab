@@ -14,9 +14,11 @@ Parameters:
   SSEAlgorithm:
     Type: String
     Default: AES256
-    AllowedValues: [ 'AES256', 'aws:kms' ]
+    AllowedValues: [AES256, aws:kms]
   KMSKeyID:
     Type: String
+    AllowedPattern: ^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}|$
+    ConstraintDescription: Must be a valid KMS key ID.
     Default: ''
   EnvironmentName:
     Type: String 
@@ -30,7 +32,7 @@ Parameters:
     Type: String
 
 Conditions:
-  UseKMS: !Equals [!Ref KMSKeyID, 'aws:kms']
+  UseKMS: !Equals [!Ref SSEAlgorithm, aws:kms]
 
 Resources:
 
