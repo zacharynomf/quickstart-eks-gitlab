@@ -5,29 +5,17 @@ Metadata:
     EntrypointName: Launch into a new VPC
     Order: 1
   LintSpellExclude:
-    - Kubernetes
-    - Helm
-    - Git
-    - Docker
-    - GitLab
-    - Runner
-    - Praefect
-    - Gitaly
-    - Resource Name
-    - Container Insights
-    - Route 53
-    - Certificate Manager
-    - Simple Email Service
-    - '"No"'
-    - '"Yes"'
-    - '"Enabled"'
-    - namespace
-    - cron
-    - kubectl
+    - BuiltIn
     - dind
-    - Gb
-    - Multi-AZ
+    - Gitaly
+    - GitLab
+    - Praefect
+  SentenceCaseExclude:
     - External
+    - Multi
+    - Performance
+    - Runner
+    - Tool
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
