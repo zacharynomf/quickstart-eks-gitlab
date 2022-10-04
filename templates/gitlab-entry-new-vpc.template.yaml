@@ -479,7 +479,7 @@ Parameters:
       The instance class is applied to both primary and standby instances.
       The instance class you choose must support the needed PostgreSQL version: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html
     Default: db.r5.large
-    AllowedPattern: "db\\.[a-z0-9]*\\.[a-z0-9]*"
+    AllowedPattern: ^db\.[a-z0-9]+\.[a-z0-9]+$
     Type: String
   RDSDBEngineVersion:
     Description: Select Database Engine Version
@@ -508,24 +508,24 @@ Parameters:
       The instance class is applied to both primary and standby instances.
       The instance class you choose must support the needed PostgreSQL version: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html
     Default: db.r6g.large
-    AllowedPattern: "db\\.[a-z0-9]*\\.[a-z0-9]*"
+    AllowedPattern: ^db\.[a-z0-9]+\.[a-z0-9]+$
     Type: String
   DBName: 
-    AllowedPattern: "[a-zA-Z0-9]*"
+    AllowedPattern: ^[a-zA-Z0-9]*$
     Description: Name of the GitLab Postgres database.
     MaxLength: 64
     MinLength: 0
     Default: gitlab
     Type: String
   DBPraefectName: 
-    AllowedPattern: "[a-zA-Z0-9]*"
+    AllowedPattern: ^[a-zA-Z0-9]*$
     Description: Name of the Praefect Postgres database.
     MaxLength: 64
     MinLength: 0
     Default: praefect
     Type: String     
   DBUserName: 
-    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    AllowedPattern: ^[a-zA-Z][a-zA-Z0-9]*$
     ConstraintDescription: Must begin with a letter and contain only alphanumeric characters.
     Default: gitlab
     Description: The database admin account username.
@@ -563,7 +563,7 @@ Parameters:
     Description: |
       If you chose to use External cache above, provide cache node type.
       List of acceptable instance types: https://aws.amazon.com/elasticache/pricing/
-    AllowedPattern: "cache\\.[a-z0-9]*\\.[a-z0-9]*"    
+    AllowedPattern: ^cache\.[a-z0-9]+\.[a-z0-9]+$
 
 # Infra Parameters
   DomainName:
