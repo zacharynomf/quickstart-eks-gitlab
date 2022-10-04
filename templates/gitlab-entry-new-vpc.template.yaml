@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Deploys a GitLab cluster in a new VPC (qs-1rpegtrun)
+Description: Deploys a GitLab cluster into a new VPC (qs-1rpegtrun)
 Metadata:
   QuickStartDocumentation:
     EntrypointName: Launch into a new VPC
@@ -458,7 +458,7 @@ Parameters:
     Description: Amazon RDS is the default database engine. Set to 'Yes' if Amazon Aurora need to be used.
   AuroraDBEngineVersion:
     Description: |
-      Select Database Engine Version.
+      Select database engine version.
       The version must be supported by your target version of GitLab: https://docs.gitlab.com/omnibus/settings/database.html#gitlab-140-and-later.
       And by the Aurora RDS Instance type you choose: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html.
     Type: String
@@ -580,7 +580,7 @@ Parameters:
     Default: Disabled
     Description: |
       Choose 'UseExisting' to provide public hosted zone ID where GitLab DNS records should be created.
-      Choose 'CreateNew' to provision a new Route 53 public hosted zone with provided Domain Name and create GitLab DNS records there.
+      Choose 'CreateNew' to provision a new Route 53 public hosted zone with provided domain name and create GitLab DNS records there.
   PublicHostedZoneId:
     Type: String
     Description: Provide Route 53 public hosted zone ID if you selected 'UseExisting' above.

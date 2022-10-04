@@ -291,7 +291,7 @@ Parameters:
       Multiple GitLab environments with different names can be deployed in the same region.
   KeyPairName:
     Description: Name of an existing public/private key pair, which allows you
-      to securely connect to your instance after it launches. If the selection list is blank, you must create a keypair in the target region, refresh this form and select it.
+      to securely connect to your instance after it launches. If the selection list is blank, you must create a key pair in the target region, refresh this form and select it.
     Type: AWS::EC2::KeyPair::KeyName
     AllowedPattern: .+
     ConstraintDescription: SSH key pair must be provided.
@@ -448,7 +448,7 @@ Parameters:
   AuroraDBInstanceClass:
     Description: |
       The name of the compute and memory capacity class of the database instance.
-      This Quickstart deploys Multi-AZ Postgres replicas in different Availability Zones.
+      This Quick Start deploys Multi-AZ Postgres replicas in different Availability Zones.
       The instance class is applied to both primary and standby instances.
       The instance class you choose must support the needed PostgreSQL version: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html.
     Default: db.r5.large
@@ -477,7 +477,7 @@ Parameters:
   RDSDBInstanceClass:
     Description: |
       The name of the compute and memory capacity class of the database instance.
-      This Quickstart deploys Multi-AZ Postgres replicas in different Availability Zones.
+      This Quick Start deploys Multi-AZ Postgres replicas in different Availability Zones.
       The instance class is applied to both primary and standby instances.
       The instance class you choose must support the needed PostgreSQL version: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html.
     Default: db.r6g.large
