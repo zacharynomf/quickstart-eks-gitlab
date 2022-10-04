@@ -94,7 +94,7 @@ Metadata:
           - HelmChartName
           - HelmChartVersion
           - GitLabVersion
-      - Label: 
+      - Label:
           default: GitLab Git repository storage configuration
         Parameters:
           - GitalyPraefectInstanceArchitecture
@@ -126,7 +126,7 @@ Metadata:
           - QSS3KeyPrefix
           - QSS3BucketRegion
           - PerAccountSharedResources
-          - PerRegionSharedResources    
+          - PerRegionSharedResources
     ParameterLabels:
     # Basic configuration
       EnvironmentName:
@@ -205,13 +205,13 @@ Metadata:
       CacheNodeType:
         default: Cache node type
     # GitLab infrastructure configuration
-      DomainName: 
+      DomainName:
         default: GitLab DNS name
       PublicDNS:
         default: Public DNS
       PublicHostedZoneId:
         default: Public Hosted Zone ID
-      CreateSslCertificate: 
+      CreateSslCertificate:
         default: Request AWS Certificate Manager SSL certificate
     # GitLab SMTP configuration
       SMTPDomain:
@@ -225,9 +225,9 @@ Metadata:
       SMTPPassword:
         default: SMTP server password
     # GitLab Helm chart configuration
-      HelmChartNamespaceCreate: 
+      HelmChartNamespaceCreate:
         default: Kubernetes namespace creation mode
-      HelmChartNamespace: 
+      HelmChartNamespace:
         default: Kubernetes namespace for GitLab Helm chart
       HelmChartName:
         default: GitLab Helm chart name
@@ -242,14 +242,14 @@ Metadata:
         default: Gitaly instance type
       NumberOfGitalyReplicas:
         default: Number of Gitaly replicas
-      GitalyVolumeSize: 
+      GitalyVolumeSize:
         default: Gitaly volume capacity
-      NumberOfPraefectReplicas: 
+      NumberOfPraefectReplicas:
         default: Number of Praefect replicas
       PraefectInstanceType:
         default: Praefect instance type
     # GitLab object storage configuration
-      ObjectStorageSSEAlgorithm: 
+      ObjectStorageSSEAlgorithm:
         default: Object storage encryption algorithm
       ObjectStorageKMSKeyID:
         default: KMS key ID
@@ -284,7 +284,7 @@ Metadata:
 
 Parameters:
 # Basic Configuration
-  EnvironmentName: 
+  EnvironmentName:
     Type: String
     Default: ''
     Description: |
@@ -383,7 +383,7 @@ Parameters:
       - m4.large
       - m4.xlarge
       - m4.2xlarge
-      - m4.4xlarge  
+      - m4.4xlarge
     Default: t3.micro
     Type: String
     Description: Instance type for the bastion host.
@@ -421,11 +421,11 @@ Parameters:
     MinValue: 20
     Description: |
       Capacity of EBS volume used by EKS nodes, in GB.
-      Note that in default configuration no GitLab data is stored on EBS volumes. 
+      Note that in default configuration no GitLab data is stored on EBS volumes.
   NumberOfNodes:
     Default: 3
     Description: |
-      Number of Amazon EKS node instances. 
+      Number of Amazon EKS node instances.
       Should have a minimum value matching the number of Availability Zones configured for GitLab deployment.
     Type: Number
   MaxNumberOfNodes:
@@ -510,21 +510,21 @@ Parameters:
     Default: db.r6g.large
     AllowedPattern: ^db\.[a-z0-9]+\.[a-z0-9]+$
     Type: String
-  DBName: 
+  DBName:
     AllowedPattern: ^[a-zA-Z0-9]*$
     Description: Name of the GitLab Postgres database.
     MaxLength: 64
     MinLength: 0
     Default: gitlab
     Type: String
-  DBPraefectName: 
+  DBPraefectName:
     AllowedPattern: ^[a-zA-Z0-9]*$
     Description: Name of the Praefect Postgres database.
     MaxLength: 64
     MinLength: 0
     Default: praefect
-    Type: String     
-  DBUserName: 
+    Type: String
+  DBUserName:
     AllowedPattern: ^[a-zA-Z][a-zA-Z0-9]*$
     ConstraintDescription: Must begin with a letter and contain only alphanumeric characters.
     Default: gitlab
@@ -584,10 +584,10 @@ Parameters:
     Type: String
     Description: Choose 'Yes' if you want to request  AWS Certificate Manager SSL certificate for GitLab domain.
     AllowedValues: [ 'Yes', 'No' ]
-    Default: 'No'  
+    Default: 'No'
 
 # SMTP Parameters
-  SMTPDomain: 
+  SMTPDomain:
     Type: String
     AllowedValues: [Disabled, CreateNew, UseExisting]
     Description: Choose 'CreateNew' if you want to create Amazon Simple Email Service domain to send out GitLab notification email messages.
@@ -644,7 +644,7 @@ Parameters:
       See https://docs.gitlab.com/charts/installation/version_mappings.html.
     Default: 14.10.0
     # While the AllowedPatterns for HelmChartVersion and GitLabVersion are verbose, they allows control over the
-    # maximum minor version including limiting it to 12 or less or completely eliminating minor versions in a series 
+    # maximum minor version including limiting it to 12 or less or completely eliminating minor versions in a series
     # For example, GitLab 14 only went to 14.10 and 14.1 did not work as CNH only on AWS due to classic load balancer.
     # PATTERN LIKE: ^(13\.(1|2|3|4|5|6|7|8|9|10|11|12)\.\d+|14\.(1|2|3|4|5|6|7|8|9|10)\.\d+)$
     # It is also easy to understand
@@ -672,15 +672,15 @@ Parameters:
     Description: |
       Gitaly EC2 instance type.
       Select an instance from this list: https://aws.amazon.com/ec2/instance-types/
-  GitalyVolumeSize: 
+  GitalyVolumeSize:
     Type: Number
     Default: 50
     MinValue: 50
     Description: |
       Capacity of EBS volume used by Gitaly replicas (Git repository storage), in GB.
-      Note that this storage is used for Git repositories only. 
+      Note that this storage is used for Git repositories only.
       All other GitLab storage types are stored in S3 buckets.
-  NumberOfPraefectReplicas: 
+  NumberOfPraefectReplicas:
     Type: Number
     Default: 3
     AllowedValues: [ 3 ]
