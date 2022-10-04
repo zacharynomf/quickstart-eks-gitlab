@@ -5,8 +5,10 @@ taskcat_outputs/
 functions/packages
 *.zip
 
-# Docs 2.0
-docs/generated/
+# Docs
+docs/
+index.html
+prod_example.html
 
 # macOS
 .DS_Store
