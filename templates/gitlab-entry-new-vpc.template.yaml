@@ -310,31 +310,36 @@ Parameters:
     Type: String
   VPCCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    ConstraintDescription: >-
+      CIDR block parameter must be in the form x.x.x.x/16-28.
     Default: 10.0.0.0/16
     Description: CIDR block for the VPC.
     Type: String    
   PrivateSubnet1CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    ConstraintDescription: >-
+      CIDR block parameter must be in the form x.x.x.x/16-28.
     Default: 10.0.0.0/19
     Description: CIDR block for private subnet 1 located in Availability Zone 1.
     Type: String
   PrivateSubnet2CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    ConstraintDescription: >-
+      CIDR block parameter must be in the form x.x.x.x/16-28.
     Default: 10.0.32.0/19
     Description: CIDR block for private subnet 2 located in Availability Zone 2.
     Type: String
   PrivateSubnet3CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16–28
+    ConstraintDescription: >-
+      CIDR block parameter must be in the form x.x.x.x/16-28.
     Default: 10.0.64.0/19
     Description: CIDR block for private subnet 3, located in Availability Zone 3.
     Type: String
   PublicSubnet1CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    ConstraintDescription: >-
+      CIDR block parameter must be in the form x.x.x.x/16-28.
     Default: 10.0.128.0/20
     Description: CIDR block for the public (DMZ) subnet 1 located in Availability
       Zone 1.
@@ -454,8 +459,8 @@ Parameters:
   AuroraDBEngineVersion:
     Description: |
       Select Database Engine Version.
-      The version must be supported by your target version of GitLab: https://docs.gitlab.com/omnibus/settings/database.html#gitlab-140-and-later
-      And by the Aurora RDS Instance type you choose: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html
+      The version must be supported by your target version of GitLab: https://docs.gitlab.com/omnibus/settings/database.html#gitlab-140-and-later.
+      And by the Aurora RDS Instance type you choose: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html.
     Type: String
     Default: 12.4
     AllowedValues:
@@ -477,7 +482,7 @@ Parameters:
       The name of the compute and memory capacity class of the database instance.
       This Quickstart deploys Multi-AZ Postgres replicas in different Availability Zones.
       The instance class is applied to both primary and standby instances.
-      The instance class you choose must support the needed PostgreSQL version: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html
+      The instance class you choose must support the needed PostgreSQL version: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html.
     Default: db.r5.large
     AllowedPattern: ^db\.[a-z0-9]+\.[a-z0-9]+$
     Type: String
@@ -506,7 +511,7 @@ Parameters:
       The name of the compute and memory capacity class of the database instance.
       This Quickstart deploys Multi-AZ Postgres replicas in different Availability Zones.
       The instance class is applied to both primary and standby instances.
-      The instance class you choose must support the needed PostgreSQL version: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html
+      The instance class you choose must support the needed PostgreSQL version: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html.
     Default: db.r6g.large
     AllowedPattern: ^db\.[a-z0-9]+\.[a-z0-9]+$
     Type: String
@@ -562,7 +567,7 @@ Parameters:
     Default: cache.t3.medium
     Description: |
       If you chose to use External cache above, provide cache node type.
-      List of acceptable instance types: https://aws.amazon.com/elasticache/pricing/
+      List of acceptable instance types: https://aws.amazon.com/elasticache/pricing/.
     AllowedPattern: ^cache\.[a-z0-9]+\.[a-z0-9]+$
 
 # Infra Parameters
@@ -671,7 +676,7 @@ Parameters:
     Default: t3.medium
     Description: |
       Gitaly EC2 instance type.
-      Select an instance from this list: https://aws.amazon.com/ec2/instance-types/
+      Select an instance from this list: https://aws.amazon.com/ec2/instance-types/.
   GitalyVolumeSize:
     Type: Number
     Default: 50
@@ -692,7 +697,7 @@ Parameters:
     Default: t3.medium
     Description: |
       Praefect EC2 instance type.
-      Select an instance from this list: https://aws.amazon.com/ec2/instance-types/
+      Select an instance from this list: https://aws.amazon.com/ec2/instance-types/.
 
 # Object Storage Parameters
   ObjectStorageSSEAlgorithm:

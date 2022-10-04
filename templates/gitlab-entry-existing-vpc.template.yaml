@@ -427,7 +427,7 @@ Parameters:
   AuroraDBEngineVersion:
     Description: |
       Select database engine version.
-      The version must be supported by your target version of GitLab: https://docs.gitlab.com/omnibus/settings/database.html#gitlab-140-and-later
+      The version must be supported by your target version of GitLab: https://docs.gitlab.com/omnibus/settings/database.html#gitlab-140-and-later.
       And by the Aurora RDS instance type you choose: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html.
     Type: String
     Default: 12.4
@@ -450,7 +450,7 @@ Parameters:
       The name of the compute and memory capacity class of the database instance.
       This Quickstart deploys Multi-AZ Postgres replicas in different Availability Zones.
       The instance class is applied to both primary and standby instances.
-      The instance class you choose must support the needed PostgreSQL version: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html
+      The instance class you choose must support the needed PostgreSQL version: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html.
     Default: db.r5.large
     AllowedPattern: ^db\.[a-z0-9]+\.[a-z0-9]+$
     Type: String
@@ -479,7 +479,7 @@ Parameters:
       The name of the compute and memory capacity class of the database instance.
       This Quickstart deploys Multi-AZ Postgres replicas in different Availability Zones.
       The instance class is applied to both primary and standby instances.
-      The instance class you choose must support the needed PostgreSQL version: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html
+      The instance class you choose must support the needed PostgreSQL version: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html.
     Default: db.r6g.large
     AllowedPattern: ^db\.[a-z0-9]+\.[a-z0-9]+$
     Type: String
@@ -535,7 +535,7 @@ Parameters:
     Default: cache.t3.medium
     Description: |
       If you chose to use external cache above, provide cache node type.
-      List of acceptable instance types: https://aws.amazon.com/elasticache/pricing/
+      List of acceptable instance types: https://aws.amazon.com/elasticache/pricing/.
     AllowedPattern: ^cache\.[a-z0-9]+\.[a-z0-9]+$
 
 # Infra Parameters
@@ -639,7 +639,7 @@ Parameters:
     Default: t3.medium
     Description: |
       Gitaly EC2 instance type.
-      Select an instance from this list: https://aws.amazon.com/ec2/instance-types/
+      Select an instance from this list: https://aws.amazon.com/ec2/instance-types/.
   GitalyVolumeSize:
     Type: Number
     Default: 50
@@ -659,7 +659,7 @@ Parameters:
     Default: t3.medium
     Description: |
       Praefect EC2 instance type.
-      Select an instance from this list: https://aws.amazon.com/ec2/instance-types/
+      Select an instance from this list: https://aws.amazon.com/ec2/instance-types/.
 
 # Object Storage Parameters
   ObjectStorageSSEAlgorithm:
