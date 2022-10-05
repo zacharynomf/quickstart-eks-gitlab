@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Deploys EKS telemetry integration (qs-1rpegts6f)
+Description: Deploys EKS telemetry integration. (qs-1rpegts6f)
 
 Metadata:
   cfn-lint:

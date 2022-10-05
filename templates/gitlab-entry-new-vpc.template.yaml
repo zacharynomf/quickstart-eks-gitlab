@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Deploys a GitLab cluster into a new VPC (qs-1rpegtrun)
+Description: Deploys a GitLab cluster into a new VPC. (qs-1rpegtrun)
 Metadata:
   QuickStartDocumentation:
     EntrypointName: Launch into a new VPC

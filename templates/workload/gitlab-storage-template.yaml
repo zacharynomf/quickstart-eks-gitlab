@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Deploys Gitlab S3 buckets (qs-1rpegts5o)
+Description: Deploys Gitlab S3 buckets. (qs-1rpegts5o)
 
 Metadata:
   cfn-lint:

@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Deploys GitLab databases (qs-1skk6s476)
+Description: Deploys GitLab databases. (qs-1skk6s476)
 
 # Lint rules to ignore
 Metadata:

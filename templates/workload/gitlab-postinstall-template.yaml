@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Performs Gitlab post-install configuration (qs-1rpegts4t)
+Description: Performs Gitlab post-install configuration. (qs-1rpegts4t)
 
 Metadata:
   cfn-lint:

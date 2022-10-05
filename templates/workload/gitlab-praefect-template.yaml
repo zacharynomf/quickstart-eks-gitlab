@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Deploys Praefect instances (qs-1rpegts5h)
+Description: Deploys Praefect instances. (qs-1rpegts5h)
 
 Metadata:
   cfn-lint:

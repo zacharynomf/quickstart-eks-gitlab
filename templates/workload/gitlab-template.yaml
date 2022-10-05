@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Deploys GitLab cluster (qs-1rpegts6r)
+Description: Deploys GitLab cluster. (qs-1rpegts6r)
 
 Metadata:
   cfn-lint:

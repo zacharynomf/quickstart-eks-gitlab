@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Deploys GitLab infrastructure resources (qs-1rpegts4g)
+Description: Deploys GitLab infrastructure resources. (qs-1rpegts4g)
 
 Metadata:
   cfn-lint:

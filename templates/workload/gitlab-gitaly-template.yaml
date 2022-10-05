@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Deploys Gitaly instances (qs-1rpegts49)
+Description: Deploys Gitaly instances. (qs-1rpegts49)
 
 Metadata:
   cfn-lint:

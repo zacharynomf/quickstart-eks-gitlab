@@ -1,5 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Deploys Lambda functions required for the AWS GitLab Quick Start (qs-1rpegts3l)
+Description: >-
+  Deploys Lambda functions required for the AWS GitLab Quick Start.
+  (qs-1rpegts3l)
 
 Metadata:
   cfn-lint:
