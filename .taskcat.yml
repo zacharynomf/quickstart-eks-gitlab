@@ -87,8 +87,9 @@ tests:
 #The cluster cannot use ARM yet - must specific x86 instances.
 #Gitaly must be set to 3 instances
 #14.9.0 is the first release that has ARM packages for AL2.
-  smallest-possible-arm:
+  smallest-possible-arm-spot:
     parameters:
+      OnDemandPercentage: 0 #100% spot EKS cluster
       GitLabVersion: 15.4.1
       HelmChartVersion: 6.4.1
       AvailabilityZones: $[taskcat_genaz_2]
