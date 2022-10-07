@@ -56,7 +56,7 @@ tests:
       NumberOfAZs: 2
       EKSPublicAccessEndpoint: Disabled
       ProvisionBastionHost: Enabled
-      DomainName: qsgsm5.devops4the.cloud
+      DomainName: --override--
       CreateSslCertificate: 'Yes'
       SslCertificateIssuerEmail: gitlab@$[taskcat_random-string].com
       ConfigureContainerInsights: 'Yes'
@@ -100,8 +100,8 @@ tests:
       ConfigureContainerInsights: 'Yes'
       ConfigureGrafana: 'Yes'
       PublicDNS: UseExisting
-      PublicHostedZoneId: Z08828103MVPQNHL7GWYE
-      DomainName: devops4the.cloud
+      PublicHostedZoneId: --override--
+      DomainName: --override--
       SMTPDomain: CreateNew
       ConfigureRunner: 'No'
       PriviligedMode: 'No'
