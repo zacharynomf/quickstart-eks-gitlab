@@ -44,15 +44,14 @@ Resources:
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: !Ref HelmChartNamespace
-      Name: !Sub 'secret/${HelmChartName}-rails-secret'
+      Name: !Sub secret/${HelmChartName}-rails-secret
       JsonPath: '{.data}'
       Retries: 3
   RailsSecret:
     Type: AWS::SecretsManager::Secret
-    Metadata: { cfn-lint: { config: { ignore_checks: [E1010] } } }
     Properties:
-      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/secrets/rails'
-      Description: "GitLab Rails Secret"
+      Name: !Sub /quickstart/gitlab/${EnvironmentName}/secrets/rails
+      Description: GitLab Rails Secret
       SecretString: !GetAtt RailsSecretQuery.Response
 
   # 1. Retrieve value of root password secret and store it in Secrets Manager
@@ -65,14 +64,14 @@ Resources:
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: !Ref HelmChartNamespace
-      Name: !Sub 'secret/${HelmChartName}-gitlab-initial-root-password'
+      Name: !Sub secret/${HelmChartName}-gitlab-initial-root-password
       JsonPath: '{.data.password}'
       Retries: 3
   InitialRootPasswordSecret:
     Type: AWS::SecretsManager::Secret
     Properties:
-      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/secrets/initial-root-password'
-      Description: "GitLab Initial Root Password"
+      Name: !Sub /quickstart/gitlab/${EnvironmentName}/secrets/initial-root-password
+      Description: GitLab Initial Root Password
       SecretString: !GetAtt InitialRootPasswordQuery.Response
 
   # 2. Retrieve load balancer URL and store as SSM parameter
@@ -85,7 +84,7 @@ Resources:
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: !Ref HelmChartNamespace
-      Name: !Sub 'service/${HelmChartName}-nginx-ingress-controller'
+      Name: !Sub service/${HelmChartName}-nginx-ingress-controller
       JsonPath: '{.status.loadBalancer.ingress[0].hostname}'
       Retries: 3
   InternalLoadBalancerQuery:
@@ -97,15 +96,15 @@ Resources:
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: !Ref HelmChartNamespace
-      Name: !Sub 'service/${HelmChartName}-nginx-ingress-controller-internal'
+      Name: !Sub service/${HelmChartName}-nginx-ingress-controller-internal
       JsonPath: '{.status.loadBalancer.ingress[0].hostname}'
       Retries: 3
   LoadBalancerParameter:
     Type: AWS::SSM::Parameter
     Properties:
       Type: String
-      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/loadbalancer'
-      Description: "GitLab load balancer hostname"
+      Name: !Sub /quickstart/gitlab/${EnvironmentName}/loadbalancer
+      Description: GitLab load balancer hostname
       Value: !GetAtt LoadBalancerQuery.Response
 
   # 3. Retrieve TLS CA base64-encoded string and store as SSM parameter
@@ -118,15 +117,15 @@ Resources:
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: !Ref HelmChartNamespace
-      Name: !Sub 'secret/${HelmChartName}-wildcard-tls-ca'
+      Name: !Sub secret/${HelmChartName}-wildcard-tls-ca
       JsonPath: '{.data.cfssl_ca}'
       Retries: 3
   RootCAParameter:
     Type: AWS::SSM::Parameter
     Properties:
       Type: String
-      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/tls-ca'
-      Description: "GitLab TLS CA"
+      Name: !Sub /quickstart/gitlab/${EnvironmentName}/infra/tls-ca
+      Description: GitLab TLS CA
       Value: !GetAtt RootCAQuery.Response
 
   # 4. If Grafana integration enabled - retrieve value of Grafana password and store it in Secrets Manager
@@ -140,15 +139,15 @@ Resources:
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: !Ref HelmChartNamespace
-      Name: !Sub 'secret/${HelmChartName}-grafana-initial-password'
+      Name: !Sub secret/${HelmChartName}-grafana-initial-password
       JsonPath: '{.data.password}'
       Retries: 3
   InitialGrafanaPasswordSecret:
     Type: AWS::SecretsManager::Secret
     Condition: ConfigureGrafana
     Properties:
-      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/secrets/initial-grafana-password'
-      Description: "Grafana Initial Root Password"
+      Name: !Sub /quickstart/gitlab/${EnvironmentName}/secrets/initial-grafana-password
+      Description: Grafana Initial Root Password
       SecretString: !GetAtt InitialGrafanaPasswordQuery.Response
 
   # 5. Add DNS records to enable routing to GitLab
@@ -157,7 +156,7 @@ Resources:
     Properties:
       HostedZoneId: !Ref PrivateHostedZoneId
       Comment: DNS name for GitLab Web service.
-      Name: !Sub "gitlab.${DomainName}"
+      Name: !Sub gitlab.${DomainName}
       Type: CNAME
       TTL: 900
       ResourceRecords:
@@ -168,7 +167,7 @@ Resources:
     Properties:
       HostedZoneId: !Ref HostedZoneId
       Comment: DNS name for GitLab Web service.
-      Name: !Sub "gitlab.${DomainName}"
+      Name: !Sub gitlab.${DomainName}
       Type: CNAME
       TTL: 900
       ResourceRecords:
@@ -178,7 +177,7 @@ Resources:
     Properties:
       HostedZoneId: !Ref PrivateHostedZoneId
       Comment: DNS name for GitLab Registry service.
-      Name: !Sub "registry.${DomainName}"
+      Name: !Sub registry.${DomainName}
       Type: CNAME
       TTL: 900
       ResourceRecords:
@@ -189,7 +188,7 @@ Resources:
     Properties:
       HostedZoneId: !Ref HostedZoneId
       Comment: DNS name for GitLab Registry service.
-      Name: !Sub "registry.${DomainName}"
+      Name: !Sub registry.${DomainName}
       Type: CNAME
       TTL: 900
       ResourceRecords:
@@ -200,11 +199,11 @@ Resources:
     Type: AWS::SSM::Parameter
     Properties:
       Type: String
-      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/cluster/name'
+      Name: !Sub /quickstart/gitlab/${EnvironmentName}/cluster/name
       Value: !Ref ClusterName
 
 Outputs:
   RootCA:
     Value: !GetAtt RootCAQuery.Response
   RootCAChainSecretName:
-    Value: !Sub '${HelmChartName}-wildcard-tls-chain'
+    Value: !Sub ${HelmChartName}-wildcard-tls-chain

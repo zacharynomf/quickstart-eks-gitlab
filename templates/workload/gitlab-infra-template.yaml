@@ -12,9 +12,9 @@ Metadata:
 
 Parameters:
   VPCID:
-    Type: 'AWS::EC2::VPC::Id'
+    Type: AWS::EC2::VPC::Id
   VPCCIDR:
-    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$
     Type: String
   PraefectPort:
     Type: Number
@@ -25,15 +25,15 @@ Parameters:
     Type: String
   PublicDNS:
     Type: String
-    AllowedValues: [ 'Disabled', 'UseExisting', 'CreateNew' ]
+    AllowedValues: [Disabled, UseExisting, CreateNew]
   PublicHostedZoneId:
     Type: String
   CreateEmailDomain:
     Type: String
-    AllowedValues: ["Yes", "No"]
+    AllowedValues: ['Yes', 'No']
   CreateSslCertificate:
     Type: String
-    AllowedValues: ["Yes", "No"]
+    AllowedValues: ['Yes', 'No']
 
   FunctionsBucketName:
     Type: String
@@ -52,9 +52,9 @@ Parameters:
     Type: String
 
 Conditions:
-  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
-  HostedZoneInUse: !Not [!Equals  [!Ref PublicDNS, 'Disabled']]
-  HostedZoneToBeCreated: !Equals  [!Ref PublicDNS, 'CreateNew']
+  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, aws-quickstart]
+  HostedZoneInUse: !Not [!Equals  [!Ref PublicDNS, Disabled]]
+  HostedZoneToBeCreated: !Equals  [!Ref PublicDNS, CreateNew]
   EmailDomainRequested: !Equals [!Ref CreateEmailDomain, 'Yes']
   EmailDomainWithRoute53Validation: !And
     - !Equals [!Ref CreateEmailDomain, 'Yes']
@@ -70,11 +70,11 @@ Resources:
   PraefectSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties: 
-      GroupDescription: 'Allow access to database port'
+      GroupDescription: Allow access to database port.
       SecurityGroupEgress: 
         - CidrIp: 0.0.0.0/0
           FromPort: -1
-          IpProtocol: '-1'
+          IpProtocol: -1
           ToPort: -1
       SecurityGroupIngress:
         - CidrIp: !Ref VPCCIDR 
@@ -86,34 +86,34 @@ Resources:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !GetAtt PraefectSecurityGroup.GroupId
-      IpProtocol: '-1'
+      IpProtocol: -1
       SourceSecurityGroupId: !Ref PraefectSecurityGroup
-      Description: 'Self Reference'
+      Description: Self Reference
 
 # 1. Create a new hosted zone for subdomain
   HostedZone:
     Type: AWS::Route53::HostedZone
     Condition: HostedZoneToBeCreated
     Properties:
-      Name: !Sub "${DomainName}."
+      Name: !Sub ${DomainName}.
   # Always create private hosted zone, even if public is not requested
   PrivateHostedZone:
     Type: AWS::Route53::HostedZone
     Properties:
-      Name: !Sub "${DomainName}."
+      Name: !Sub ${DomainName}.
       VPCs:
         - VPCId: !Ref VPCID
-          VPCRegion: !Ref 'AWS::Region'
+          VPCRegion: !Ref AWS::Region
 
 # 2. Request ACM certificate for the domain
   SslCertificate:
     Type: AWS::CertificateManager::Certificate
     Condition: CertificateRequested 
     Properties:
-      DomainName: !Sub "*.${DomainName}"
+      DomainName: !Sub '*.${DomainName}'
       ValidationMethod: DNS
       DomainValidationOptions:
-        - DomainName: !Sub "*.${DomainName}"
+        - DomainName: !Sub '*.${DomainName}'
           HostedZoneId: !If [HostedZoneToBeCreated, !Ref HostedZone, !Ref PublicHostedZoneId]
 
 
@@ -122,7 +122,7 @@ Resources:
     Condition: CertificateRequested
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: 2012-10-17
         Statement:
         - Sid: AssumeLambdaExecutionRole
           Effect: Allow
@@ -131,11 +131,11 @@ Resources:
           Action: sts:AssumeRole
       ManagedPolicyArns:
         # (allows logging)
-        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
         - PolicyName: root
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: 2012-10-17
             Statement:
               - Effect: Allow
                 Action:
@@ -146,7 +146,7 @@ Resources:
                   - route53:ListResourceRecordSets
                   - route53:ChangeResourceRecordSets
                 Resource: !Sub
-                  - "arn:${AWS::Partition}:route53:::hostedzone/${HostedZoneID}"
+                  - arn:${AWS::Partition}:route53:::hostedzone/${HostedZoneID}
                   - HostedZoneID: !If [HostedZoneToBeCreated, !Ref HostedZone, !Ref PublicHostedZoneId]
 
   CleanupACMDNSValidationLambdaFunction:
@@ -158,13 +158,13 @@ Resources:
       Role: !GetAtt CleanupACMDNSValidationLambdaRole.Arn
       Code:
         S3Bucket: !Ref FunctionsBucketName
-        S3Key: !Sub '${QSS3KeyPrefix}functions/packages/CleanupACMDNSValidation/lambda.zip'
+        S3Key: !Sub ${QSS3KeyPrefix}functions/packages/CleanupACMDNSValidation/lambda.zip
 
   CleanupACMDNSValidation:
     Condition: CertificateRequested
     Type: Custom::CleanupACMDNSValidation
     Properties:
-      ServiceToken: !GetAtt "CleanupACMDNSValidationLambdaFunction.Arn"
+      ServiceToken: !GetAtt CleanupACMDNSValidationLambdaFunction.Arn
       ACMArn: !Ref SslCertificate
       HostedZoneId: !If [HostedZoneToBeCreated, !Ref HostedZone, !Ref PublicHostedZoneId]
 
@@ -174,12 +174,12 @@ Resources:
     Condition: EmailDomainRequested
     Properties:
       TemplateURL: !Sub
-        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/aws-cfn-ses-domain/aws-cfn-ses-domain.cf.yaml'
-        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/aws-cfn-ses-domain/aws-cfn-ses-domain.cf.yaml
+        - S3Region: !If [UsingDefaultBucket, !Ref AWS::Region, !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
         LambdaCodeS3Bucket: !Ref FunctionsBucketName
-        LambdaCodeS3Key: !Sub '${QSS3KeyPrefix}functions/packages/CfnSesDomain/lambda.zip'
+        LambdaCodeS3Key: !Sub ${QSS3KeyPrefix}functions/packages/CfnSesDomain/lambda.zip
 
 # 4. Declare a Custom::SES_Domain resource for your SES domain.
   SESDomain:
@@ -190,13 +190,13 @@ Resources:
       ServiceToken: !GetAtt CfnSESResources.Outputs.CustomDomainIdentityArn
       # Remaining Properties are options for provisioning for your SES domain identity:
       # (Domain is required; all others are optional and shown with their defaults)
-      Domain: !Sub "${DomainName}."
+      Domain: !Sub ${DomainName}.
       EnableSend: true
       EnableReceive: false
-      MailFromSubdomain: "mail"
-      TTL: "1800"
+      MailFromSubdomain: mail
+      TTL: 1800
       CustomDMARC: '"v=DMARC1; p=none; pct=100; sp=none; aspf=r;"'
-      Region: !Ref "AWS::Region"
+      Region: !Ref AWS::Region
 
 # 5. Declare a Route 53 RecordSetGroup to manage SES's required DNS entries.
 #    (This assumes you already have a Route 53 hosted zone for your domain;
@@ -219,12 +219,12 @@ Resources:
       Policies:
       - PolicyName: sesAccess
         PolicyDocument:
-          Version: '2012-10-17'
+          Version: 2012-10-17
           Statement:
           - Effect: Allow
             Action:
               - ses:SendRawEmail
-            Resource: !Sub "arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:identity/mail.${DomainName}"
+            Resource: !Sub arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:identity/mail.${DomainName}
 
   SmtpUser:
     Type: AWS::IAM::User
@@ -251,14 +251,14 @@ Resources:
       Role: !GetAtt SmtpPasswordGeneratorRole.Arn
       Code:
         S3Bucket: !Ref FunctionsBucketName
-        S3Key: !Sub '${QSS3KeyPrefix}functions/packages/SmtpPasswordGenerator/lambda.zip'
+        S3Key: !Sub ${QSS3KeyPrefix}functions/packages/SmtpPasswordGenerator/lambda.zip
 
   SmtpPasswordGeneratorRole:
     Type: AWS::IAM::Role
     Condition: EmailDomainRequested
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: 2012-10-17
         Statement:
         - Sid: AssumeLambdaExecutionRole
           Effect: Allow
@@ -267,14 +267,14 @@ Resources:
           Action: sts:AssumeRole
       ManagedPolicyArns:
         # (allows logging)
-        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
 
   SmtpPasswordGenerator:
     Type: Custom::SMTPPassword
     Condition: EmailDomainRequested
     Properties:
       ServiceToken: !GetAtt SmtpPasswordGeneratorFunction.Arn
-      Region: !Ref 'AWS::Region'
+      Region: !Ref AWS::Region
       Secret: !GetAtt SmtpKeys.SecretAccessKey
 
 # SSM Parameters
@@ -282,8 +282,8 @@ Resources:
     Type: AWS::SSM::Parameter
     Properties:
       Type: String
-      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/domain-name'
-      Description: "GitLab domain name"
+      Name: !Sub /quickstart/gitlab/${EnvironmentName}/infra/domain-name
+      Description: GitLab domain name
       Value: !Ref DomainName
 
   HostedZoneNameParameter:
@@ -291,16 +291,16 @@ Resources:
     Condition: HostedZoneInUse
     Properties:
       Type: String
-      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/hosted-zone-name'
-      Value: !Sub "${DomainName}."
+      Name: !Sub /quickstart/gitlab/${EnvironmentName}/infra/hosted-zone-name
+      Value: !Sub ${DomainName}.
 
   HostedZoneIdParameter:
     Type: AWS::SSM::Parameter
     Condition: HostedZoneInUse
     Properties:
       Type: String
-      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/hosted-zone-id'
-      Description: "GitLab Route53 public hosted zone ID"
+      Name: !Sub /quickstart/gitlab/${EnvironmentName}/infra/hosted-zone-id
+      Description: GitLab Route53 public hosted zone ID
       Value: !If
       - HostedZoneToBeCreated
       - !Ref HostedZone
@@ -310,8 +310,8 @@ Resources:
     Type: AWS::SSM::Parameter
     Properties:
       Type: String
-      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/private-hosted-zone-id'
-      Description: "GitLab Route53 private hosted zone ID"
+      Name: !Sub /quickstart/gitlab/${EnvironmentName}/infra/private-hosted-zone-id
+      Description: GitLab Route53 private hosted zone ID
       Value: !Ref PrivateHostedZone
 
   CertificateArnParameter:
@@ -319,8 +319,8 @@ Resources:
     Condition: CertificateRequested
     Properties:
       Type: String
-      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/certificate-arn'
-      Description: "GitLab ACM certificate ARN"
+      Name: !Sub /quickstart/gitlab/${EnvironmentName}/infra/certificate-arn
+      Description: GitLab ACM certificate ARN
       Value: !Ref SslCertificate
 
   SmtpDomainValidationEntries:
@@ -328,16 +328,16 @@ Resources:
     Condition: EmailDomainRequested
     Properties:
       Type: String
-      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/smtp-validation-entries'
-      Description: "GitLab SMTP domain validation entries"
-      Value: !Join ["\n", !GetAtt SESDomain.ZoneFileEntries]
+      Name: !Sub /quickstart/gitlab/${EnvironmentName}/infra/smtp-validation-entries
+      Description: GitLab SMTP domain validation entries
+      Value: !Join [\n, !GetAtt SESDomain.ZoneFileEntries]
 
   SmtpCredentialsSecret:
-    Type: 'AWS::SecretsManager::Secret'
+    Type: AWS::SecretsManager::Secret
     Condition: EmailDomainRequested
     Properties:
-      Name: !Sub '/quickstart/gitlab/${EnvironmentName}/infra/smtp-credentials'
-      Description: "GitLab SMTP credentials"
+      Name: !Sub /quickstart/gitlab/${EnvironmentName}/infra/smtp-credentials
+      Description: GitLab SMTP credentials
       SecretString: !Sub '{"username": "${SmtpKeys}", "password": "${SmtpPasswordGenerator.Password}"}'
 
 Outputs:

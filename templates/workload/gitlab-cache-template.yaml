@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: 2010-09-09
 Description: Deploys ElastiCache Redis cluster. (qs-1rpegts33)
 
 Metadata:
@@ -13,11 +13,11 @@ Metadata:
 Parameters:
 
   VPCID: 
-    Type: 'AWS::EC2::VPC::Id'
+    Type: AWS::EC2::VPC::Id
   Subnet1ID:
-    Type: 'AWS::EC2::Subnet::Id'
+    Type: AWS::EC2::Subnet::Id
   Subnet2ID:
-    Type: 'AWS::EC2::Subnet::Id'
+    Type: AWS::EC2::Subnet::Id
   Subnet3ID:
     Type: String
     Default: ''
@@ -29,11 +29,11 @@ Parameters:
     Type: Number
   CacheEngineVersion:
     Type: String
-    Default: '5.0.6' # GitLab does not support 6.x redis (https://gitlab.com/gitlab-org/gitlab/-/issues/281683)
+    Default: 5.0.6 # GitLab does not support 6.x redis (https://gitlab.com/gitlab-org/gitlab/-/issues/281683)
   CacheNodeType:
     Type: String
     Default: cache.t3.medium
-    AllowedPattern: "cache\\.[a-z0-9]*\\.[a-z0-9]*"
+    AllowedPattern: ^cache\.[a-z0-9]+\.[a-z0-9]+$
 
 Conditions:
   Use3AvailabilityZones:  !Not [!Equals [!Ref Subnet3ID, '']]
@@ -47,7 +47,7 @@ Resources:
       SubnetIds:
         - !Ref Subnet1ID
         - !Ref Subnet2ID   
-        - !If [Use3AvailabilityZones, !Ref Subnet3ID, !Ref 'AWS::NoValue']
+        - !If [Use3AvailabilityZones, !Ref Subnet3ID, !Ref AWS::NoValue]
 
   CacheSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -72,7 +72,7 @@ Resources:
       EngineVersion: !Ref CacheEngineVersion
       CacheNodeType: !Ref CacheNodeType
       CacheSubnetGroupName: !Ref CacheSubnetGroup
-      CacheParameterGroupName: 'default.redis5.0'
+      CacheParameterGroupName: default.redis5.0
       NumCacheClusters: !Ref CacheNodes
       SecurityGroupIds: [ !Ref CacheSecurityGroup ]
 
