@@ -53,13 +53,13 @@ Parameters:
   # Storage
   RootDeviceName:
     Type: String
-    Default: "/dev/xvda"
+    Default: /dev/xvda
   RootVolumeSize:
     Type: Number
     Default: 50
   GitDeviceName:
     Type: String
-    Default: "/dev/sdg"
+    Default: /dev/sdg
   GitVolumeSize:
     Type: Number
     Default: 250
@@ -97,7 +97,7 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: 2012-10-17
         Statement:
         - Effect: Allow
           Principal:
@@ -107,11 +107,11 @@ Resources:
           Action:
           - sts:AssumeRole
       ManagedPolicyArns:
-        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonEC2RoleforSSM'
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonEC2RoleforSSM
       Policies:
       - PolicyName: S3Access
         PolicyDocument:
-          Version: '2012-10-17'
+          Version: 2012-10-17
           Statement:
           # - Effect: Allow
           #   Action:
@@ -359,7 +359,7 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: 2012-10-17
         Statement:
         - Sid: AssumeAutoscalingNotificationsRole
           Effect: Allow
@@ -367,7 +367,7 @@ Resources:
             Service: autoscaling.amazonaws.com
           Action: sts:AssumeRole
       ManagedPolicyArns:
-        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AutoScalingNotificationAccessRole'
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AutoScalingNotificationAccessRole
 
   DnsManagementQueue: 
     Type: AWS::SQS::Queue
@@ -394,26 +394,26 @@ Resources:
       Handler: handler.lambda_handler
       Code:
         S3Bucket: !Ref FunctionsBucketName
-        S3Key: !Sub '${QSS3KeyPrefix}functions/packages/UpdateDnsRecord/lambda.zip'
+        S3Key: !Sub ${QSS3KeyPrefix}functions/packages/UpdateDnsRecord/lambda.zip
 
   DnsManagementFunctionRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: 2012-10-17
         Statement:
           - Effect: Allow
             Principal:
               Service:
                 - lambda.amazonaws.com
-            Action: 'sts:AssumeRole'
+            Action: sts:AssumeRole
       Path: /
       ManagedPolicyArns:
-        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
         - PolicyName: LambdaRole
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: 2012-10-17
             Statement:
               - Effect: Allow
                 Action:
@@ -430,7 +430,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - route53:ChangeResourceRecordSets
-                Resource: !Sub 'arn:${AWS::Partition}:route53:::hostedzone/${PrivateHostedZoneId}'
+                Resource: !Sub arn:${AWS::Partition}:route53:::hostedzone/${PrivateHostedZoneId}
               - Effect: Allow
                 Action:
                   - sqs:GetQueueAttributes
