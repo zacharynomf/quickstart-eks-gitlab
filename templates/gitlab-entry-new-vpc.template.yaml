@@ -382,7 +382,7 @@ Parameters:
       cluster access. Bastion host is recommended for EKS cluster management in
       production environments as a more secure option than a public EKS API
       endpoint. Select a larger instance size to do performance testing from
-      the bastion host using GitLab Performance Tool (gpt).
+      the bastion host using GitLab Performance Tool (GPT).
     AllowedValues: [Enabled, Disabled]
     Default: Disabled
   BastionInstanceType:
@@ -764,7 +764,7 @@ Parameters:
     Type: String
     Description: >-
       GitLab will be configured to use object storage for everything that is
-      capable of using it (artifacts, packages, lfs, etc.). Encryption
+      capable of using it (artifacts, packages, LFS, et cetera). Encryption
       algorithm for GitLab object storage artifacts.
     AllowedValues: [AES256]
     Default: AES256
