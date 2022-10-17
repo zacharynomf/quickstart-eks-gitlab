@@ -223,8 +223,8 @@ Outputs:
   PraefectSecretName:
     Value: !Ref PraefectDBPassword
   GitLabEndpointAddress:
-    Value: !If [UsingAurora, !Sub '${GitLabAuroraDatabase.Outputs.RDSEndPointAddress}', !Sub '${GitLabRDSDatabase.Outputs.RDSEndPointAddress}']
+    Value: !If [UsingAurora, !GetAtt GitLabAuroraDatabase.Outputs.RDSEndPointAddress, !GetAtt GitLabRDSDatabase.Outputs.RDSEndPointAddress]
   GitLabReadEndpointAddress:
-    Value: !If [UsingAurora, !Sub '${GitLabAuroraDatabase.Outputs.RDSReadEndPointAddress}', !Sub '${GitLabRDSDatabase.Outputs.RDSEndPointAddress}']
+    Value: !If [UsingAurora, !GetAtt GitLabAuroraDatabase.Outputs.RDSReadEndPointAddress, !GetAtt GitLabRDSDatabase.Outputs.RDSEndPointAddress]
   PraefectEndpointAddress:
-    Value: !If [UsingAurora, !Sub '${PraefectAuroraDatabase.Outputs.RDSEndPointAddress}', !Sub '${PraefectRDSDatabase.Outputs.RDSEndPointAddress}']
+    Value: !If [UsingAurora, !GetAtt PraefectAuroraDatabase.Outputs.RDSEndPointAddress, !GetAtt PraefectRDSDatabase.Outputs.RDSEndPointAddress]
