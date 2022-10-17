@@ -37,7 +37,6 @@ Resources:
     Properties:
       LayerName: !Sub ['${Prefix}-Crhelper', {Prefix: !FindInMap [Config, GitLabPrefix, Value]}]
       CompatibleRuntimes:
-        - python3.6
         - python3.7
       Content:
         S3Bucket: !Sub ['${Prefix}-lambdazips-${AWS::Region}-${AWS::AccountId}', {Prefix: !FindInMap [Config, EksPrefix, Value]}]
