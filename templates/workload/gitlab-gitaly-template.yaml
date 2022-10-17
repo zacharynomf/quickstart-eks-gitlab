@@ -148,7 +148,7 @@ Resources:
             Encrypted: true
             # KmsKeyId: !Ref CMKArn
         UserData:
-          "Fn::Base64": !Sub |
+          Fn::Base64: !Sub |
             #!/bin/bash
             /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource "GitalyAutoScalingGroup" --region ${AWS::Region} --configsets install_all
 
@@ -249,7 +249,7 @@ Resources:
                 Fn::Join:
                   - ""
                   - - "echo 'WARNING: ARM for Amazon Linux is not supported before GitLab 14.9.0 and this stack will fail if that combination is specified.'; IFS='.' read -r major minor patch <<< '"
-                    - Ref: "GitLabVersion"
+                    - !Ref GitLabVersion
                     - "'; if [[ ${major} -ge 15 || (${major} -eq 14 && ${minor} -ge 9) ]]; then sed -i 's/\\/el\\/7/\\/amazon\\/2/g' /etc/yum.repos.d/gitlab_gitlab*.repo; else sed -i 's/\\/amazon\\/2/\\/el\\/7/g' /etc/yum.repos.d/gitlab_gitlab*.repo; fi; yum clean all ; yum makecache;"
 #                    - "'; if [[ ${major} -ge 14 ]]; then sed -i 's/\\/el\\/7/\\/amazon\\/2/g' /etc/yum.repos.d/gitlab_gitlab*.repo; else sed -i 's/\\/amazon\\/2/\\/el\\/7/g' /etc/yum.repos.d/gitlab_gitlab*.repo; fi; yum clean all ; yum makecache;"
 

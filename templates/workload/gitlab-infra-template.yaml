@@ -300,10 +300,7 @@ Resources:
       Type: String
       Name: !Sub /quickstart/gitlab/${EnvironmentName}/infra/hosted-zone-id
       Description: GitLab Route53 public hosted zone ID
-      Value: !If
-      - HostedZoneToBeCreated
-      - !Ref HostedZone
-      - !Ref PublicHostedZoneId 
+      Value: !If [HostedZoneToBeCreated, !Ref HostedZone, !Ref PublicHostedZoneId]
 
   PrivateHostedZoneIdParameter:
     Type: AWS::SSM::Parameter
@@ -350,9 +347,6 @@ Outputs:
     Value: !Ref SmtpCredentialsSecret
   HostedZoneId:
     Condition: HostedZoneInUse
-    Value: !If
-      - HostedZoneToBeCreated
-      - !Ref HostedZone
-      - !Ref PublicHostedZoneId    
+    Value: !If [HostedZoneToBeCreated, !Ref HostedZone, !Ref PublicHostedZoneId]
   PrivateHostedZoneId:
     Value: !Ref PrivateHostedZone

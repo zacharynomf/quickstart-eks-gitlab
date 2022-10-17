@@ -46,38 +46,37 @@ Resources:
       Chart: gitlab/gitlab-runner
       Name: !Ref HelmChartName
       Version: !Ref HelmChartVersion
-      ValueYaml:
-        Fn::Sub: |
-          gitlabUrl: https://gitlab.${DomainName}/
-          runnerRegistrationToken: ${RunnerRegistrationToken}
+      ValueYaml: !Sub |
+        gitlabUrl: https://gitlab.${DomainName}/
+        runnerRegistrationToken: ${RunnerRegistrationToken}
 
-          ## Configure the maximum number of concurrent jobs
-          concurrent: ${MaximumConcurrentJobs}
+        ## Configure the maximum number of concurrent jobs
+        concurrent: ${MaximumConcurrentJobs}
 
-          certsSecretName: ${TlsCASecretName}
+        certsSecretName: ${TlsCASecretName}
 
-          ## For RBAC support:
-          rbac:
-            create: true
+        ## For RBAC support:
+        rbac:
+          create: true
 
-          ## Configuration for the Pods that the runner launches for each new job
-          ##
-          runners:
-            config: |
-              [[runners]]
-                clone_url = "https://gitlab.${DomainName}/"
+        ## Configuration for the Pods that the runner launches for each new job
+        ##
+        runners:
+          config: |
+            [[runners]]
+              clone_url = "https://gitlab.${DomainName}/"
 
-                [runners.kubernetes]
-                  image = "${RunnerImage}"
+              [runners.kubernetes]
+                image = "${RunnerImage}"
 
-                  ## Run all containers with the privileged flag enabled
-                  ## This will allow the docker:stable-dind image to run if you need to run Docker
-                  ## commands. Please read the docs before turning this on:
-                  ## ref: https://docs.gitlab.com/runner/executors/kubernetes.html#using-docker-dind
-                  privileged = ${PrivilegedMode}
+                ## Run all containers with the privileged flag enabled
+                ## This will allow the docker:stable-dind image to run if you need to run Docker
+                ## commands. Please read the docs before turning this on:
+                ## ref: https://docs.gitlab.com/runner/executors/kubernetes.html#using-docker-dind
+                privileged = ${PrivilegedMode}
 
-                  ## Namespace to run Kubernetes jobs
-                  namespace = "${HelmChartNamespace}"
+                ## Namespace to run Kubernetes jobs
+                namespace = "${HelmChartNamespace}"
 
 ###
 ### Example of the pipeline that uses DIND to build and push the image to GitLab registry
