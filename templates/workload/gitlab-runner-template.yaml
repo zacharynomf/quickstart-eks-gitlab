@@ -86,7 +86,7 @@ Resources:
 
 ###
 ### Example of the pipeline that uses DIND to build and push the image to GitLab registry
-### Note a trick with CA certificate for DIND container. Not needed for real TLS certs. 
+### Note a trick with CA certificate for DIND container. Not needed for real TLS certs.
 ###
 
 # .use-docker-in-docker:

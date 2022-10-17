@@ -28,7 +28,7 @@ Conditions:
 
 Resources:
 
-  # Using lambda packages from EKS quickstart. 
+  # Using lambda packages from EKS quickstart.
   # NOTE: This creates a dependency on EKS QS implementaton.
   # Consider this safe as DeleteBucketContents lambda is generic enough.
 

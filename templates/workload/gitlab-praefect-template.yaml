@@ -20,11 +20,11 @@ Parameters:
     Type: String
 
   # Database
-  DBHost: 
+  DBHost:
     Type: String
   DBPort:
     Type: Number
-  DBName: 
+  DBName:
     Type: String
     AllowedPattern: "[a-zA-Z0-9]*"
     MaxLength: "64"
@@ -61,7 +61,7 @@ Parameters:
     Type: AWS::EC2::Image::Id
   PraefectInstanceType:
     Type: String
-  PraefectReplicasCount: 
+  PraefectReplicasCount:
     Type: Number
   PraefectPort:
     Type: Number
@@ -116,7 +116,7 @@ Resources:
                 - logs:CreateLogStream
                 - logs:PutLogEvents
                 - logs:DescribeLogStreams
-                Resource: 
+                Resource:
                 - !Sub 'arn:${AWS::Partition}:logs:*:${AWS::AccountId}:*'
 
   PraefectLaunchTemplate:
@@ -125,11 +125,11 @@ Resources:
       LaunchTemplateData:
         InstanceType: !Ref PraefectInstanceType
         ImageId: !Ref PraefectAMIId
-        SecurityGroupIds: 
+        SecurityGroupIds:
           - !Ref PraefectSecurityGroup
         IamInstanceProfile:
           Arn: !GetAtt EC2InstanceProfile.Arn
-        BlockDeviceMappings: 
+        BlockDeviceMappings:
           - DeviceName: !Ref RootDeviceName
             Ebs:
               VolumeSize: !Ref RootVolumeSize
@@ -150,7 +150,7 @@ Resources:
 
   PraefectAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
-    Metadata: 
+    Metadata:
       AWS::CloudFormation::Init:
         configSets:
           install_all:
@@ -189,7 +189,7 @@ Resources:
                 log_group_name = ${PraefectLogGroup}
                 log_stream_name = {instance_id}/praefect-sql-migrate-log
                 datetime_format = %Y-%m-%d %H:%M:%S
-                
+
                 [/var/log/gitlab/alertmanager/current ]
                 file = /var/log/gitlab/alertmanager/current
                 log_group_name = ${PraefectLogGroup}

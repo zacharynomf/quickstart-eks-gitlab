@@ -25,10 +25,10 @@ Parameters:
   PrivateHostedZoneId:
     Type: String
   EnvironmentName:
-    Type: String 
+    Type: String
   ConfigureGrafana:
     Type: String
-    AllowedValues: [ 'Yes', 'No' ]
+    AllowedValues: ['Yes', 'No']
 
 Conditions:
   RegisterDns: !Not [!Equals [!Ref HostedZoneId, '']]

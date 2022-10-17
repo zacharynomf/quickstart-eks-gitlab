@@ -237,7 +237,7 @@ Resources:
                 serviceAccountName: cloudwatch-agent
         - CloudWatchAgentImage: !Ref CloudWatchAgentImage
 
-  # 2. Set Up FluentD as a DaemonSet to Send Logs to CloudWatch Logs 
+  # 2. Set Up FluentD as a DaemonSet to Send Logs to CloudWatch Logs
   # https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-setup-logs.html
   CloudWatchConfigMap:
     Type: AWSQS::Kubernetes::Resource
@@ -741,5 +741,5 @@ Resources:
                       path: /run/log/journal
                   - name: dmesg
                     hostPath:
-                      path: /var/log/dmesg          
+                      path: /var/log/dmesg
         - FluentdImage: !Ref FluentdImage

@@ -21,12 +21,12 @@ Parameters:
     Type: String
   CreateSslCertificate:
     Type: String
-    AllowedValues: [ 'Yes', 'No' ]
+    AllowedValues: ['Yes', 'No']
   EnvironmentName:
     Type: String
 
 # Network Parameters
-  VPCID: 
+  VPCID:
     Type: AWS::EC2::VPC::Id
   VPCCIDR:
     Type: String
@@ -38,7 +38,7 @@ Parameters:
   PrivateSubnet3ID:
     Type: String
     Default: ''
-  NodeGroupSecurityGroup: 
+  NodeGroupSecurityGroup:
     Type: AWS::EC2::SecurityGroup::Id
 
 # Cluster Parameters
@@ -48,10 +48,10 @@ Parameters:
     Type: String
   ConfigureContainerInsights:
     Type: String
-    AllowedValues: [ 'Yes', 'No' ]
+    AllowedValues: ['Yes', 'No']
   ConfigureGrafana:
     Type: String
-    AllowedValues: [ 'Yes', 'No' ]
+    AllowedValues: ['Yes', 'No']
 
 # Database Parameters
   AuroraDBEngineVersion:
@@ -67,12 +67,12 @@ Parameters:
     MaxLength: 64
     MinLength: 0
     Type: String
-  DBPraefectName: 
+  DBPraefectName:
     AllowedPattern: ^[a-zA-Z0-9]*$
     MaxLength: 64
     MinLength: 0
-    Type: String    
-  DBUserName: 
+    Type: String
+  DBUserName:
     AllowedPattern: ^[a-zA-Z][a-zA-Z0-9]*$
     MaxLength: 16
     MinLength: 1
@@ -87,7 +87,7 @@ Parameters:
     Type: String
   UsingAurora:
     Type: String
-    AllowedValues: [ 'Yes', 'No' ]
+    AllowedValues: ['Yes', 'No']
 
 # Object Storage Parameters
   ObjectStorageSSEAlgorithm:
@@ -108,7 +108,7 @@ Parameters:
     Type: String
 
 # SMTP Parameters
-  SMTPDomain: 
+  SMTPDomain:
     Type: String
     AllowedValues: [Disabled, CreateNew, UseExisting]
   SMTPHostName:
@@ -139,11 +139,11 @@ Parameters:
     Type: String
   BackupVolumeSize:
     Type: Number
-  NumberOfPraefectReplicas: 
+  NumberOfPraefectReplicas:
     Type: Number
   NumberOfGitalyReplicas:
     Type: Number
-  GitalyVolumeSize: 
+  GitalyVolumeSize:
     Type: Number
 
   PraefectInstanceType:
@@ -200,14 +200,14 @@ Conditions:
   OutgoingEmailEnabled: !Not [!Equals [!Ref SMTPDomain, Disabled]]
   CreateEmailDomain: !Equals [!Ref SMTPDomain, CreateNew]
   HostedZoneInUse: !Not [!Equals  [!Ref PublicDNS, Disabled]]
-  AcmIngressConfigured: !And [!Equals [!Ref CreateSslCertificate, 'Yes'], !Condition HostedZoneInUse] 
+  AcmIngressConfigured: !And [!Equals [!Ref CreateSslCertificate, 'Yes'], !Condition HostedZoneInUse]
   HelmChartNamespaceCreate: !Equals [!Ref HelmChartNamespaceCreate, CreateNew]
   CreateCacheCluster: !Equals [!Ref CacheMode, External]
   ConfigureRunner: !Equals [!Ref ConfigureRunner, 'Yes']
   PrivilegedMode: !Equals [!Ref PrivilegedMode, 'Yes']
 
-Mappings: 
-  PartitionMap: 
+Mappings:
+  PartitionMap:
     aws:
       IngressImageRepository: k8s.gcr.io/defaultbackend-amd64
     aws-us-gov:
@@ -217,14 +217,14 @@ Mappings:
 
 Resources:
 
-  Functions: 
+  Functions:
     Type: AWS::CloudFormation::Stack
-    Properties: 
+    Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-functions-template.yaml
         - S3Region: !If [UsingDefaultBucket, !Ref AWS::Region, !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-      Parameters: 
+      Parameters:
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
 
@@ -249,15 +249,15 @@ Resources:
       ServiceToken: !GetAtt Functions.Outputs.RandomStringFunctionArn
       Length: 64 # https://docs.gitlab.com/charts/installation/secrets.html#gitlab-runner-secret
 
-  Telemetry: 
+  Telemetry:
     Type: AWS::CloudFormation::Stack
     Condition: ConfigureContainerInsights
-    Properties: 
+    Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-telemetry-template.yaml
         - S3Region: !If [UsingDefaultBucket, !Ref AWS::Region, !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-      Parameters: 
+      Parameters:
         ClusterName: !Ref KubeClusterName
 
   Infrastructure:
@@ -274,7 +274,7 @@ Resources:
         DomainName: !Ref DomainName
         PublicDNS: !Ref PublicDNS
         PublicHostedZoneId: !Ref PublicHostedZoneId
-        CreateEmailDomain: !If [CreateEmailDomain, 'Yes', 'No'] 
+        CreateEmailDomain: !If [CreateEmailDomain, 'Yes', 'No']
         CreateSslCertificate: !Ref CreateSslCertificate
         FunctionsBucketName: !GetAtt Functions.Outputs.FunctionsBucketName
         QSS3BucketName: !Ref QSS3BucketName
@@ -320,7 +320,7 @@ Resources:
         AuroraDBInstanceClass: !Ref AuroraDBInstanceClass
         RDSDBInstanceClass: !Ref RDSDBInstanceClass
         DBName: !Ref DBName
-        DBPraefectName: !Ref DBPraefectName 
+        DBPraefectName: !Ref DBPraefectName
         DBUserName: !Ref DBUserName
         DBPort: !Ref DBPort
         QSS3BucketName: !Ref QSS3BucketName
@@ -343,7 +343,7 @@ Resources:
         DBUsername: !Sub '{{resolve:secretsmanager:${Database.Outputs.PraefectSecretName}:SecretString:username}}'
         DBUserPassword: !Sub '{{resolve:secretsmanager:${Database.Outputs.PraefectSecretName}:SecretString:password}}'
         VPCID: !Ref VPCID
-        PraefectSubnetIds: !If 
+        PraefectSubnetIds: !If
           - Using3AvailabilityZones
           - !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID, !Ref PrivateSubnet3ID ] ]
           - !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID ] ]
@@ -370,7 +370,7 @@ Resources:
         DomainName: !Ref DomainName
         PrivateHostedZoneId: !GetAtt Infrastructure.Outputs.PrivateHostedZoneId
         TlsCA: !GetAtt PostInstall.Outputs.RootCA
-        GitalySubnetIds: !If 
+        GitalySubnetIds: !If
           - Using3AvailabilityZones
           - !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID, !Ref PrivateSubnet3ID ] ]
           - !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID ] ]
@@ -420,17 +420,17 @@ Resources:
           labels:
             name: ${HelmChartNamespace}
 
-  NewChartNamespaceWaitHandle: 
+  NewChartNamespaceWaitHandle:
     Type: AWS::CloudFormation::WaitConditionHandle
     Condition: HelmChartNamespaceCreate
     DependsOn: ChartNamespace
 
-  ExistingChartNamespaceWaitHandle: 
+  ExistingChartNamespaceWaitHandle:
     Type: AWS::CloudFormation::WaitConditionHandle
 
-  ChartNamespaceWaitCondition: 
+  ChartNamespaceWaitCondition:
     Type: AWS::CloudFormation::WaitCondition
-    Properties: 
+    Properties:
       Handle: !If [HelmChartNamespaceCreate, !Ref NewChartNamespaceWaitHandle, !Ref ExistingChartNamespaceWaitHandle]
       Timeout: 1
       Count: 0
@@ -459,14 +459,14 @@ Resources:
         RunnerTokenSecretValue: !GetAtt RunnerRegistrationToken.Value
 
   Chart:
-    Type: AWSQS::Kubernetes::Helm   
+    Type: AWSQS::Kubernetes::Helm
     # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Helm
     Metadata: { cfn-lint: { config: { ignore_checks: [E3001, E1010] } } }
     Properties:
-      ClusterID: !Ref KubeClusterName 
+      ClusterID: !Ref KubeClusterName
       Namespace: !Ref HelmChartNamespace
       Repository: https://charts.gitlab.io/
-      Chart: gitlab/gitlab 
+      Chart: gitlab/gitlab
       Name: !Ref HelmChartName
       Version: !Ref HelmChartVersion
 
@@ -476,7 +476,7 @@ Resources:
             gitaly:
               external:
                 - name: default
-                  hostname: ${Praefect.Outputs.LoadBalancerDnsName} 
+                  hostname: ${Praefect.Outputs.LoadBalancerDnsName}
                   port: ${PraefectPort}
             psql:
               load_balancing:
@@ -511,14 +511,14 @@ Resources:
                   service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
                   service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "ssl"
                   service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "${SslCertificateArn}"
-                # Deploy internal load balancer 
+                # Deploy internal load balancer
                 internal:
                   enabled: true
                   annotations:
                     service.beta.kubernetes.io/aws-load-balancer-internal: 0.0.0.0/0
         - SslCertificateArn: !If [AcmIngressConfigured, !GetAtt Infrastructure.Outputs.SslCertificateArn, '']
           ServiceAccountRoleArn: !GetAtt ObjectStorage.Outputs.ServiceAccountRoleArn
-          
+
       Values:
         # domain name
         global.hosts.domain: !Ref DomainName
@@ -542,7 +542,7 @@ Resources:
         global.ingress.configureCertmanager: false
 
         global.ingress.enabled: true
-        nginx-ingress.defaultBackend.image.repository: 
+        nginx-ingress.defaultBackend.image.repository:
           !FindInMap [PartitionMap, !Ref AWS::Partition, IngressImageRepository]
 
         # telemetry configuration
@@ -552,19 +552,19 @@ Resources:
         global.email.display_name: GitLab
         global.email.from: !Sub gitlab@${DomainName}
         global.email.reply_to: !Sub noreply@${DomainName}
-        global.smtp.enabled: !If [OutgoingEmailEnabled, true, false] 
+        global.smtp.enabled: !If [OutgoingEmailEnabled, true, false]
         global.smtp.domain: !Ref DomainName
         global.smtp.starttls_auto: true
         global.smtp.authentication: login
-        global.smtp.address: 
+        global.smtp.address:
           !If [CreateEmailDomain, !Sub 'email-smtp.${AWS::Region}.amazonaws.com', !Ref SMTPHostName]
-        global.smtp.port: 
+        global.smtp.port:
           !If [CreateEmailDomain, !Ref DefaultSESPort, !Ref SMTPPort]
-        global.smtp.user_name: 
+        global.smtp.user_name:
           !If [CreateEmailDomain, !Sub '{{resolve:secretsmanager:${Infrastructure.Outputs.SmtpCredentialsSecretName}:SecretString:username}}', !Ref SMTPUsername]
-        global.smtp.password.secret: 
+        global.smtp.password.secret:
           !If [OutgoingEmailEnabled, !GetAtt KubeSecrets.Outputs.SmtpSecretName, !Ref AWS::NoValue]
-        global.smtp.password.key: 
+        global.smtp.password.key:
           !If [OutgoingEmailEnabled, !GetAtt KubeSecrets.Outputs.SmtpSecretKey, !Ref AWS::NoValue]
 
         # runner configuration
@@ -572,13 +572,13 @@ Resources:
 
         # cache configuration
         ## external redis settings
-        redis.install: 
+        redis.install:
           !If [CreateCacheCluster, false, true]
-        global.redis.host: 
+        global.redis.host:
           !If [CreateCacheCluster, !GetAtt Cache.Outputs.CacheEndpoint, !Ref AWS::NoValue]
         global.redis.scheme:
           !If [CreateCacheCluster, rediss, !Ref AWS::NoValue]
-        global.redis.password.enabled: 
+        global.redis.password.enabled:
           !If [CreateCacheCluster, false, !Ref AWS::NoValue]
         ## built-in redis settings
         redis.cluster.enabled:
@@ -596,7 +596,7 @@ Resources:
 
         # Praefect/Gitaly configuration
         global.gitaly.enabled: false
-  
+
         # S3 storage configuration
         ## object storage
         global.minio.enabled: false
@@ -635,15 +635,15 @@ Resources:
         ## Adjust min replicas to match number of AZs
         gitlab.webservice.minReplicas: !If [Using3AvailabilityZones, 3, 2]
 
-  PostInstall: 
+  PostInstall:
     Type: AWS::CloudFormation::Stack
     DependsOn: Chart
-    Properties: 
+    Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-postinstall-template.yaml
         - S3Region: !If [UsingDefaultBucket, !Ref AWS::Region, !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-      Parameters: 
+      Parameters:
         ClusterName: !Ref KubeClusterName
         HelmChartNamespace: !Ref HelmChartNamespace
         HelmChartName: !Ref HelmChartName
@@ -653,7 +653,7 @@ Resources:
         EnvironmentName: !Ref EnvironmentName
         ConfigureGrafana: !Ref ConfigureGrafana
 
-  Runner: 
+  Runner:
     Type: AWS::CloudFormation::Stack
     Condition: ConfigureRunner
     Properties:
@@ -661,7 +661,7 @@ Resources:
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-runner-template.yaml
         - S3Region: !If [UsingDefaultBucket, !Ref AWS::Region, !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-      Parameters: 
+      Parameters:
         ClusterName: !Ref KubeClusterName
         HelmChartNamespace: !Ref HelmChartNamespace
         HelmChartName: !Ref RunnerChartName

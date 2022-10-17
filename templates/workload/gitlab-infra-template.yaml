@@ -69,15 +69,15 @@ Resources:
 
   PraefectSecurityGroup:
     Type: AWS::EC2::SecurityGroup
-    Properties: 
+    Properties:
       GroupDescription: Allow access to database port.
-      SecurityGroupEgress: 
+      SecurityGroupEgress:
         - CidrIp: 0.0.0.0/0
           FromPort: -1
           IpProtocol: -1
           ToPort: -1
       SecurityGroupIngress:
-        - CidrIp: !Ref VPCCIDR 
+        - CidrIp: !Ref VPCCIDR
           FromPort: !Ref PraefectPort
           ToPort: !Ref PraefectPort
           IpProtocol: tcp
@@ -108,7 +108,7 @@ Resources:
 # 2. Request ACM certificate for the domain
   SslCertificate:
     Type: AWS::CertificateManager::Certificate
-    Condition: CertificateRequested 
+    Condition: CertificateRequested
     Properties:
       DomainName: !Sub '*.${DomainName}'
       ValidationMethod: DNS

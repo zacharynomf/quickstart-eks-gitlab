@@ -12,7 +12,7 @@ Metadata:
 
 Parameters:
 
-  VPCID: 
+  VPCID:
     Type: AWS::EC2::VPC::Id
   Subnet1ID:
     Type: AWS::EC2::Subnet::Id
@@ -24,7 +24,7 @@ Parameters:
 
   IngressSecurityGroupId:
     Type: String
-    
+
   CacheNodes:
     Type: Number
   CacheEngineVersion:
@@ -36,7 +36,7 @@ Parameters:
     AllowedPattern: ^cache\.[a-z0-9]+\.[a-z0-9]+$
 
 Conditions:
-  Use3AvailabilityZones:  !Not [!Equals [!Ref Subnet3ID, '']]
+  Use3AvailabilityZones: !Not [!Equals [!Ref Subnet3ID, '']]
 
 Resources:
 
@@ -46,7 +46,7 @@ Resources:
       Description: Redis cache Subnet Group
       SubnetIds:
         - !Ref Subnet1ID
-        - !Ref Subnet2ID   
+        - !Ref Subnet2ID
         - !If [Use3AvailabilityZones, !Ref Subnet3ID, !Ref AWS::NoValue]
 
   CacheSecurityGroup:
@@ -74,7 +74,7 @@ Resources:
       CacheSubnetGroupName: !Ref CacheSubnetGroup
       CacheParameterGroupName: default.redis5.0
       NumCacheClusters: !Ref CacheNodes
-      SecurityGroupIds: [ !Ref CacheSecurityGroup ]
+      SecurityGroupIds: [!Ref CacheSecurityGroup]
 
 Outputs:
   CacheEndpoint:
