@@ -8,8 +8,6 @@ Metadata:
         - W9002
         - W9003
         - W9004
-        - E0002
-        - E1010
 
 Parameters:
   ClusterName:
@@ -39,8 +37,6 @@ Resources:
   # 0. Retrieve value of rails secret and store it in Secrets Manager
   RailsSecretQuery:
     Type: AWSQS::Kubernetes::Get
-    # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Get
-    Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: !Ref HelmChartNamespace
@@ -59,8 +55,6 @@ Resources:
     Type: AWSQS::Kubernetes::Get
     # Dependency to ensure queries are not executed in parallel - seen some errors when they run concurrently
     DependsOn: RailsSecretQuery
-    # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Get
-    Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: !Ref HelmChartNamespace
@@ -79,8 +73,6 @@ Resources:
     Type: AWSQS::Kubernetes::Get
     # Dependency to ensure queries are not executed in parallel - seen some errors when they run concurrently
     DependsOn: InitialRootPasswordQuery
-    # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Get
-    Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: !Ref HelmChartNamespace
@@ -91,8 +83,6 @@ Resources:
     Type: AWSQS::Kubernetes::Get
     # Dependency to ensure queries are not executed in parallel - seen some errors when they run concurrently
     DependsOn: LoadBalancerQuery
-    # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Get
-    Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: !Ref HelmChartNamespace
@@ -112,8 +102,6 @@ Resources:
     Type: AWSQS::Kubernetes::Get
     # Dependency to ensure queries are not executed in parallel - seen some errors when they run concurrently
     DependsOn: InternalLoadBalancerQuery
-    # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Get
-    Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: !Ref HelmChartNamespace
@@ -134,8 +122,6 @@ Resources:
     Condition: ConfigureGrafana
     # Dependency to ensure queries are not executed in parallel - seen some errors when they run concurrently
     DependsOn: RootCAQuery
-    # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Get
-    Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: !Ref HelmChartNamespace

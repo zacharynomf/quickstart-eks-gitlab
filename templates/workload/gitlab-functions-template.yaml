@@ -10,7 +10,6 @@ Metadata:
         - W9002
         - W9003
         - W9004
-        - E0002
 
 Parameters:
   QSS3BucketName:

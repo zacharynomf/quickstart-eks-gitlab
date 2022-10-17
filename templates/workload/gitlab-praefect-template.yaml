@@ -5,12 +5,9 @@ Metadata:
   cfn-lint:
     config:
       ignore_checks:
-        - W4002
         - W9002
         - W9003
         - W9004
-        - E9101
-        - E0002
 
 Parameters:
   # Infrastructure
@@ -151,6 +148,7 @@ Resources:
   PraefectAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Metadata:
+      cfn-lint: { config: { ignore_checks: [W4002, I1022] } }
       AWS::CloudFormation::Init:
         configSets:
           install_all:

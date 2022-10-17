@@ -9,7 +9,6 @@ Metadata:
         - W9002
         - W9003
         - W9004
-        - E0002
 
 Parameters:
 
@@ -136,7 +135,6 @@ Resources:
   GitLabAuroraDatabase:
     Type: AWS::CloudFormation::Stack
     Condition: UsingAurora
-    Metadata: { cfn-lint: { config: { ignore_checks: [E9101] } } } # E9101 Ignoring 'master' in Aurora PostgreSQL quickstart parameter names
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-aurora-postgresql/templates/aurora_postgres.template.yaml
@@ -157,7 +155,6 @@ Resources:
   PraefectAuroraDatabase:
     Type: AWS::CloudFormation::Stack
     Condition: UsingAurora
-    Metadata: { cfn-lint: { config: { ignore_checks: [E9101] } } } # E9101 Ignoring 'master' in Aurora PostgreSQL quickstart parameter names
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-aurora-postgresql/templates/aurora_postgres.template.yaml
@@ -178,7 +175,6 @@ Resources:
   GitLabRDSDatabase:
     Type: AWS::CloudFormation::Stack
     Condition: UsingRDS
-    Metadata: { cfn-lint: { config: { ignore_checks: [ E9101 ] } } } # E9101 Ignoring 'master' in RDS PostgreSQL quickstart parameter names
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-rds-postgres/templates/rds_postgres.template.yaml
@@ -199,7 +195,6 @@ Resources:
   PraefectRDSDatabase:
     Type: AWS::CloudFormation::Stack
     Condition: UsingRDS
-    Metadata: { cfn-lint: { config: { ignore_checks: [ E9101 ] } } } # E9101 Ignoring 'master' in RDS PostgreSQL quickstart parameter names
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-rds-postgres/templates/rds_postgres.template.yaml
