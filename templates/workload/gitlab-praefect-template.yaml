@@ -23,9 +23,9 @@ Parameters:
     Type: Number
   DBName:
     Type: String
-    AllowedPattern: "[a-zA-Z0-9]*"
-    MaxLength: "64"
-    MinLength: "0"
+    MinLength: 0
+    MaxLength: 64
+    AllowedPattern: ^[a-zA-Z0-9]*$
   DBUsername:
     Type: String
   DBUserPassword:
@@ -33,7 +33,7 @@ Parameters:
     NoEcho: "True"
 
   # Network
-  VPCID: 
+  VPCID:
     Type: AWS::EC2::VPC::Id
   PraefectSubnetIds:
     Type: List<AWS::EC2::Subnet::Id>

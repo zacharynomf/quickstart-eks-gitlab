@@ -28,28 +28,28 @@ Parameters:
 
 # Database Parameters
   AuroraDBEngineVersion:
+    Type: String
+    MinLength: 4
     AllowedValues: [9.6.16, 9.6.17, 9.6.18, 9.6.19, 10.11, 10.12, 10.13, 10.14, 11.6, 11.7, 11.8, 11.9, 12.4]
-    MinLength: 4
-    Type: String
   RDSDBEngineVersion:
-    AllowedValues: [9.6.20, 9.6.21, 9.6.22, 10.15, 10.16, 10.17, 11.10, 11.11, 11.12, 12.5, 12.6, 12.7, 13.1, 13.2, 13.3]
+    Type: String
     MinLength: 4
-    Type: String
+    AllowedValues: [9.6.20, 9.6.21, 9.6.22, 10.15, 10.16, 10.17, 11.10, 11.11, 11.12, 12.5, 12.6, 12.7, 13.1, 13.2, 13.3]
   DBName:
-    AllowedPattern: ^[a-zA-Z0-9]*$
+    Type: String
     MaxLength: 64
     MinLength: 0
-    Type: String
+    AllowedPattern: ^[a-zA-Z0-9]*$
   DBPraefectName:
+    Type: String
     AllowedPattern: ^[a-zA-Z0-9]*$
-    MaxLength: 64
     MinLength: 0
-    Type: String
+    MaxLength: 64
   DBUserName:
-    AllowedPattern: ^[a-zA-Z][a-zA-Z0-9]*$
-    MaxLength: 16
-    MinLength: 1
     Type: String
+    AllowedPattern: ^[a-zA-Z][a-zA-Z0-9]*$
+    MinLength: 1
+    MaxLength: 16
   DBPort:
     Type: Number
     MinValue: 1150

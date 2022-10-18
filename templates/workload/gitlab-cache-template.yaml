@@ -31,8 +31,8 @@ Parameters:
     Default: 5.0.6 # GitLab does not support 6.x redis (https://gitlab.com/gitlab-org/gitlab/-/issues/281683)
   CacheNodeType:
     Type: String
-    Default: cache.t3.medium
     AllowedPattern: ^cache\.[a-z0-9]+\.[a-z0-9]+$
+    Default: cache.t3.medium
 
 Conditions:
   Use3AvailabilityZones: !Not [!Equals [!Ref Subnet3ID, '']]
