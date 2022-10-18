@@ -31,10 +31,10 @@ Parameters:
     Type: String
   GitLabShellToken:
     Type: String
-    NoEcho: "True"
+    NoEcho: true
   PraefectInternalToken:
     Type: String
-    NoEcho: "True"
+    NoEcho: true
 
   # Gitaly
   GitalyAMIId:

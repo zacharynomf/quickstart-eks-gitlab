@@ -30,7 +30,7 @@ Parameters:
     Type: String
   DBUserPassword:
     Type: String
-    NoEcho: "True"
+    NoEcho: true
 
   # Network
   VPCID:
@@ -45,13 +45,13 @@ Parameters:
     Type: String
   GitLabShellToken:
     Type: String
-    NoEcho: "True"
+    NoEcho: true
   PraefectInternalToken:
     Type: String
-    NoEcho: "True"
+    NoEcho: true
   PraefectExternalToken:
     Type: String
-    NoEcho: "True"
+    NoEcho: true
 
   # Praefect
   PraefectAMIId:
