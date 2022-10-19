@@ -1,5 +1,7 @@
-AWSTemplateFormatVersion: "2010-09-09"
-Description: Deploys Lambda functions required for the AWS GitLab Quick Start (qs-1rpegts3l)
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  Deploys Lambda functions required for the AWS GitLab Quick Start.
+  (qs-1rpegts3l)
 
 Metadata:
   cfn-lint:
@@ -8,7 +10,6 @@ Metadata:
         - W9002
         - W9003
         - W9004
-        - E0002
 
 Parameters:
   QSS3BucketName:
@@ -18,15 +19,15 @@ Parameters:
 
 Mappings:
   Config:
-    EksPrefix: { Value: 'eks-quickstart' }
-    GitLabPrefix: { Value: 'gitlab-quickstart' }
+    EksPrefix: { Value: eks-quickstart }
+    GitLabPrefix: { Value: gitlab-quickstart }
 
 Conditions:
-  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, aws-quickstart]
 
 Resources:
 
-  # Using lambda packages from EKS quickstart. 
+  # Using lambda packages from EKS quickstart.
   # NOTE: This creates a dependency on EKS QS implementaton.
   # Consider this safe as DeleteBucketContents lambda is generic enough.
 
@@ -36,11 +37,10 @@ Resources:
     Properties:
       LayerName: !Sub ['${Prefix}-Crhelper', {Prefix: !FindInMap [Config, GitLabPrefix, Value]}]
       CompatibleRuntimes:
-        - python3.6
         - python3.7
       Content:
         S3Bucket: !Sub ['${Prefix}-lambdazips-${AWS::Region}-${AWS::AccountId}', {Prefix: !FindInMap [Config, EksPrefix, Value]}]
-        S3Key: !Sub '${QSS3KeyPrefix}submodules/quickstart-amazon-eks/functions/packages/crhelperLayer/lambda.zip'
+        S3Key: !Sub ${QSS3KeyPrefix}submodules/quickstart-amazon-eks/functions/packages/crhelperLayer/lambda.zip
 
   DeleteBucketContentsFunction:
     Type: AWS::Lambda::Function
@@ -53,20 +53,20 @@ Resources:
       Layers: [!Ref CrHelperLayer]
       Code:
         S3Bucket: !Sub ['${Prefix}-lambdazips-${AWS::Region}-${AWS::AccountId}', {Prefix: !FindInMap [Config, EksPrefix, Value]}]
-        S3Key: !Sub '${QSS3KeyPrefix}submodules/quickstart-amazon-eks/functions/packages/DeleteBucketContents/lambda.zip'
+        S3Key: !Sub ${QSS3KeyPrefix}submodules/quickstart-amazon-eks/functions/packages/DeleteBucketContents/lambda.zip
 
   DeleteBucketContentsRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: 2012-10-17
         Statement:
           - Effect: Allow
             Principal:
               Service: lambda.amazonaws.com
             Action: sts:AssumeRole
       ManagedPolicyArns:
-        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
 
   CopyZips:
     Type: Custom::CopyZips
@@ -74,7 +74,7 @@ Resources:
       ServiceToken: !Sub ['arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Prefix}-CopyZips', {Prefix: !FindInMap [Config, EksPrefix, Value]}]
       DestBucket: !Sub ['${Prefix}-lambdazips-${AWS::Region}-${AWS::AccountId}', {Prefix: !FindInMap [Config, EksPrefix, Value]}]
       SourceBucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-      Prefix: !Ref 'QSS3KeyPrefix'
+      Prefix: !Ref QSS3KeyPrefix
       Objects:
         - functions/packages/CfnSesDomain/lambda.zip
         - functions/packages/CleanupACMDNSValidation/lambda.zip
@@ -84,7 +84,7 @@ Resources:
   RandomStringFunction:
     Type: AWS::Lambda::Function
     Properties:
-      Handler: "index.lambda_handler"
+      Handler: index.lambda_handler
       Timeout: 30
       Role: !GetAtt TrivialFunctionRole.Arn
       Runtime: python3.8
@@ -110,7 +110,7 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: 2012-10-17
         Statement:
         - Sid: AssumeLambdaExecutionRole
           Effect: Allow
@@ -118,7 +118,7 @@ Resources:
             Service: lambda.amazonaws.com
           Action: sts:AssumeRole
       ManagedPolicyArns:
-        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
 
 Outputs:
   FunctionsBucketName:

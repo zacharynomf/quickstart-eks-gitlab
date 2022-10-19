@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Deploys EKS telemetry integration (qs-1rpegts6f)
+Description: Deploys EKS telemetry integration. (qs-1rpegts6f)
 
 Metadata:
   cfn-lint:
@@ -25,8 +25,6 @@ Resources:
   # https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-setup-metrics.html
   CloudWatchNamespace:
     Type: AWSQS::Kubernetes::Resource
-    # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Resource
-    Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: default
@@ -41,8 +39,6 @@ Resources:
   CloudWatchServiceAccount:
     Type: AWSQS::Kubernetes::Resource
     DependsOn: CloudWatchNamespace
-    # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Resource
-    Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: amazon-cloudwatch
@@ -56,8 +52,6 @@ Resources:
   CloudWatchClusterRole:
     Type: AWSQS::Kubernetes::Resource
     DependsOn: CloudWatchServiceAccount
-    # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Resource
-    Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: default
@@ -90,8 +84,6 @@ Resources:
   CloudWatchClusterRoleBinding:
     Type: AWSQS::Kubernetes::Resource
     DependsOn: CloudWatchClusterRole
-    # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Resource
-    Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: default
@@ -112,8 +104,6 @@ Resources:
   CloudWatchAgentConfigMap:
     Type: AWSQS::Kubernetes::Resource
     DependsOn: CloudWatchClusterRoleBinding
-    # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Resource
-    Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: amazon-cloudwatch
@@ -144,8 +134,6 @@ Resources:
   CloudWatchAgentDaemonSet:
     Type: AWSQS::Kubernetes::Resource
     DependsOn: CloudWatchAgentConfigMap
-    # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Resource
-    Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: amazon-cloudwatch
@@ -237,13 +225,11 @@ Resources:
                 serviceAccountName: cloudwatch-agent
         - CloudWatchAgentImage: !Ref CloudWatchAgentImage
 
-  # 2. Set Up FluentD as a DaemonSet to Send Logs to CloudWatch Logs 
+  # 2. Set Up FluentD as a DaemonSet to Send Logs to CloudWatch Logs
   # https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-setup-logs.html
   CloudWatchConfigMap:
     Type: AWSQS::Kubernetes::Resource
     DependsOn: CloudWatchNamespace
-    # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Resource
-    Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: amazon-cloudwatch
@@ -265,8 +251,6 @@ Resources:
   FluentdServiceAccount:
     Type: AWSQS::Kubernetes::Resource
     DependsOn: CloudWatchConfigMap
-    # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Resource
-    Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: amazon-cloudwatch
@@ -280,8 +264,6 @@ Resources:
   FluentdClusterRole:
     Type: AWSQS::Kubernetes::Resource
     DependsOn: FluentdServiceAccount
-    # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Resource
-    Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: default
@@ -301,8 +283,6 @@ Resources:
   FluentdClusterRoleBinding:
     Type: AWSQS::Kubernetes::Resource
     DependsOn: FluentdClusterRole
-    # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Resource
-    Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: default
@@ -323,8 +303,6 @@ Resources:
   FluentdConfigMap:
     Type: AWSQS::Kubernetes::Resource
     DependsOn: FluentdClusterRoleBinding
-    # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Resource
-    Metadata: { cfn-lint: { config: { ignore_checks: [E3001, E1029] } } }
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: amazon-cloudwatch
@@ -646,8 +624,6 @@ Resources:
   FluentdDaemonSet:
     Type: AWSQS::Kubernetes::Resource
     DependsOn: FluentdConfigMap
-    # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Resource
-    Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
     Properties:
       ClusterName: !Ref ClusterName
       Namespace: amazon-cloudwatch
@@ -741,5 +717,5 @@ Resources:
                       path: /run/log/journal
                   - name: dmesg
                     hostPath:
-                      path: /var/log/dmesg          
+                      path: /var/log/dmesg
         - FluentdImage: !Ref FluentdImage

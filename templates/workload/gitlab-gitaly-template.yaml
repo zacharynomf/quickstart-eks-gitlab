@@ -1,15 +1,13 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Deploys Gitaly instances (qs-1rpegts49)
+Description: Deploys Gitaly instances. (qs-1rpegts49)
 
 Metadata:
   cfn-lint:
     config:
       ignore_checks:
-        - W4002
         - W9002
         - W9003
         - W9004
-        - E0002
 
 Parameters:
   # Infrastructure
@@ -33,17 +31,17 @@ Parameters:
     Type: String
   GitLabShellToken:
     Type: String
-    NoEcho: "True"
+    NoEcho: true
   PraefectInternalToken:
     Type: String
-    NoEcho: "True"
+    NoEcho: true
 
   # Gitaly
   GitalyAMIId:
     Type: AWS::EC2::Image::Id
   GitalyInstanceType:
     Type: String
-  GitalyReplicasCount: 
+  GitalyReplicasCount:
     Type: Number
   GitalyPort:
     Type: Number
@@ -53,13 +51,13 @@ Parameters:
   # Storage
   RootDeviceName:
     Type: String
-    Default: "/dev/xvda"
+    Default: /dev/xvda
   RootVolumeSize:
     Type: Number
     Default: 50
   GitDeviceName:
     Type: String
-    Default: "/dev/sdg"
+    Default: /dev/sdg
   GitVolumeSize:
     Type: Number
     Default: 250
@@ -97,21 +95,21 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: 2012-10-17
         Statement:
         - Effect: Allow
           Principal:
             Service:
-            - ec2.amazonaws.com   
-            - ssm.amazonaws.com         
+            - ec2.amazonaws.com
+            - ssm.amazonaws.com
           Action:
           - sts:AssumeRole
       ManagedPolicyArns:
-        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonEC2RoleforSSM'
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonEC2RoleforSSM
       Policies:
       - PolicyName: S3Access
         PolicyDocument:
-          Version: '2012-10-17'
+          Version: 2012-10-17
           Statement:
           # - Effect: Allow
           #   Action:
@@ -125,7 +123,7 @@ Resources:
             - logs:CreateLogStream
             - logs:PutLogEvents
             - logs:DescribeLogStreams
-            Resource: 
+            Resource:
             - !Sub 'arn:${AWS::Partition}:logs:*:${AWS::AccountId}:*'
 
   GitalyLaunchTemplate:
@@ -135,11 +133,11 @@ Resources:
       LaunchTemplateData:
         InstanceType: !Ref GitalyInstanceType
         ImageId: !Ref GitalyAMIId
-        SecurityGroupIds: 
+        SecurityGroupIds:
           - !Ref GitalySecurityGroup
         IamInstanceProfile:
           Arn: !GetAtt EC2InstanceProfile.Arn
-        BlockDeviceMappings: 
+        BlockDeviceMappings:
         - DeviceName: !Ref RootDeviceName
           Ebs:
             VolumeSize: !Ref RootVolumeSize
@@ -150,12 +148,12 @@ Resources:
             Encrypted: true
             # KmsKeyId: !Ref CMKArn
         UserData:
-          "Fn::Base64": !Sub |
+          Fn::Base64: !Sub |
             #!/bin/bash
             /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource "GitalyAutoScalingGroup" --region ${AWS::Region} --configsets install_all
-            
+
             gitlab-ctl reconfigure
-            
+
             /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource "GitalyAutoScalingGroup" --region ${AWS::Region}
         TagSpecifications:
           - ResourceType: instance
@@ -171,6 +169,7 @@ Resources:
     Type: AWS::AutoScaling::AutoScalingGroup
     DependsOn: SQSTrigger
     Metadata:
+      cfn-lint: { config: { ignore_checks: [W4002, I1022] } }
       AWS::CloudFormation::Init:
         configSets:
           install_all:
@@ -214,7 +213,7 @@ Resources:
                 log_group_name = ${GitalyLogGroup}
                 log_stream_name = {instance_id}/gitaly_hooks.log
                 datetime_format = %Y-%m-%d %H:%M:%S
-                
+
               mode: "000444"
               owner: root
               group: root
@@ -239,7 +238,7 @@ Resources:
               python2-pip: []
           commands:
             100_gitlab_yum_repo:
-              command:  curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh | bash
+              command: curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh | bash
 
             # 105_gitlab_distro_mapping:
             #   command: !Sub |
@@ -250,7 +249,7 @@ Resources:
                 Fn::Join:
                   - ""
                   - - "echo 'WARNING: ARM for Amazon Linux is not supported before GitLab 14.9.0 and this stack will fail if that combination is specified.'; IFS='.' read -r major minor patch <<< '"
-                    - Ref: "GitLabVersion"
+                    - !Ref GitLabVersion
                     - "'; if [[ ${major} -ge 15 || (${major} -eq 14 && ${minor} -ge 9) ]]; then sed -i 's/\\/el\\/7/\\/amazon\\/2/g' /etc/yum.repos.d/gitlab_gitlab*.repo; else sed -i 's/\\/amazon\\/2/\\/el\\/7/g' /etc/yum.repos.d/gitlab_gitlab*.repo; fi; yum clean all ; yum makecache;"
 #                    - "'; if [[ ${major} -ge 14 ]]; then sed -i 's/\\/el\\/7/\\/amazon\\/2/g' /etc/yum.repos.d/gitlab_gitlab*.repo; else sed -i 's/\\/amazon\\/2/\\/el\\/7/g' /etc/yum.repos.d/gitlab_gitlab*.repo; fi; yum clean all ; yum makecache;"
 
@@ -313,7 +312,7 @@ Resources:
               owner: root
               group: root
 
-            /etc/gitlab/mount_gitaly_volume.sh: 
+            /etc/gitlab/mount_gitaly_volume.sh:
               content: |
                 ### Mount data volume
                 mkfs -t ext4 /dev/sdg
@@ -359,7 +358,7 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: 2012-10-17
         Statement:
         - Sid: AssumeAutoscalingNotificationsRole
           Effect: Allow
@@ -367,11 +366,11 @@ Resources:
             Service: autoscaling.amazonaws.com
           Action: sts:AssumeRole
       ManagedPolicyArns:
-        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AutoScalingNotificationAccessRole'
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AutoScalingNotificationAccessRole
 
-  DnsManagementQueue: 
+  DnsManagementQueue:
     Type: AWS::SQS::Queue
-    Properties: 
+    Properties:
       VisibilityTimeout: 180
 
   DnsManagementFunction:
@@ -394,26 +393,26 @@ Resources:
       Handler: handler.lambda_handler
       Code:
         S3Bucket: !Ref FunctionsBucketName
-        S3Key: !Sub '${QSS3KeyPrefix}functions/packages/UpdateDnsRecord/lambda.zip'
+        S3Key: !Sub ${QSS3KeyPrefix}functions/packages/UpdateDnsRecord/lambda.zip
 
   DnsManagementFunctionRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: 2012-10-17
         Statement:
           - Effect: Allow
             Principal:
               Service:
                 - lambda.amazonaws.com
-            Action: 'sts:AssumeRole'
+            Action: sts:AssumeRole
       Path: /
       ManagedPolicyArns:
-        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
         - PolicyName: LambdaRole
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: 2012-10-17
             Statement:
               - Effect: Allow
                 Action:
@@ -424,13 +423,13 @@ Resources:
                   - ec2:DescribeInstances
                 Resource: '*'
               - Effect: Allow
-                Action: 
+                Action:
                   - ec2:CreateTags
                 Resource: !Sub arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:instance/*
               - Effect: Allow
                 Action:
                   - route53:ChangeResourceRecordSets
-                Resource: !Sub 'arn:${AWS::Partition}:route53:::hostedzone/${PrivateHostedZoneId}'
+                Resource: !Sub arn:${AWS::Partition}:route53:::hostedzone/${PrivateHostedZoneId}
               - Effect: Allow
                 Action:
                   - sqs:GetQueueAttributes

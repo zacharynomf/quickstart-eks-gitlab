@@ -1,7 +1,7 @@
 # https://github.com/awslabs/serverless-application-model/blob/develop/versions/2016-10-31.md
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
-Description: Deploys Gitlab Runner chart (qs-1rpegts7g)
+Description: Deploys Gitlab Runner chart. (qs-1rpegts7g)
 
 Metadata:
   cfn-lint:
@@ -10,7 +10,6 @@ Metadata:
         - W9002
         - W9003
         - W9004
-        - E0002
 
 Parameters:
   ClusterName:
@@ -34,59 +33,54 @@ Parameters:
     Type: Number
   PrivilegedMode:
     Type: String
-    AllowedValues: [ "true", "false" ]
+    AllowedValues: ['true', 'false']
 
 Resources:
 
   GitLabChart:
     Type: AWSQS::Kubernetes::Helm
-    
-    # E3001 Invalid or unsupported Type AWSQS::Kubernetes::Helm
-    Metadata: { cfn-lint: { config: { ignore_checks: [E3001] } } }
-    
     Properties:
-      ClusterID: !Ref ClusterName 
-      Namespace: !Ref HelmChartNamespace  
+      ClusterID: !Ref ClusterName
+      Namespace: !Ref HelmChartNamespace
       Repository: https://charts.gitlab.io/
       Chart: gitlab/gitlab-runner
       Name: !Ref HelmChartName
       Version: !Ref HelmChartVersion
-      ValueYaml:
-        Fn::Sub: |
-          gitlabUrl: https://gitlab.${DomainName}/
-          runnerRegistrationToken: ${RunnerRegistrationToken}
+      ValueYaml: !Sub |
+        gitlabUrl: https://gitlab.${DomainName}/
+        runnerRegistrationToken: ${RunnerRegistrationToken}
 
-          ## Configure the maximum number of concurrent jobs
-          concurrent: ${MaximumConcurrentJobs}
+        ## Configure the maximum number of concurrent jobs
+        concurrent: ${MaximumConcurrentJobs}
 
-          certsSecretName: ${TlsCASecretName}
+        certsSecretName: ${TlsCASecretName}
 
-          ## For RBAC support:
-          rbac:
-            create: true
+        ## For RBAC support:
+        rbac:
+          create: true
 
-          ## Configuration for the Pods that the runner launches for each new job
-          ##
-          runners:
-            config: |
-              [[runners]]
-                clone_url = "https://gitlab.${DomainName}/"
+        ## Configuration for the Pods that the runner launches for each new job
+        ##
+        runners:
+          config: |
+            [[runners]]
+              clone_url = "https://gitlab.${DomainName}/"
 
-                [runners.kubernetes]
-                  image = "${RunnerImage}"
+              [runners.kubernetes]
+                image = "${RunnerImage}"
 
-                  ## Run all containers with the privileged flag enabled
-                  ## This will allow the docker:stable-dind image to run if you need to run Docker
-                  ## commands. Please read the docs before turning this on:
-                  ## ref: https://docs.gitlab.com/runner/executors/kubernetes.html#using-docker-dind
-                  privileged = ${PrivilegedMode}
+                ## Run all containers with the privileged flag enabled
+                ## This will allow the docker:stable-dind image to run if you need to run Docker
+                ## commands. Please read the docs before turning this on:
+                ## ref: https://docs.gitlab.com/runner/executors/kubernetes.html#using-docker-dind
+                privileged = ${PrivilegedMode}
 
-                  ## Namespace to run Kubernetes jobs
-                  namespace = "${HelmChartNamespace}"
+                ## Namespace to run Kubernetes jobs
+                namespace = "${HelmChartNamespace}"
 
 ###
 ### Example of the pipeline that uses DIND to build and push the image to GitLab registry
-### Note a trick with CA certificate for DIND container. Not needed for real TLS certs. 
+### Note a trick with CA certificate for DIND container. Not needed for real TLS certs.
 ###
 
 # .use-docker-in-docker:
