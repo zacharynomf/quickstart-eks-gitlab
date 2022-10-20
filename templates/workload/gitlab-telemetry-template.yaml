@@ -17,7 +17,7 @@ Parameters:
     Default: amazon/cloudwatch-agent:latest
   FluentdImage:
     Type: String
-    Default: fluent/fluentd-kubernetes-daemonset:v1.7.3-debian-cloudwatch-1.0
+    Default: fluent/fluentd-kubernetes-daemonset:v1-debian-cloudwatch
 
 Resources:
 
