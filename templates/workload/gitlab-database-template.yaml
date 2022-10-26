@@ -89,12 +89,12 @@ Parameters:
 # Quickstart location Parameters
   QSS3BucketName:
     Type: String
-    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+    AllowedPattern: ^[0-9a-z]+([0-9a-z-]*[0-9a-z])*$
   QSS3BucketRegion:
     Type: String
   QSS3KeyPrefix:
     Type: String
-    AllowedPattern: ^[0-9a-zA-Z-/]*$
+    AllowedPattern: ^([0-9a-zA-Z-.]+/)*$
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, aws-quickstart]
