@@ -1,26 +1,26 @@
-This Quick Start deploys {partner-product-long-name} on the AWS Cloud. This guide covers the steps necessary to deploy this Quick Start.
+This Partner Solution deploys {partner-product-long-name} on the AWS Cloud. Use this guide for the necessary steps to deploy this Partner Solution.
 
 // For advanced information about the product, troubleshooting, or additional functionality, refer to the https://{quickstart-github-org}.github.io/{quickstart-project-name}/operational/index.html[Operational Guide^].
 
 // For information about using this Quick Start for migrations, refer to the https://{quickstart-github-org}.github.io/{quickstart-project-name}/migration/index.html[Migration Guide^].
 
-This Quick Start is for users who want a production grade {partner-product-short-name} instance deployed to AWS infrastructure.
+This Partner Solution is for users who want a production grade {partner-product-short-name} instance deployed to AWS infrastructure.
 
 {partner-product-short-name} is a single, open solution for managing DevOps and other software development life&#8209;cycles (SDLCs).
 
-== Built-in value of AWS Quick Starts
+== Built-in value of AWS Parter Solutions
 
-In addition to reference architecture compliance, this Quick Start has these additional value-add features:
+In addition to reference architecture compliance, this Partner Solution has these features:
 
 === Market reach and reuse
 
-* https://aws.amazon.com/quickstart/?solutions-all.sort-by=item.additionalFields.sortDate&solutions-all.sort-order=desc[As an AWS Quick Start] (primary use case initiated by AWS) - production grade HA&#8209;required 3rd party software deployable in the fewest possible clicks to AWS.
-* https://aws.amazon.com/quickstart/?solutions-all.sort-by=item.additionalFields.sortDate&solutions-all.sort-order=desc[As an AWS service catalog item] - AWS alternative to ServiceNow self service automation - could be used by large customers or partners to create parameter customized versions
-* https://aws.amazon.com/controltower/partners/[As an AWS Control Tower partner solution] - allowing vending of {partner-company-short-name} instances into AWS accounts managed by AWS Control Tower.
+* AWS Partner Solution (primary use case initiated by AWS) - production grade HA-required 3rd party software deployable in the fewest possible clicks to AWS. For more information, refer to https://aws.amazon.com/solutions/browse-all/?solutions-all.sort-by=item.additionalFields.headline&solutions-all.sort-order=asc&awsf.Content-Type=content-type%23quick-start&awsf.AWS-Product%20Category=*all[AWS Partner Solutions]
+* AWS alternative to ServiceNow self service automation - could be used by large customers or partners to create parameter customized versions.
+* AWS Control Tower Partner Solutions - Allows vending of {partner-company-short-name} instances into AWS accounts managed by AWS Control Tower. For more information, refer to the https://aws.amazon.com/controltower/partners/[AWS Control Tower Partner Solution].
 
 === Open source community
 
-* Quick Starts are managed as open source with special attention given by AWS Quick Start team and the vendor ({partner-company-short-name} in this case) whose software is the focus of the Quick Start.
-* All Quick Starts are quality tested using CI in multiple regions when they are changed or when taking new versions of dependent Quick Starts.
-* Relies on included Quick Start dependencies for Amazon EKS, PostgreSQL, and others. These shared dependencies are used, debugged and improved as community maintained shared dependencies that underlie many AWS Quick Starts.
-* The value of the dependency framework is seen in that any of the EKS Quick Start functionality can be easily passed through to the {partner-product-short-name} Quick Start. For instance, support for EKS clusters on AWS Spot compute can be passed through for non-production setups like training and demos. The {partner-company-short-name} Quick Start depends on a few others that would also pass&#8209;through benefits.
+* Partner Solutions are managed as open source, and the AWS Partner Solutions team and {partner-product-long-name} give special attention.
+* All Partner Solutions are quality tested using CI in multiple regions when they're changed or when they take new versions of dependent Partner Solutions.
+* Partner Solutions rely on included Partner Solution dependencies for Amazon EKS, PostgreSQL, and others. These shared dependencies are used, debugged, and improved as community maintained shared dependencies that underlie many AWS Partner Solutions.
+* The dependency framework provides value because any of the EKS Partner Solution functionality can be easily passed through to the {partner-product-short-name} Partner Solution. For instance, support for EKS clusters on AWS Spot compute can be passed through for non-production setups like training and demos. 
