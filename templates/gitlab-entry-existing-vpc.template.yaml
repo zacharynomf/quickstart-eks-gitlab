@@ -495,16 +495,30 @@ Parameters:
     Description: Select database engine version.
     AllowedValues:
       - 10.17
-      - 11.10
-      - 11.11
+      - 10.18
+      - 10.19
+      - 10.20
+      - 10.21
       - 11.12
-      - 12.5
-      - 12.6
+      - 11.13
+      - 11.14
+      - 11.15
+      - 11.16
       - 12.7
-      - 13.1
-      - 13.2
+      - 12.8
+      - 12.9
+      - 12.10
+      - 12.11
       - 13.3
-    Default: 13.3
+      - 13.4
+      - 13.5
+      - 13.6
+      - 13.7
+      - 14.1
+      - 14.2
+      - 14.3
+      - 14.4
+    Default: 14.4
   RDSDBInstanceClass:
     Type: String
     Description: >-
@@ -659,23 +673,23 @@ Parameters:
       Version of GitLab application - must correspond to helm chart version
       above. See
       https://docs.gitlab.com/charts/installation/version_mappings.html.
-    AllowedPattern: ^(4\.(1|2|3|4|5|6|7|8|9|10|11|12)\.\d+|5\.(2|3|4|5|6|7|8|9|10)\.\d+)$
+    AllowedPattern: ^(4\.([1-9]|1[0-2])|5\.([2-9]|10)|6\.[1-4])\.\d+$
     ConstraintDescription: >-
-      Only GitLab versions 4.1-12 and 5.2-10 are currently tested and
+      Only GitLab versions 4.1-12, 5.2-10, and 6.1-4 are currently tested and
       supported. The version format must be 'x.y.z' where all positions are
       numbers.
     Default: 5.10.0
   GitLabVersion:
     Type: String
-    AllowedPattern: ^(13\.(1|2|3|4|5|6|7|8|9|10|11|12)\.\d+|14\.(2|3|4|5|6|7|8|9|10)\.\d+)$
-    ConstraintDescription: >-
-      Only GitLab versions 13.1-12 and 14.2-10 are currently tested and
-      supported. The version format must be 'x.y.z' where all positions are
-      numbers.
     Description: >-
       Version of GitLab application - must correspond to helm chart version
       above. See
       https://docs.gitlab.com/charts/installation/version_mappings.html.
+    AllowedPattern: ^(13\.([1-9]|1[0-2])|14\.([2-9]|10)|15\.[1-4])\.\d+$
+    ConstraintDescription: >-
+      Only GitLab versions 13.1-12, 14.2-10, and 15.1-4 are currently tested
+      and supported. The version format must be 'x.y.z' where all positions are
+      numbers.
     Default: 14.10.0
     # While the AllowedPatterns for HelmChartVersion and GitLabVersion are
     # verbose, they allows control over the maximum minor version including

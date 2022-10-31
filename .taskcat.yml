@@ -61,7 +61,6 @@ tests:
       SslCertificateIssuerEmail: gitlab@$[taskcat_random-string].com
       ConfigureContainerInsights: 'Yes'
       ConfigureGrafana: 'Yes'
-      PublicDNS: CreateNew
       SMTPDomain: CreateNew
       ConfigureRunner: 'No'
       PriviligedMode: 'No'
@@ -90,18 +89,19 @@ tests:
 #14.9.0 is the first release that has ARM packages for AL2.
   smallest-possible-arm:
     parameters:
-      GitLabVersion: 14.10.5
-      HelmChartVersion: 5.10.5
+      GitLabVersion: 15.4.1
+      HelmChartVersion: 6.4.1
       AvailabilityZones: $[taskcat_genaz_2]
       NumberOfAZs: 2
       EKSPublicAccessEndpoint: Disabled
       ProvisionBastionHost: Enabled
-      DomainName: qsgsmg3.devops4the.cloud
       CreateSslCertificate: 'Yes'
       SslCertificateIssuerEmail: gitlab@$[taskcat_random-string].com
       ConfigureContainerInsights: 'Yes'
       ConfigureGrafana: 'Yes'
-      PublicDNS: CreateNew
+      PublicDNS: UseExisting
+      PublicHostedZoneId: Z08828103MVPQNHL7GWYE
+      DomainName: devops4the.cloud
       SMTPDomain: CreateNew
       ConfigureRunner: 'No'
       PriviligedMode: 'No'

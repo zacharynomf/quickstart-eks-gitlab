@@ -34,7 +34,31 @@ Parameters:
   RDSDBEngineVersion:
     Type: String
     MinLength: 4
-    AllowedValues: [9.6.20, 9.6.21, 9.6.22, 10.15, 10.16, 10.17, 11.10, 11.11, 11.12, 12.5, 12.6, 12.7, 13.1, 13.2, 13.3]
+    AllowedValues:
+      - 10.17
+      - 10.18
+      - 10.19
+      - 10.20
+      - 10.21
+      - 11.12
+      - 11.13
+      - 11.14
+      - 11.15
+      - 11.16
+      - 12.7
+      - 12.8
+      - 12.9
+      - 12.10
+      - 12.11
+      - 13.3
+      - 13.4
+      - 13.5
+      - 13.6
+      - 13.7
+      - 14.1
+      - 14.2
+      - 14.3
+      - 14.4
   DBName:
     Type: String
     MaxLength: 64
@@ -65,12 +89,12 @@ Parameters:
 # Quickstart location Parameters
   QSS3BucketName:
     Type: String
-    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
+    AllowedPattern: ^[0-9a-z]+([0-9a-z-]*[0-9a-z])*$
   QSS3BucketRegion:
     Type: String
   QSS3KeyPrefix:
     Type: String
-    AllowedPattern: ^[0-9a-zA-Z-/]*$
+    AllowedPattern: ^([0-9a-zA-Z-.]+/)*$
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, aws-quickstart]
@@ -177,15 +201,15 @@ Resources:
     Condition: UsingRDS
     Properties:
       TemplateURL: !Sub
-        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-rds-postgres/templates/rds_postgres.template.yaml
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-rds-postgres/templates/postgres-entrypoint-existing-vpc.template.yaml
         - S3Region: !If [UsingDefaultBucket, !Ref AWS::Region, !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
         DBEngineVersion: !Ref RDSDBEngineVersion
         DBInstanceClass: !Ref RDSDBInstanceClass
         DBName: !Ref DBName
-        DBMasterUsername: !Sub '{{resolve:secretsmanager:${GitLabDBPassword}:SecretString:username}}'
-        DBMasterUserPassword: !Sub '{{resolve:secretsmanager:${GitLabDBPassword}:SecretString:password}}'
+        DBUsername: !Sub '{{resolve:secretsmanager:${GitLabDBPassword}:SecretString:username}}'
+        DBPassword: !Sub '{{resolve:secretsmanager:${GitLabDBPassword}:SecretString:password}}'
         DBPort: !Ref DBPort
         VPCID: !Ref VPCID
         Subnet1ID: !Ref Subnet1ID
@@ -197,15 +221,15 @@ Resources:
     Condition: UsingRDS
     Properties:
       TemplateURL: !Sub
-        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-rds-postgres/templates/rds_postgres.template.yaml
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-rds-postgres/templates/postgres-entrypoint-existing-vpc.template.yaml
         - S3Region: !If [UsingDefaultBucket, !Ref AWS::Region, !Ref QSS3BucketRegion]
           S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
         DBEngineVersion: !Ref RDSDBEngineVersion
         DBInstanceClass: !Ref RDSDBInstanceClass
         DBName: !Ref DBPraefectName
-        DBMasterUsername: !Sub '{{resolve:secretsmanager:${PraefectDBPassword}:SecretString:username}}'
-        DBMasterUserPassword: !Sub '{{resolve:secretsmanager:${PraefectDBPassword}:SecretString:password}}'
+        DBUsername: !Sub '{{resolve:secretsmanager:${PraefectDBPassword}:SecretString:username}}'
+        DBPassword: !Sub '{{resolve:secretsmanager:${PraefectDBPassword}:SecretString:password}}'
         DBPort: !Ref DBPort
         VPCID: !Ref VPCID
         Subnet1ID: !Ref Subnet1ID
