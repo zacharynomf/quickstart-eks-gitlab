@@ -208,8 +208,8 @@ Resources:
         DBEngineVersion: !Ref RDSDBEngineVersion
         DBInstanceClass: !Ref RDSDBInstanceClass
         DBName: !Ref DBName
-        DBMasterUsername: !Sub '{{resolve:secretsmanager:${GitLabDBPassword}:SecretString:username}}'
-        DBMasterUserPassword: !Sub '{{resolve:secretsmanager:${GitLabDBPassword}:SecretString:password}}'
+        DBUsername: !Sub '{{resolve:secretsmanager:${GitLabDBPassword}:SecretString:username}}'
+        DBPassword: !Sub '{{resolve:secretsmanager:${GitLabDBPassword}:SecretString:password}}'
         DBPort: !Ref DBPort
         VPCID: !Ref VPCID
         Subnet1ID: !Ref Subnet1ID
@@ -228,8 +228,8 @@ Resources:
         DBEngineVersion: !Ref RDSDBEngineVersion
         DBInstanceClass: !Ref RDSDBInstanceClass
         DBName: !Ref DBPraefectName
-        DBMasterUsername: !Sub '{{resolve:secretsmanager:${PraefectDBPassword}:SecretString:username}}'
-        DBMasterUserPassword: !Sub '{{resolve:secretsmanager:${PraefectDBPassword}:SecretString:password}}'
+        DBUsername: !Sub '{{resolve:secretsmanager:${PraefectDBPassword}:SecretString:username}}'
+        DBPassword: !Sub '{{resolve:secretsmanager:${PraefectDBPassword}:SecretString:password}}'
         DBPort: !Ref DBPort
         VPCID: !Ref VPCID
         Subnet1ID: !Ref Subnet1ID
