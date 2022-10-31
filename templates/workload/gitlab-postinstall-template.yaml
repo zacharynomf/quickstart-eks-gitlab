@@ -45,6 +45,8 @@ Resources:
       Retries: 3
   RailsSecret:
     Type: AWS::SecretsManager::Secret
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       Name: !Sub /quickstart/gitlab/${EnvironmentName}/secrets/rails
       Description: GitLab Rails Secret
@@ -63,6 +65,8 @@ Resources:
       Retries: 3
   InitialRootPasswordSecret:
     Type: AWS::SecretsManager::Secret
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       Name: !Sub /quickstart/gitlab/${EnvironmentName}/secrets/initial-root-password
       Description: GitLab Initial Root Password
@@ -131,6 +135,8 @@ Resources:
   InitialGrafanaPasswordSecret:
     Type: AWS::SecretsManager::Secret
     Condition: ConfigureGrafana
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       Name: !Sub /quickstart/gitlab/${EnvironmentName}/secrets/initial-grafana-password
       Description: Grafana Initial Root Password

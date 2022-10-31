@@ -77,6 +77,8 @@ Resources:
 
   PraefectLogGroup:
     Type: AWS::Logs::LogGroup
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       LogGroupName: !Sub praefect-${AWS::StackName}
       RetentionInDays: 30

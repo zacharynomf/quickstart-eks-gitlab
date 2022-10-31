@@ -61,6 +61,8 @@ Resources:
 
   CacheReplicationGroup:
     Type: AWS::ElastiCache::ReplicationGroup
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       ReplicationGroupDescription: !Ref AWS::StackName
       MultiAZEnabled: true

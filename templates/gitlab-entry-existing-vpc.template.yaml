@@ -876,6 +876,8 @@ Resources:
   # https://aws-quickstart.github.io/quickstart-amazon-eks/#_configure_advanced_options
   EKSConfigSet:
     Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-eks/templates/amazon-eks-advanced-configuration.template.yaml
@@ -889,6 +891,8 @@ Resources:
   EKSStack:
     Type: AWS::CloudFormation::Stack
     DependsOn: EKSConfigSet
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-eks/templates/amazon-eks-entrypoint-existing-vpc.template.yaml
@@ -925,6 +929,8 @@ Resources:
 
   MetricsServer:
     Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-eks/templates/amazon-eks-metrics-server.template.yaml
@@ -935,6 +941,8 @@ Resources:
 
   GitLabStack:
     Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-template.yaml

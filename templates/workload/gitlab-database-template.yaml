@@ -134,6 +134,8 @@ Resources:
 
   GitLabDBPassword:
     Type: AWS::SecretsManager::Secret
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       Name: !Sub /quickstart/gitlab/${EnvironmentName}/secrets/gitlab-db-password
       Description: GitLab DB password.
@@ -146,6 +148,8 @@ Resources:
 
   PraefectDBPassword:
     Type: AWS::SecretsManager::Secret
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       Name: !Sub /quickstart/gitlab/${EnvironmentName}/secrets/praefect-db-password
       Description: Praefect DB password.
@@ -159,6 +163,8 @@ Resources:
   GitLabAuroraDatabase:
     Type: AWS::CloudFormation::Stack
     Condition: UsingAurora
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-aurora-postgresql/templates/aurora_postgres.template.yaml
@@ -179,6 +185,8 @@ Resources:
   PraefectAuroraDatabase:
     Type: AWS::CloudFormation::Stack
     Condition: UsingAurora
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-aurora-postgresql/templates/aurora_postgres.template.yaml
@@ -199,6 +207,8 @@ Resources:
   GitLabRDSDatabase:
     Type: AWS::CloudFormation::Stack
     Condition: UsingRDS
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-rds-postgres/templates/postgres-entrypoint-existing-vpc.template.yaml
@@ -219,6 +229,8 @@ Resources:
   PraefectRDSDatabase:
     Type: AWS::CloudFormation::Stack
     Condition: UsingRDS
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-rds-postgres/templates/postgres-entrypoint-existing-vpc.template.yaml

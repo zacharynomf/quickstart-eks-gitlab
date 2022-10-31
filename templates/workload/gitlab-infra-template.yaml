@@ -171,6 +171,8 @@ Resources:
   CfnSESResources:
     Type: AWS::CloudFormation::Stack
     Condition: EmailDomainRequested
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/aws-cfn-ses-domain/aws-cfn-ses-domain.cf.yaml
@@ -331,6 +333,8 @@ Resources:
   SmtpCredentialsSecret:
     Type: AWS::SecretsManager::Secret
     Condition: EmailDomainRequested
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       Name: !Sub /quickstart/gitlab/${EnvironmentName}/infra/smtp-credentials
       Description: GitLab SMTP credentials

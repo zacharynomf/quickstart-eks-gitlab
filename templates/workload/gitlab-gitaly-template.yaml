@@ -81,6 +81,8 @@ Resources:
 
   GitalyLogGroup:
     Type: AWS::Logs::LogGroup
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       LogGroupName: !Sub gitaly-${AWS::StackName}
       RetentionInDays: 30
@@ -370,6 +372,8 @@ Resources:
 
   DnsManagementQueue:
     Type: AWS::SQS::Queue
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       VisibilityTimeout: 180
 

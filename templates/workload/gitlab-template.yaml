@@ -242,6 +242,8 @@ Resources:
 
   Functions:
     Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-functions-template.yaml
@@ -275,6 +277,8 @@ Resources:
   Telemetry:
     Type: AWS::CloudFormation::Stack
     Condition: ConfigureContainerInsights
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-telemetry-template.yaml
@@ -285,6 +289,8 @@ Resources:
 
   Infrastructure:
     Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-infra-template.yaml
@@ -308,6 +314,8 @@ Resources:
   Cache:
     Type: AWS::CloudFormation::Stack
     Condition: CreateCacheCluster
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-cache-template.yaml
@@ -324,6 +332,8 @@ Resources:
 
   Database:
     Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-database-template.yaml
@@ -350,6 +360,8 @@ Resources:
 
   Praefect:
     Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-praefect-template.yaml
@@ -381,6 +393,8 @@ Resources:
 
   Gitaly:
     Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-gitaly-template.yaml
@@ -409,6 +423,8 @@ Resources:
 
   ObjectStorage:
     Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-storage-template.yaml
@@ -457,6 +473,8 @@ Resources:
   KubeSecrets:
     Type: AWS::CloudFormation::Stack
     DependsOn: [Database, ChartNamespaceWaitCondition]
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-secrets-template.yaml
@@ -655,6 +673,8 @@ Resources:
   PostInstall:
     Type: AWS::CloudFormation::Stack
     DependsOn: Chart
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-postinstall-template.yaml
@@ -673,6 +693,8 @@ Resources:
   Runner:
     Type: AWS::CloudFormation::Stack
     Condition: ConfigureRunner
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/workload/gitlab-runner-template.yaml
