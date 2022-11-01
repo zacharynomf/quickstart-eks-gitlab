@@ -902,6 +902,8 @@ Conditions:
 Resources:
   VPCStack:
     Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-eks/submodules/quickstart-aws-vpc/templates/aws-vpc.template.yaml
@@ -924,6 +926,8 @@ Resources:
   # https://aws-quickstart.github.io/quickstart-amazon-eks/#_configure_advanced_options
   GitLab:
     Type: AWS::CloudFormation::Stack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/gitlab-entry-existing-vpc.template.yaml
