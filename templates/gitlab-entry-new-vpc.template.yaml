@@ -300,14 +300,18 @@ Parameters:
       as many as match what was selected for Number of Availability Zones
       (NumberofAZs).
   KeyPairName:
-    Type: AWS::EC2::KeyPair::KeyName
+  # NOTE: Don't change the type of KeyPairName parameter back to
+  # AWS::EC2::KeyPair::KeyName. String type is intentional as it enables
+  # default (empty) value. By using defaults, we promote
+  # AWS Systems Manager Session Manager service, which is a recommended way
+  # to connect to EC2 instances.
+    Type: String
     Description: >-
-      Name of an existing public/private key pair, which allows you to securely
-      connect to your instance after it launches. If the selection list is
-      blank, you must create a key pair in the target region, refresh this form
-      and select it.
-    AllowedPattern: .+
-    ConstraintDescription: SSH key pair must be provided.
+      Name of an existing key pair, which allows you to securely connect to
+      your instance after it launches. Leave empty to proceed without a key
+      pair. You would need to use AWS Systems Manager Session Manager to
+      connect to the provisioned EC2 instances.
+    Default: ''
 
 # VPC parameters
   NumberOfAZs:
