@@ -551,9 +551,10 @@ Resources:
                   enabled: true
                   annotations:
                     service.beta.kubernetes.io/aws-load-balancer-internal: 0.0.0.0/0
+              config:
+                ssl-ciphers: ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4
         - SslCertificateArn: !If [AcmIngressConfigured, !GetAtt Infrastructure.Outputs.SslCertificateArn, '']
           ServiceAccountRoleArn: !GetAtt ObjectStorage.Outputs.ServiceAccountRoleArn
-
       Values:
         # domain name
         global.hosts.domain: !Ref DomainName

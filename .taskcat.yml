@@ -56,12 +56,11 @@ tests:
       NumberOfAZs: 2
       EKSPublicAccessEndpoint: Disabled
       ProvisionBastionHost: Enabled
-      DomainName: qsgsm5.devops4the.cloud
+      DomainName: --override--
       CreateSslCertificate: 'Yes'
       SslCertificateIssuerEmail: gitlab@$[taskcat_random-string].com
       ConfigureContainerInsights: 'Yes'
       ConfigureGrafana: 'Yes'
-      PublicDNS: CreateNew
       SMTPDomain: CreateNew
       ConfigureRunner: 'No'
       PriviligedMode: 'No'
@@ -88,20 +87,22 @@ tests:
 #The cluster cannot use ARM yet - must specific x86 instances.
 #Gitaly must be set to 3 instances
 #14.9.0 is the first release that has ARM packages for AL2.
-  smallest-possible-arm:
+  smallest-possible-arm-spot:
     parameters:
-      GitLabVersion: 14.10.5
-      HelmChartVersion: 5.10.5
+      OnDemandPercentage: 0 #100% spot EKS cluster
+      GitLabVersion: 15.4.1
+      HelmChartVersion: 6.4.1
       AvailabilityZones: $[taskcat_genaz_2]
       NumberOfAZs: 2
       EKSPublicAccessEndpoint: Disabled
       ProvisionBastionHost: Enabled
-      DomainName: qsgsmg3.devops4the.cloud
       CreateSslCertificate: 'Yes'
       SslCertificateIssuerEmail: gitlab@$[taskcat_random-string].com
       ConfigureContainerInsights: 'Yes'
       ConfigureGrafana: 'Yes'
-      PublicDNS: CreateNew
+      PublicDNS: UseExisting
+      PublicHostedZoneId: --override--
+      DomainName: --override--
       SMTPDomain: CreateNew
       ConfigureRunner: 'No'
       PriviligedMode: 'No'
