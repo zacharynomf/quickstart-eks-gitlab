@@ -30,7 +30,8 @@ As shown in <<architecture1>>, the Partner Solution sets up the following:
 ** Managed network address translation (NAT) gateways to allow outbound internet access for resources in the private subnets.^1^
 ** In one public subnet, a Linux bastion host in an Auto Scaling group to allow inbound Secure Shell (SSH) access to Amazon Elastic Compute Cloud (Amazon EC2) instances in private subnets. The bastion host is also configured with the Kubernetes `kubectl` command line interface (CLI) and the `helm` CLI for managing the Kubernetes cluster as well as the AWS CLI for general AWS management. ^[AWS-WA]^
 * In the private subnets:
-** An Auto Scaling group of Amazon Elastic Kubernetes Service (Amazon EKS) cluster for Kubernetes nodes and control plane.^2^ ^[AWS-WA]^
+** An Auto Scaling group of Amazon Elastic Compute Cloud (Amazon EC2) Kubernetes nodes.^2^ ^[AWS-WA]^
+** An Amazon Elastic Kubernetes Service (Amazon EKS) cluster, which creates the Kubernetes control plane.
 ** An Amazon Relational Database Service (Amazon RDS) cluster for {partner-product-short-name} and Praefect databases. ^[GL-RAR][AWS-WA]^
 ** An Amazon ElastiCache: Redis cluster for caching. ^[GL-RAR][AWS-WA]^
 ** A Praefect node Auto Scaling group spread across Availability Zones. https://docs.gitlab.com/ee/administration/reference_architectures/10k_users.html#cloud-native-hybrid-reference-architecture-with-helm-charts-alternative[{partner-product-short-name}'s cloud native hybrid reference architecture^] calls for Praefect to be implemented on Amazon EC2 instance compute. ^[GL-RAR][AWS-WA]^
