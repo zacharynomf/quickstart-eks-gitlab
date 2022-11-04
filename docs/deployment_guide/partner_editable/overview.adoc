@@ -2,7 +2,7 @@ This Partner Solution deploys {partner-product-long-name} on the AWS Cloud. Use 
 
 // For advanced information about the product, troubleshooting, or additional functionality, refer to the https://{quickstart-github-org}.github.io/{quickstart-project-name}/operational/index.html[Operational Guide^].
 
-// For information about using this Quick Start for migrations, refer to the https://{quickstart-github-org}.github.io/{quickstart-project-name}/migration/index.html[Migration Guide^].
+// For information about using this Partner Solution for migrations, refer to the https://{quickstart-github-org}.github.io/{quickstart-project-name}/migration/index.html[Migration Guide^].
 
 This Partner Solution is for users who want a production grade {partner-product-short-name} instance deployed to AWS infrastructure.
 
@@ -14,13 +14,13 @@ In addition to reference architecture compliance, this Partner Solution has thes
 
 === Market reach and reuse
 
-* AWS Partner Solution (primary use case initiated by AWS) - production grade HA-required 3rd party software deployable in the fewest possible clicks to AWS. For more information, refer to https://aws.amazon.com/solutions/browse-all/?solutions-all.sort-by=item.additionalFields.headline&solutions-all.sort-order=asc&awsf.Content-Type=content-type%23quick-start&awsf.AWS-Product%20Category=*all[AWS Partner Solutions]
-* AWS alternative to ServiceNow self service automation - could be used by large customers or partners to create parameter customized versions.
-* AWS Control Tower Partner Solutions - Allows vending of {partner-company-short-name} instances into AWS accounts managed by AWS Control Tower. For more information, refer to the https://aws.amazon.com/controltower/partners/[AWS Control Tower Partner Solution].
+* AWS Partner Solution (primary use case initiated by AWS) - production grade HA-required 3rd party software deployable in the fewest possible clicks to AWS. For more information, refer to https://aws.amazon.com/solutions/browse-all/?solutions-all.sort-by=item.additionalFields.headline&solutions-all.sort-order=asc&awsf.Content-Type=content-type%23quick-start&awsf.AWS-Product%20Category=*all[AWS Partner Solutions].
+* AWS alternative to ServiceNow self-service automation - can be used by large customers or partners to create parameter customized versions.
+* AWS Control Tower Partner Solutions - Allows vending of {partner-company-short-name} instances into AWS accounts managed by AWS Control Tower. For more information, refer to the https://aws.amazon.com/controltower/partners/[AWS Control Tower Partners].
 
 === Open source community
 
 * Partner Solutions are managed as open source, and the AWS Partner Solutions team and {partner-product-long-name} give special attention.
 * All Partner Solutions are quality tested using CI in multiple regions when they're changed or when they take new versions of dependent Partner Solutions.
-* Partner Solutions rely on included Partner Solution dependencies for Amazon EKS, PostgreSQL, and others. These shared dependencies are used, debugged, and improved as community maintained shared dependencies that underlie many AWS Partner Solutions.
+* Partner Solutions rely on included Partner Solution dependencies for Amazon Elastic Kubernetes Service (Amazon EKS), PostgreSQL, and others. These shared dependencies are used, debugged, and improved as community maintained shared dependencies that underlie many AWS Partner Solutions.
 * The dependency framework provides value because any of the EKS Partner Solution functionality can be easily passed through to the {partner-product-short-name} Partner Solution. For instance, support for EKS clusters on AWS Spot compute can be passed through for non-production setups like training and demos. 
