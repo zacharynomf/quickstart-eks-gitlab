@@ -34,8 +34,8 @@ As shown in <<architecture1>>, the Partner Solution sets up the following:
 ** An Amazon Elastic Kubernetes Service (Amazon EKS) cluster, which creates the Kubernetes control plane.
 ** An Amazon Relational Database Service (Amazon RDS) cluster for {partner-product-short-name} and Praefect databases. ^[GL-RAR][AWS-WA]^
 ** An Amazon ElastiCache: Redis cluster for caching. ^[GL-RAR][AWS-WA]^
-** A Praefect node Auto Scaling group spread across Availability Zones. https://docs.gitlab.com/ee/administration/reference_architectures/10k_users.html#cloud-native-hybrid-reference-architecture-with-helm-charts-alternative[{partner-product-short-name}'s cloud native hybrid reference architecture^] calls for Praefect to be implemented on Amazon EC2 instance compute. ^[GL-RAR][AWS-WA]^
-** An Auto Scaling group with Gitaly nodes spread across Availability Zones. https://docs.gitlab.com/ee/administration/reference_architectures/10k_users.html#cloud-native-hybrid-reference-architecture-with-helm-charts-alternative[{partner-product-short-name}'s cloud native hybrid reference architecture^] calls for Gitaly to be implemented on Amazon EC2 instance compute and to utilize non-Network File System (NFS) storage for the file system containing Git repositories. ^[GL-RAR][AWS-WA]^
+** A Praefect node Auto Scaling group spread across Availability Zones. https://docs.gitlab.com/ee/administration/reference_architectures/10k_users.html#cloud-native-hybrid-reference-architecture-with-helm-charts-alternative[{partner-product-short-name}'s Cloud Native Hybrid reference architecture with Helm Charts (alternative)^] calls for Praefect to be implemented on Amazon EC2 instance compute. ^[GL-RAR][AWS-WA]^
+** An Auto Scaling group with Gitaly nodes spread across Availability Zones. {partner-product-short-name}'s Cloud Native Hybrid reference architecture^] calls for Gitaly to be implemented on Amazon EC2 instance compute and to utilize non-Network File System (NFS) storage for the file system containing Git repositories. ^[GL-RAR][AWS-WA]^
 * AWS Secrets Manager for securely storing credentials.
 * Multiple Amazon Simple Storage Service (Amazon S3) buckets for platform-as-a-service (PaaS) of non-Git file systems and Git Large File Storage (LFS) systems. ^[GL-RAR][AWS-WA]^. For more information, refer to <<Object storage for {partner-product-short-name} storage types>>. ^[GL-RAR][AWS-WA]^
 * An Amazon Route 53 hosted zone for Domain Name System (DNS) name resolution. ^[AWS-WA]^
@@ -51,25 +51,24 @@ As shown in <<architecture1>>, the Partner Solution sets up the following:
 
 === Bundling
 
-==== Bundled provisioning of container registry, backup, log aggregation and monitoring
+==== Bundled provisioning of container registry, backup, log aggregation, and monitoring
 
-- Uses Amazon Linux 2 throughout - which benefits from Amazon specific optimizations for performance and compute density for both EKS and EC2 hosts. ^[AWS-WA]^
-- All {partner-product-short-name} logs are automatically aggregated into CloudWatch logs via CloudWatch Instance Agent and CloudWatch Container Insights. ^[AWS-WA]^
-- EKS workload monitoring via CloudWatch Container Insights. ^[AWS-WA]^
-- {partner-product-short-name} backup is preconfigured.
-- Prometheus is always deployed with the {partner-product-short-name} instance.
-- Setting "ConfigureGrafana" also deploys and configures Grafana. ^[AWS-WA]^
+- Uses Amazon Linux 2 throughout and benefits from Amazon-specific optimizations for performance and compute density for both EKS and EC2 hosts. ^[AWS-WA]^
+- All {partner-product-short-name} logs are automatically aggregated into CloudWatch logs with CloudWatch Instance Agent and CloudWatch Container Insights. ^[AWS-WA]^
+- EKS workload monitoring with CloudWatch Container Insights. ^[AWS-WA]^
+- Preconfigured {partner-product-short-name} backup.
+- Prometheus is always deployed.
 - The container registry is automatically setup at `registry.[subdomain]`. ^[AWS-WA]^
 
 === Security
 
 ==== Application secrets
 
-** Stores generated secrets in AWS Secrets Manager (for example: generates a proper initial root password) ^[AWS-WA]^
+** Stores generated secrets in AWS Secrets Manager (example: generates a proper initial root password). ^[AWS-WA]^
 
 ==== Amazon EKS cluster administration
 
-The {partner-product-short-name} Kubernetes endpoint can be private, but a bastion host must be deployed to do direct cluster management (it'll be preloaded with AWS, EKS and Kubernetes management utilities and IAM permissions for cluster management). The bastion host is setup with SSH keys, but can also be accessed more securely using AWS Systems Manager (SSM) Session Manager. Additionally, the bastion host has command audit logging enabled and the log is uploaded to CloudWatch Logs.
+The {partner-product-short-name} Kubernetes endpoint can be private, but a bastion host must be deployed to do direct cluster management (preloaded with AWS, EKS and Kubernetes management utilities, and IAM permissions for cluster management). The bastion host is setup with SSH keys, but can also be accessed more securely using AWS Systems Manager (SSM) Session Manager. Additionally, the bastion host has command audit logging enabled, and the log is uploaded to CloudWatch Logs.
 
 ==== Data encryption
 
@@ -88,16 +87,16 @@ The {partner-product-short-name} Kubernetes endpoint can be private, but a basti
 
 === Database
 
-The {partner-product-short-name} Partner Solution deploys a highly available (HA) PostgreSQL database cluster using the https://aws.amazon.com/quickstart/architecture/aurora-postgresql/[Amazon Aurora PostgreSQL Quick Start^].
+The {partner-product-short-name} Partner Solution deploys a highly available (HA) PostgreSQL database cluster using the https://aws.amazon.com/quickstart/architecture/aurora-postgresql/[Modular Architecture for Amazon Aurora PostgreSQL Partner Solution^].
 
-You may want to adjust database instance size using *DBInstanceClass* parameter, depending on the projected size of your {partner-product-short-name} deployment.
+Consider adjusting database instance size using the *DBInstanceClass* parameter, depending on the projected size of your {partner-product-short-name} deployment.
 
 These two databases are deployed to the same cluster:
 
-* {partner-product-short-name} database
-* Praefect tracking database - requires a separate tracking database as described in the https://docs.gitlab.com/ee/administration/gitaly/praefect.html[Gitaly Cluster documentation^]. 
+* {partner-product-short-name} database.
+* Praefect tracking database: requires a separate tracking database as described in https://docs.gitlab.com/ee/administration/gitaly/praefect.html[Configure Gitaly Cluster^]. 
 
-For more information about the external database configuration, refer to https://docs.gitlab.com/charts/advanced/external-db/[Configure the {partner-product-short-name} Chart with an External Database^].
+For more information, refer to https://docs.gitlab.com/charts/advanced/external-db/[Configure the {partner-product-short-name} chart with an external database^].
 
 === Storage
 
@@ -107,10 +106,10 @@ For more information about the external database configuration, refer to https:/
 
 ==== Object storage for {partner-product-short-name} storage types
 
-The {partner-product-short-name} Partner Solution creates Amazon S3 buckets for the following use cases:
+This Partner Solution creates Amazon S3 buckets for the following use cases:
 
 * Artifacts
-* https://git-lfs.github.com/[Git large file storage (git-lfs)]
+* https://git-lfs.github.com/[Git Large File Storage (git-lfs)]
 * Uploads
 * Packages
 * Terraform
@@ -119,17 +118,17 @@ The {partner-product-short-name} Partner Solution creates Amazon S3 buckets for 
 * Backup
 * Backup temp
 
-You can apply S3 policies to these buckets for managing retention, storage tier, and replication.
+Apply S3 policies to these buckets to manage retention, storage tier, and replication.
 
-The contents of each bucket is encrypted by default with Amazon S3 server&#8209;side encryption (SSE-S3). The name of each bucket is auto&#8209;generated and exported as SSM parameters (see the <<Exports>> section).
+By default, the contents of each bucket is encrypted with Amazon S3 server&#8209;side encryption (SSE-S3). The name of each bucket is auto&#8209;generated and exported as SSM parameters (see the <<Exports>> section).
 
-For more information about external object storage, refer to https://docs.gitlab.com/charts/advanced/external-object-storage/[Configure the {partner-product-short-name} Chart with an External Object Storage^].
+For more information, refer to https://docs.gitlab.com/charts/advanced/external-object-storage/[Configure the {partner-product-short-name} chart with an external object storage^].
 
 === Backups
 
 ==== Scheduling backups
 
-The backup schedule is controlled by a cron expression and the default value is `pass:[0 1 * * * *]` (daily at 1am). You can set a different schedule using the *BackupSchedule* parameter.
+A cron expression controls the backup schedule and the default value is `pass:[0 1 * * * *]` (daily at 1:00 AM). You can set a different schedule using the *BackupSchedule* parameter.
 
 ==== Content of the backups
 
