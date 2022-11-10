@@ -126,37 +126,33 @@ For more information, refer to https://docs.gitlab.com/charts/advanced/external-
 
 === Backups
 
-==== Scheduling backups
-
-A cron expression controls the backup schedule and the default value is `pass:[0 1 * * * *]` (daily at 1:00 AM). You can set a different schedule using the *BackupSchedule* parameter.
-
-==== Content of the backups
-
-Backups include {partner-product-short-name} database snapshots and the contents of {partner-product-short-name} projects, such as Git repositories and wiki pages. Backups do *not* include the contents of Amazon S3 buckets (see object storage for a list of buckets). This is because:
+Backups include {partner-product-short-name} database snapshots and the contents of {partner-product-short-name} projects, such as Git repositories and wiki pages. For the following reasons, backups do not include the contents of Amazon S3 buckets (see object storage for a list of buckets):
 
 * Contents of these buckets may be very large (pipeline artifacts or Docker images) and that may affect stability and performance of the backup jobs.
 * Amazon S3 is a https://aws.amazon.com/s3/faqs/#Durability_.26_Data_Protection[durable storage^] option.
-* Amazon S3 storage policies also enable out of region replication and management of storage class migration to control costs for older data.
+* Amazon S3 storage policies also enable out-of-Region replication and management of storage class migration to control costs for older data.
 
-You can create complete backup using backup-utility as described in https://docs.gitlab.com/charts/backup-restore/[Backup and Restore a {partner-product-short-name} instance^].
+==== Schedule backups
 
-==== Backup/restore resources
+A cron expression controls the backup schedule and the default value is `pass:[0 1 * * * *]` (daily at 1:00 AM). Set a different schedule using the *BackupSchedule* parameter.
 
-NOTE: The disk volume required for backups is about *2x larger than backup tarball itself* because all resources have to be downloaded first and packaged to a tarball file, which is also stored locally. Consider the size of your {partner-product-short-name} database and projects (mainly Git repositories) to set the size of the underlying EBS volumes appropriately using *BackupVolumeSize* parameter.
+==== Backup and restore resources
 
-In testing, the average size of backups for the default configuration were 20GB, and it took about 30 minutes to create and upload to the Amazon S3 bucket.
+NOTE: The disk volume required for backups is 2x larger than the backup tarball, so ensure you download all resources first and package to a tarball file (stored locally). Consider the size of your {partner-product-short-name} database and projects (mainly Git repositories) to set the size of the underlying EBS volumes appropriately, using *BackupVolumeSize* parameter.
 
-For large {partner-product-short-name} deployments, you can also adjust the CPU and memory requirements for backup and restore pods using *BackupCpu* and *BackupMemory* parameters.
+In testing, the average size of backups for the default configuration were 20 GB, and it took 30 minutes to create and upload to the Amazon S3 bucket.
 
-For more information about backups, refer to https://docs.gitlab.com/charts/backup-restore/[Backup and Restore a {partner-product-short-name} Instance^].
+For large {partner-product-short-name} deployments, use *BackupCpu* and *BackupMemory* parameters to adjust the CPU and memory requirements for backup and restore pods.
+
+For more information, refer to "Backup and restore a {partner-product-short-name} instance".
 
 === Telemetry and monitoring
 
 ==== Amazon CloudWatch Container Insights
 
-The {partner-product-short-name} Partner Solution integrates the Amazon EKS cluster with https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html[Amazon CloudWatch Container Insights^] to collect, aggregate, and summarize metrics & logs if *ConfigureContainerInsights* parameter is set to `Yes`.
+To collect, aggregate, and summarize metrics & logs, set the *ConfigureContainerInsights* parameter to `Yes` to integrate this Partner Solution to the Amazon EKS cluster with https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html[Amazon CloudWatch Container Insights^].
 
-You can access these logs and metrics from the Amazon CloudWatch console, as shown in <<cloudwatch-container-insights>>:
+Access these logs and metrics from the Amazon CloudWatch console, as shown in <<cloudwatch-container-insights>>:
 
 :xrefstyle: short
 [#cloudwatch-container-insights]
@@ -165,20 +161,20 @@ image::../docs/deployment_guide/images/cloudwatch-container-insights.png[Amazon 
 
 ==== Prometheus metrics
 
-{partner-product-short-name} exposes Prometheus metrics under `/-/metrics` of the {partner-product-short-name} Ingress, as shown in <<grafana>>. Optionally, you can also enable a Grafana integration by setting the *ConfigureGrafana* parameter to `Yes`.
+{partner-product-short-name} exposes Prometheus metrics under `/-/metrics` of the {partner-product-short-name} Ingress, as shown in <<grafana>>. You can also set the *ConfigureGrafana* parameter to `Yes` to enable a Grafana integration.
 
 :xrefstyle: short
 [#grafana]
 .Grafana
 image::../docs/deployment_guide/images/grafana.png[Grafana]
 
-For more information about the Grafana integration, refer to https://docs.gitlab.com/charts/charts/globals.html#configure-grafana-integration[Configure Grafana Integration^].
+For more information, refer to https://docs.gitlab.com/charts/charts/globals.html#configure-grafana-integration[Configure Grafana integration^].
 
 ==== Amazon EKS console
 
-Use the Amazon EKS Console for a single place to see the status of your Kubernetes clusters, applications, and associated cloud resources, as shown in <<aws-eks-console>>.
+Use the Amazon EKS Console to see the status of your Kubernetes clusters, applications, and associated cloud resources in one place, as shown in <<aws-eks-console>>.
 
-See the prerequisites for Amazon EKS Console access configuration in https://docs.aws.amazon.com/eks/latest/userguide/view-workloads.html[View Kubernetes Resources^].
+For information on prerequisites for Amazon EKS Console access configuration, refer to https://docs.aws.amazon.com/eks/latest/userguide/view-workloads.html[View Kubernetes resources^].
 
 :xrefstyle: short
 [#aws-eks-console]
@@ -187,7 +183,7 @@ image::../docs/deployment_guide/images/aws-eks-console.png[AWS EKS Console]
 
 === Exports
 
-After successful {partner-product-short-name} deployment, the following AWS Systems Manager (SSM) Parameter Store parameters and AWS Secrets Manager secrets are exposed:
+After you successfully deploy {partner-product-short-name}, the following AWS Systems Manager (SSM) Parameter Store parameters and AWS Secrets Manager secrets are exposed:
 
 [#ssm1]
 .AWS Systems Manager (SSM) Parameter Store parameters
