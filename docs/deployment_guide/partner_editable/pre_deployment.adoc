@@ -2,15 +2,17 @@
 
 == Predeployment steps
 
+Secure the infrastructure that {partner-product-short-name} is deployed on according to that infrastructure's security best practices.
+
 === Security considerations
 
-Secure the infrastructure that {partner-product-short-name} is deployed on according to that infrastructure's security best practices. The {partner-product-short-name} Partner Solution incorporates general security best practices, but if you have specific requirements that aren't covered, you can customize the templates to meet your needs. For additional information, refer to the https://about.gitlab.com/blog/2020/05/20/gitlab-instance-security-best-practices/[{partner-product-short-name} instance: security best practices^].
+ The {partner-product-short-name} Partner Solution incorporates general security best practices, but if you have specific requirements that aren't covered, you can customize the templates to meet your needs. For additional information, refer to the https://about.gitlab.com/blog/2020/05/20/gitlab-instance-security-best-practices/[{partner-product-short-name} instance: security best practices^].
 
 ==== Public internet access
 
 WARNING: By default, the {partner-product-short-name} instance is configured with an internet ingress.
 
-If the {partner-product-short-name} instance is connected to the public internet, apply the industry advised security precautions and due diligences of public internet services. This includes, but is not limited to, {partner-product-short-name} and infrastructure updates and patching.
+If the {partner-product-short-name} instance is connected to the public internet, apply the industry advised security precautions and due diligences of public internet services. This includes, {partner-product-short-name} and infrastructure updates and patching.
 
 By default, the Partner Solution enables a secure administrative mode by configuring the EKS cluster without a public endpoint and a bastion host. The bastion host comes with cluster administration tools pre&#8209;installed such as kubectl, eksctl, AWS CLI, and Helm. The Partner Solution pre&#8209;installs the SSM agent and configures the SSM session manager permissions. The bastion host doesn't need to have a port publicly exposed to get a console session, either through the AWS Management Console or a workstation installation of the AWS CLI with the SSM extensions.
 
@@ -28,13 +30,11 @@ WARNING: If you're migrating an existing {partner-product-short-name} instance t
 
 === Component sizing
 
-This Partner Solution creates {partner-product-short-name} cloud native reference architecture compliant {partner-product-short-name} instances. {partner-product-short-name} reference architectures have a "Cloud Native Hybrid" section that has a manifest of required resources to use while deploying the template. For additional information, refer to https://docs.gitlab.com/ee/install/aws/gitlab_hybrid_on_aws.html#gitlab-cloud-native-hybrid-on-aws[GitLab Cloud Native Hybrid on AWS^].
+This Partner Solution creates {partner-product-short-name} cloud native reference architecture-compliant {partner-product-short-name} instances. {partner-product-short-name} reference architectures have a "Cloud Native Hybrid" section that has a manifest of required resources to use while deploying the template. For additional information, refer to https://docs.gitlab.com/ee/install/aws/gitlab_hybrid_on_aws.html#gitlab-cloud-native-hybrid-on-aws[GitLab Cloud Native Hybrid on AWS^].
 
 === Post-installation considerations
 
-==== Kubernetes considerations
-
-If you intend to integrate the {partner-product-short-name} instance with one or more new or existing Kubernetes cluster once operational, see the following sections to ensure you configure the {partner-product-short-name} instance appropriately:
+Once operational, if you intend to integrate the {partner-product-short-name} instance with one or more new or existing Kubernetes cluster, see the following sections to ensure you configure the {partner-product-short-name} instance appropriately:
 
 * <<Provisioning new Kubernetes clusters>>
 * <<Integrating with existing Kubernetes clusters>>
@@ -45,6 +45,6 @@ For a production deployment, don't deploy the Kubernetes Runner chart integrated
 
 Alternative {partner-product-short-name} Runner deployment options include:
 
-. For groups and projects that are integrated into a Kubernetes cluster dedicated to development and/or production, you can deploy the GitLab Runner as a managed app. Refer to https://docs.gitlab.com/ee/user/infrastructure/clusters/manage/management_project_applications/runner.html[Install GitLab Runner with a Cluster Management Project^] or use the https://docs.gitlab.com/runner/install/kubernetes.html[Runner Helm Chart^] after the clusters are integrated.
-. For non-Kubernetes integrated groups or projects or for shared runners for the entire instance, use the https://gitlab.com/guided-explorations/aws/gitlab-runner-autoscaling-aws-asg[{partner-product-short-name} HA Scaling Runner Vending Machine for AWS^] to deploy runners of all OS types and Runner Executor types using an AWS ASG.
+. For groups and projects that are integrated into a Kubernetes cluster dedicated to development and/or production, you can deploy the GitLab Runner as a managed app. Refer to https://docs.gitlab.com/ee/user/infrastructure/clusters/manage/management_project_applications/runner.html[Install {partner-product-short-name} Runner with a cluster management project^] or use the https://docs.gitlab.com/runner/install/kubernetes.html[{partner-product-short-name} Runner Helm Chart^] after the clusters are integrated.
+. For non-Kubernetes integrated groups or projects or for shared runners for the entire instance, use the https://gitlab.com/guided-explorations/aws/gitlab-runner-autoscaling-aws-asg[{partner-product-short-name} HA Scaling Runner Vending Machine for AWS EC2 ASG^] to deploy runners of all OS types and Runner Executor types using an AWS ASG.
 . Implement a dedicated EKS cluster for a fleet of shared runners.
