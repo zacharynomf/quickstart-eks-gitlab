@@ -2,13 +2,13 @@
 
 == Postdeployment steps
 
-This Partner Solution doesn't setup {partner-product-short-name} Runners for you when deployed for production grade implementations. Consult the https://docs.gitlab.com/runner/[{partner-product-short-name} Runner documentation^] to setup runners or leverage the https://gitlab.com/guided-explorations/aws/gitlab-runner-autoscaling-aws-asg[{partner-product-short-name} HA Scaling Runner Vending Machine for AWS^].
+This Partner Solution doesn't setup {partner-product-short-name} Runners for you when deployed for production grade implementations. Consult https://docs.gitlab.com/runner/[{partner-product-short-name} Runner^] to setup runners or leverage https://gitlab.com/guided-explorations/aws/gitlab-runner-autoscaling-aws-asg[{partner-product-short-name} HA Scaling Runner Vending Machine for AWS EC2 ASG^].
 
 === Logging in
 
-. Sign in to the AWS Management Console, and open the https://console.aws.amazon.com/secretsmanager:[AWS Secrets Manager Console^].
+. Sign in to the AWS Management Console, and open the https://console.aws.amazon.com/secretsmanager[AWS Secrets Manager Console^].
 . On the top toolbar, choose the deployment's AWS Region.
-. Choose the secret ending in *initial-root-password*, which is also listed in <<secrets1>>.
+. Choose the secret ending in *initial-root-password* (listed in <<secrets1>>).
 . Choose *Retrieve secret value*.
 . Decode the base64 encoded password with one of the following commands (the password will be in your copy / paste buffer):
 
@@ -25,16 +25,18 @@ echo {base64-encoded-password} | base64 -d | pbcopy
 ----
 
 [start=4]
++
 . Copy the emitted password, or use one of the following commands to pipe the above command output directly to the clipboard:
-     Bash: `| pbcopy` 
-     PowerShell: `| clip`)
+
+     * Bash: `| pbcopy` 
+     * PowerShell: `| clip`)
 . Access the {partner-product-short-name} instance URL.
-. Log in with the username 'root' and paste in the password.
+. Log in with the username 'root', and paste in the password.
 
 [WARNING]
 ====
 * If you get the error `Invalid Login or password.` verify that you used 'root' for the username.
-* If you get the error `This site can't be reached` veriry you're using the actual host name you put in your hosts file.
+* If you get the error `This site can't be reached` verify you're using the actual host name you put in your hosts file.
 * If you get the message `default backend - 404` verify you prefixed the domain with `gitlab.` in your hosts file and in your browser.
 ====
 
@@ -53,7 +55,7 @@ If you use the bastion host, complete these steps on that machine.
 
 ==== Connecting to the bastion host
 
-. Sign in to the AWS Management Console and open the https://console.aws.amazon.com/ec2/v2/home?Instances:[Amazon EC2 Console^].
+. Sign in to the AWS Management Console, and open the https://console.aws.amazon.com/ec2/v2/home?Instances[Amazon EC2 Console^].
 . On the top toolbar, choose the deployment's AWS Region.
 . In the left navigation pane, choose *Instances*.
 . On the *Instances* page, open the context (right-click) menu for *EKSBastion*, and choose *Connect*.
@@ -70,24 +72,24 @@ If you use the bastion host, complete these steps on that machine.
 
 Amazon Simple Email Service (Amazon SES) is purposely created in "sandbox" mode to prevent spam abuse using massively scaled email services. To enable it manually:
 
-. Sign in to the AWS Management Console and open the https://console.aws.amazon.com/ses/:[Amazon SES console^]^.
+. Sign in to the AWS Management Console and open the https://console.aws.amazon.com/ses[Amazon SES console^]^.
 . In the left navigation pane, choose *Account dashboard*.
 . Under *Email sending*, choose **Sending statistics**.
 . On the right pane, next to *Production access*, visually validate that it says **Sandbox**.
 . Choose **Edit your account details**.
 . Next to *Enable production access*, choose **Yes**.
-. For *Mail type* leave the default of **Transactional**.
-. For *Website URL* enter **your {partner-product-short-name} instance URL**.
-. Under *Use case description*, type **Testing {partner-product-short-name} instance outbound email**.
+. For *Mail type*, leave the default of **Transactional**.
+. For *Website URL*, enter **your {partner-product-short-name} instance URL**.
+. Under *Use case description*, type `Testing {partner-product-short-name} instance outbound email`.
 . Under *Additional contact addresses* enter **your real email address**.
 . Select *I agree to the AWS Service Terms and AUP*.
 . Choose **Submit for review**.
 
-NOTE: Notice the new banner near the top containing *Your account details are currently under review*.
+NOTE: Notice the new banner near the top that displays *Your account details are currently under review*.
 
 === Accessing Grafana
 
-. Sign in to the AWS Management Console, and open the https://console.aws.amazon.com/secretsmanager:[AWS Secrets Manager Console^].
+. Sign in to the AWS Management Console, and open the https://console.aws.amazon.com/secretsmanager[AWS Secrets Manager Console^].
 . On the top toolbar, choose the deployment's AWS Region. 
 . Choose the secret ending in *initial-grafana-password*.
 . Choose *Retrieve secret value*.
@@ -104,26 +106,26 @@ echo {base64-encoded-password} | base64 -d | pbcopy
 ----
 [Text.Encoding]::Utf8.GetString([Convert]::FromBase64String('{base64-encoded-password}')) | clip
 ----
-
++
 . Access **your {partner-product-short-name} URL** + /-/grafana.
 . Log in with the username `root`.
 . Use the password retrieved earlier.
 
 === Integrating Kubernetes
 
-==== Provisioning new Kubernetes clusters
-
-You can configure {partner-product-short-name} to provision Amazon EKS clusters into AWS accounts. This requires configuration of an AWS IAM Role (and potentially an IAM user) for {partner-product-short-name} authentication in an AWS account. Each account where clusters are provisioned also require at least one IAM Role for EKS cluster provisioning to be defined. For additional information, refer to https://docs.gitlab.com/ee/user/project/clusters/add_eks_clusters.html#configure-amazon-authentication[Configure Amazon authentication].
+You can configure {partner-product-short-name} to provision Amazon EKS clusters into AWS accounts. This requires configuration of an AWS IAM Role (and potentially an IAM user) for {partner-product-short-name} authentication in an AWS account. Each account where clusters are provisioned also require at least one IAM Role for EKS cluster provisioning to be defined. For additional information, refer to https://docs.gitlab.com/ee/user/project/clusters/add_eks_clusters.html#configure-amazon-authentication[Configure Amazon authentication^].
 
 ==== Integrating with existing Kubernetes clusters
 
-A {partner-product-short-name} instance of any type (does not have to be running on Kubernetes) can integrate to a Kubernetes cluster for Review Apps and AutoDevOps to pre&#8209;production and production environments. For production deployments, the cluster containing your {partner-product-short-name} instance should not be used for this purpose due to the level of privileges required to deploy Review Apps and AutoDevOps to the cluster.
+A {partner-product-short-name} instance of any type (doesn't have to be running on Kubernetes) can integrate to a Kubernetes cluster for Review Apps and AutoDevOps to pre&#8209;production and production environments. For production deployments, the cluster containing your {partner-product-short-name} instance shouldn't be used for this purpose due to the level of privileges required to deploy Review Apps and AutoDevOps to the cluster.
 
 ==== Performance monitoring
 
+Use CloudWatch or Prometheus to collect metrics.
+
 ===== Using CloudWatch Metrics
 
-CloudWatch metrics are collected for instances and containers. These metrics are used for performance analysis, graphing, and alarms and events in AWS CloudWatch. As per standard CloudWatch capabilities, alarms and events can interact with many other AWS services for notifications or automated actions.
+Collect CloudWatch metrics for instances and containers. Use these metrics for performance analysis, graphing, and alarms and events in AWS CloudWatch. As per standard CloudWatch capabilities, alarms and events can interact with many other AWS services for notifications or automated actions.
 
 ===== Using Prometheus
 

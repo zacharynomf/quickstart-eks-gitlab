@@ -1,5 +1,5 @@
-:quickstart-project-name: quickstart-repo-name
-:quickstart-github-org: quickstart-eks-gitlab
+:partner-solution-project-name: quickstart-repo-name
+:partner-solution-github-org: quickstart-eks-gitlab
 :partner-product-name: GitLab
 :partner-product-short-name: GitLab
 :partner-product-long-name: GitLab hybrid reference architecture for Amazon EKS
