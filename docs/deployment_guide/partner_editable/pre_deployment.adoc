@@ -6,7 +6,7 @@ Secure the infrastructure that {partner-product-short-name} is deployed on accor
 
 === Security considerations
 
- The {partner-product-short-name} Partner Solution incorporates general security best practices, but if you have specific requirements that aren't covered, you can customize the templates to meet your needs. For additional information, refer to the https://about.gitlab.com/blog/2020/05/20/gitlab-instance-security-best-practices/[{partner-product-short-name} instance: security best practices^].
+The {partner-product-short-name} Partner Solution incorporates general security best practices, but if you have specific requirements that aren't covered, you can customize the templates to meet your needs. For additional information, refer to the https://about.gitlab.com/blog/2020/05/20/gitlab-instance-security-best-practices/[{partner-product-short-name} instance: security best practices^].
 
 ==== Public internet access
 
