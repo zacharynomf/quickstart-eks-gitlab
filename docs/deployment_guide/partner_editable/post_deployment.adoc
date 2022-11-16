@@ -31,7 +31,7 @@ echo {base64-encoded-password} | base64 -d | pbcopy
      * Bash: `| pbcopy` 
      * PowerShell: `| clip`)
 . Access the {partner-product-short-name} instance URL.
-. Log in with the username 'root', and paste in the password.
+. Log in with the username `root`, and paste in the password.
 
 [WARNING]
 ====
