@@ -197,7 +197,7 @@ Metadata:
         default: Database port
     # Cache configuration
       CacheEngineVersion:
-        default: Redis version to provision    
+        default: Redis version to provision
       CacheMode:
         default: Where to provision Redis
       CacheNodes:
