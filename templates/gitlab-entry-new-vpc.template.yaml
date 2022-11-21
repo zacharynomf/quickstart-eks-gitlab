@@ -69,6 +69,7 @@ Metadata:
       - Label:
           default: GitLab cache configuration
         Parameters:
+          - CacheEngineVersion
           - CacheMode
           - CacheNodes
           - CacheNodeType
@@ -199,6 +200,8 @@ Metadata:
       DBPort:
         default: Database port
     # Cache configuration
+      CacheEngineVersion:
+        default: Redis version to provision
       CacheMode:
         default: Where to provision Redis
       CacheNodes:
@@ -572,6 +575,12 @@ Parameters:
     Default: 5432
 
 # Cache Parameters
+  CacheEngineVersion:
+    Type: String
+    Default: 5.0.6 # GitLab does not support 6.x redis (https://gitlab.com/gitlab-org/gitlab/-/issues/281683)
+    AllowedValues:
+      - 5.0
+      - 6.0
   CacheMode:
     Type: String
     Description: >-
