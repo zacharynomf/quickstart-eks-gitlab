@@ -29,6 +29,9 @@ Parameters:
   CacheEngineVersion:
     Type: String
     Default: 5.0.6 # GitLab does not support 6.x redis (https://gitlab.com/gitlab-org/gitlab/-/issues/281683)
+    AllowedValues:
+      - 5.0
+      - 6.0
   CacheNodeType:
     Type: String
     AllowedPattern: ^cache\.[a-z0-9]+\.[a-z0-9]+$
