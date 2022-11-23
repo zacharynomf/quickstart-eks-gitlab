@@ -52,7 +52,7 @@ As shown in <<architecture1>>, the Partner Solution sets up the following:
 === Bundling
 
 This Partner Solution provides the following features for bundled provisioning of container registry, backup, log aggregation, and monitoring:
-//TODO troy, is the above sentence a suitable intro for the following bullets? I removed the subheading and added this sentence.
+
 - Uses Amazon Linux 2 throughout and benefits from Amazon-specific optimizations for performance and compute density for both EKS and EC2 hosts. ^[AWS-WA]^
 - All {partner-product-short-name} logs are automatically aggregated into CloudWatch logs with CloudWatch Instance Agent and CloudWatch Container Insights. ^[AWS-WA]^
 - EKS workload monitoring with CloudWatch Container Insights. ^[AWS-WA]^
@@ -61,8 +61,8 @@ This Partner Solution provides the following features for bundled provisioning o
 - The container registry is automatically setup at `registry.[subdomain]`. ^[AWS-WA]^
 
 === Security
-//TODO troy, is the reorg of the below section okay with you? I removed the "Amazon EKS cluster administration" subheading and moved that content to here.
-The {partner-product-short-name} Kubernetes endpoint can be private, but a bastion host must be deployed to do direct cluster management (preloaded with AWS, EKS and Kubernetes management utilities, and IAM permissions for cluster management). The bastion host is setup with SSH keys, but can also be accessed more securely using AWS Systems Manager (SSM) Session Manager. The bastion host has command audit logging enabled, and the log is uploaded to CloudWatch Logs.
+
+If you choose to deploy {partner-product-short-name} with a private Kubernetes endpoint, an optional bastion host is available (preloaded with AWS, EKS and Kubernetes management utilities, and IAM permissions for cluster management). Configure this bation host with or without SSH keys for remote access, and securely access it using AWS Systems Manager (SSM) Session Manager. The bastion host has command audit logging enabled, and the log is uploaded to CloudWatch Logs.
 
 ==== Application secrets
 
@@ -97,7 +97,7 @@ These two databases are deployed to the same cluster:
 For more information, refer to https://docs.gitlab.com/charts/advanced/external-db/[Configure the {partner-product-short-name} chart with an external database^].
 
 === Storage
-//TODO troy, pleas also check the rearrangement of this section. I removed the "Object storage for GitLab storage types" heading and moved that content here, and I rearranged the sentences a bit. I also replaced the bullet under "Git repository storage" with a sentence.
+
 This Partner Solution creates Amazon S3 buckets for the use cases below. Apply S3 policies to these buckets to manage retention, storage tier, and replication.
 
 * Artifacts
@@ -119,7 +119,7 @@ For more information, refer to https://docs.gitlab.com/charts/advanced/external-
 The {partner-product-short-name} Partner Solution uses Amazon EBS volumes on Gitaly cluster instances. ^[GL-RAR]^
 
 === Backups
-//TODO troy, I did the same for this section. Removed the "Content of the backups" heading and moved the content here. 
+
 Backups include {partner-product-short-name} database snapshots and the contents of {partner-product-short-name} projects, such as Git repositories and wiki pages. For the following reasons, backups do not include the contents of Amazon S3 buckets (see object storage for a list of buckets):
 
 * Contents of these buckets may be very large (pipeline artifacts or Docker images) and that may affect stability and performance of the backup jobs.
@@ -141,8 +141,8 @@ For large {partner-product-short-name} deployments, use `BackupCpu` and `BackupM
 For more information, refer to https://docs.gitlab.com/charts/backup-restore/[Backup and restore a {partner-product-short-name} instance^].
 
 === Telemetry and monitoring
-//TODO troy, is this intro sentence okay? Just trying to break up stacked headings.
-This Partner Solution provides these consoles for metrics and logs.
+
+This Partner Solution provides the following consoles for metrics and logs.
 
 ==== Amazon CloudWatch Container Insights
 
