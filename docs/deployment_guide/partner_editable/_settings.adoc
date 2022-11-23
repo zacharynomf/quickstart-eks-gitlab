@@ -1,0 +1,17 @@
+:partner-solution-project-name: quickstart-repo-name
+:partner-solution-github-org: quickstart-eks-gitlab
+:partner-product-name: GitLab
+:partner-product-short-name: GitLab
+:partner-product-long-name: GitLab hybrid reference architecture for Amazon EKS
+:partner-product-edition: {partner-product-name} Enterprise Edition
+:partner-company-name: GitLab Inc.
+:partner-company-short-name: GitLab
+:doc-month: November
+:doc-year: 2022
+:partner-contributors: Darwin Sanoy, {partner-company-name}
+// :other-contributors: Akua Mansa, Trek10
+:aws-contributors: Dmitry Kolomiets, AWS WWCO ProServe team
+:aws-ia-contributors: Andrew Gargan & Troy Lindsay, AWS Integration & Automation team
+:deployment_time: 1 to 2 hours
+:default_deployment_region: us-east-1
+// :private_repo:
