@@ -855,10 +855,10 @@ p.footer-text a{color:#d7d8d8}
 <div id="toctitle"></div>
 <ul class="sectlevel1">
 <li><a href="#_overview">Overview</a></li>
-<li><a href="#_built_in_value_of_aws_parter_solutions">Built-in value of AWS Parter Solutions</a>
+<li><a href="#_built_in_value_of_aws_partner_solutions">Built-in value of AWS Partner Solutions</a>
 <ul class="sectlevel2">
 <li><a href="#_market_reach_and_reuse">Market reach and reuse</a></li>
-<li><a href="#_open_source_community">Open source community</a></li>
+<li><a href="#_open_source_community">Open-source community</a></li>
 </ul>
 </li>
 <li><a href="#_costs_and_licenses">Costs and licenses</a></li>
@@ -881,7 +881,7 @@ p.footer-text a{color:#d7d8d8}
 <li><a href="#_instance_version_selection">Instance version selection</a></li>
 <li><a href="#_migration_considerations">Migration considerations</a></li>
 <li><a href="#_component_sizing">Component sizing</a></li>
-<li><a href="#_post_installation_considerations">Post-installation considerations</a></li>
+<li><a href="#_postinstallation_considerations">Postinstallation considerations</a></li>
 </ul>
 </li>
 <li><a href="#_deployment_steps">Deployment steps</a></li>
@@ -916,7 +916,7 @@ p.footer-text a{color:#d7d8d8}
 <p><strong>November 2022</strong><br>
 <em>Darwin Sanoy, GitLab Inc.</em><br>
 <em>Dmitry Kolomiets, AWS WWCO ProServe team</em><br>
-<em>Andrew Gargan &amp; Troy Lindsay, AWS Integration &amp; Automation team</em><br></p>
+<em>Andrew Gargan and Troy Lindsay, AWS Integration &amp; Automation team</em><br></p>
 </div>
 <div class="imageblock text-left image-container">
 <div class="content">
@@ -944,18 +944,12 @@ Refer to the <a href="https://github.com/quickstart-eks-gitlab/quickstart-repo-n
 <h2 id="_overview">Overview</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This Partner Solution deploys GitLab hybrid reference architecture for Amazon EKS on the AWS Cloud. Use this guide for the necessary steps to deploy this Partner Solution.</p>
-</div>
-<div class="paragraph">
-<p>This Partner Solution is for users who want a production grade GitLab instance deployed to AWS infrastructure.</p>
-</div>
-<div class="paragraph">
-<p>GitLab is a single, open solution for managing DevOps and other software development life&#8209;cycles (SDLCs).</p>
+<p>This Partner Solution deploys GitLab hybrid reference architecture for Amazon EKS to the AWS Cloud. This Partner Solution is for users who want to deploy a production-grade GitLab instance. GitLab manages DevOps and other software development life cycles (SDLCs).</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_built_in_value_of_aws_parter_solutions">Built-in value of AWS Parter Solutions</h2>
+<h2 id="_built_in_value_of_aws_partner_solutions">Built-in value of AWS Partner Solutions</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>In addition to reference architecture compliance, this Partner Solution has these features:</p>
@@ -965,32 +959,32 @@ Refer to the <a href="https://github.com/quickstart-eks-gitlab/quickstart-repo-n
 <div class="ulist">
 <ul>
 <li>
-<p>AWS Partner Solution (primary use case initiated by AWS) - production grade HA-required 3rd party software deployable in the fewest possible clicks to AWS. For more information, refer to <a href="https://aws.amazon.com/solutions/browse-all/?solutions-all.sort-by=item.additionalFields.headline&amp;solutions-all.sort-order=asc&amp;awsf.Content-Type=content-type%23quick-start&amp;awsf.AWS-Product%20Category=*all">AWS Partner Solutions</a>.</p>
+<p>An AWS Partner Solution (primary AWS use case): Provides production-grade high availability for third-party software. For more information, refer to <a href="https://aws.amazon.com/solutions/browse-all/?solutions-all.sort-by=item.additionalFields.headline&amp;solutions-all.sort-order=asc&amp;awsf.Content-Type=content-type%23quick-start&amp;awsf.AWS-Product%20Category=*all" target="_blank" rel="noopener">AWS Partner Solutions</a>.</p>
 </li>
 <li>
-<p>AWS alternative to ServiceNow self-service automation - can be used by large customers or partners to create parameter customized versions.</p>
+<p>An AWS alternative to ServiceNow self-service automation: Customers and partners can create customized versions.</p>
 </li>
 <li>
-<p>AWS Control Tower Partner Solutions - Allows vending of GitLab instances into AWS accounts managed by AWS Control Tower. For more information, refer to the <a href="https://aws.amazon.com/controltower/partners/">AWS Control Tower Partners</a>.</p>
+<p>AWS Control Tower: This allows vending of GitLab instances into AWS accounts that are managed by AWS Control Tower. For more information, refer to <a href="https://aws.amazon.com/controltower/partners/" target="_blank" rel="noopener">AWS Control Tower Partners</a>.</p>
 </li>
 </ul>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_open_source_community">Open source community</h3>
+<h3 id="_open_source_community">Open-source community</h3>
 <div class="ulist">
 <ul>
 <li>
-<p>Partner Solutions are managed as open source, and the AWS Partner Solutions team and GitLab hybrid reference architecture for Amazon EKS give special attention.</p>
+<p>AWS Partner Solutions are open source.</p>
 </li>
 <li>
-<p>All Partner Solutions are quality tested using CI in multiple regions when they&#8217;re changed or when they take new versions of dependent Partner Solutions.</p>
+<p>All Partner Solutions are quality tested using CI in multiple Regions when they&#8217;re changed or when they take new versions of dependent Partner Solutions.</p>
 </li>
 <li>
-<p>Partner Solutions rely on included Partner Solution dependencies for Amazon Elastic Kubernetes Service (Amazon EKS), PostgreSQL, and others. These shared dependencies are used, debugged, and improved as community maintained shared dependencies that underlie many AWS Partner Solutions.</p>
+<p>Partner Solutions rely on included dependencies for Amazon Elastic Kubernetes Service (Amazon EKS), PostgreSQL, and others. These shared dependencies are used, debugged, and improved as community-maintained shared dependencies.</p>
 </li>
 <li>
-<p>The dependency framework provides value because any of the EKS Partner Solution functionality can be easily passed through to the GitLab Partner Solution. For instance, support for EKS clusters on AWS Spot compute can be passed through for non-production setups like training and demos.</p>
+<p>The dependency framework provides EKS functionality that can be passed to the GitLab Partner Solution. For instance, support for EKS clusters on Amazon EC2 Spot Instances can be passed through for nonproduction setups like trainings and demonstrations.</p>
 </li>
 </ul>
 </div>
@@ -1001,10 +995,10 @@ Refer to the <a href="https://github.com/quickstart-eks-gitlab/quickstart-repo-n
 <h2 id="_costs_and_licenses">Costs and licenses</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>There&#8217;s no cost to use this Partner Solution, but you&#8217;ll be billed for any AWS services or resources that this Partner Solution deploys. For more information, refer to the <a href="https://fwd.aws/rA69w?" target="_blank" rel="noopener">AWS Partner Solution General Information Guide</a>.</p>
+<p>There&#8217;s no cost to use this Partner Solution, but you are billed for any AWS services or resources that this solution deploys. For more information, refer to the <a href="https://fwd.aws/rA69w?" target="_blank" rel="noopener">AWS Partner Solution General Information Guide</a>.</p>
 </div>
 <div class="paragraph">
-<p>This Partner Solution creates an instance of GitLab Enterprise Edition with a free license (unlicensed). Premium and Ultimate subscriptions have additional features available. For more information or to purchase, refer to <a href="https://about.gitlab.com/pricing/self-managed/feature-comparison/" target="_blank" rel="noopener">Compare features</a>. For licensing and subscription questions, refer to the <a href="https://about.gitlab.com/pricing/licensing-faq/" target="_blank" rel="noopener">Licensing and subscription FAQ</a>, or contact <a href="https://about.gitlab.com/sales/" target="_blank" rel="noopener">GitLab Sales</a> for a trial license. Once your instance is running, use the admin section of the Licensing and subscription FAQ to add a license file.</p>
+<p>This Partner Solution creates an instance of GitLab Enterprise Edition with a free license. Premium and Ultimate subscriptions have additional features. For more information, refer to <a href="https://about.gitlab.com/pricing/self-managed/feature-comparison/" target="_blank" rel="noopener">Compare features</a>. For licensing and subscription questions, refer to the <a href="https://about.gitlab.com/pricing/licensing-faq/" target="_blank" rel="noopener">Licensing and subscription FAQ</a> or contact <a href="https://about.gitlab.com/sales/" target="_blank" rel="noopener">GitLab Sales</a> for a trial license. To add a license file after your instance is running, refer to the administrator section of the licensing and subscription FAQ.</p>
 </div>
 </div>
 </div>
@@ -1012,7 +1006,7 @@ Refer to the <a href="https://github.com/quickstart-eks-gitlab/quickstart-repo-n
 <h2 id="_architecture">Architecture</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Deploy this Partner Solution with default parameters to build the following GitLab environment in the AWS Cloud.</p>
+<p>Deploy this Partner Solution with default parameters to deploy the following GitLab environment to the AWS Cloud.</p>
 </div>
 <div class="sect2">
 <h3 id="_architecture_diagram">Architecture diagram</h3>
@@ -1037,16 +1031,16 @@ Refer to the <a href="https://github.com/quickstart-eks-gitlab/quickstart-repo-n
 <tbody>
 <tr>
 <td class="tableblock halign-center valign-top"><p class="tableblock"><sup>[AWS-WA]</sup></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Compliant with AWS Well Architected: includes favoring platform&#8209;as&#8209;a&#8209;service (PaaS) to externalize scaling and availability management and high&#8209;availability (HA) / self&#8209;healing for non&#8209;PaaS resources.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">AWS Well-Architected compliant, which includes favoring platform&#8209;as&#8209;a&#8209;service (PaaS) for scaling, high&#8209;availability and self&#8209;healing for non&#8209;PaaS resources.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-center valign-top"><p class="tableblock"><sup>[GL-RAR]</sup></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Compliant with a GitLab Reference Architecture Requirement or Recommendation: only applies to items where the reference architectures are opinionated.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Compliant with GitLab reference-architecture requirement or recommendation. This applies only to items where the reference architectures are opinionated.</p></td>
 </tr>
 </tbody>
 </table>
 <div class="paragraph">
-<p>This automation results in a completely operational GitLab instance.</p>
+<p>This deployment sets up an operational GitLab instance.</p>
 </div>
 <div class="paragraph">
 <p>As shown in <a href="#architecture1">Figure 1</a>, the Partner Solution sets up the following:</p>
@@ -1067,7 +1061,7 @@ Refer to the <a href="https://github.com/quickstart-eks-gitlab/quickstart-repo-n
 <p>Managed network address translation (NAT) gateways to allow outbound internet access for resources in the private subnets.<sup>1</sup></p>
 </li>
 <li>
-<p>In one public subnet, a Linux bastion host in an Auto Scaling group to allow inbound Secure Shell (SSH) access to Amazon Elastic Compute Cloud (Amazon EC2) instances in private subnets. The bastion host is also configured with the Kubernetes <code>kubectl</code> command line interface (CLI) and the <code>helm</code> CLI for managing the Kubernetes cluster as well as the AWS CLI for general AWS management. <sup>[AWS-WA]</sup></p>
+<p>In one public subnet, a Linux bastion host in an Auto Scaling group to allow inbound Secure Shell (SSH) access to Amazon Elastic Compute Cloud (Amazon EC2) instances in the private subnets. The bastion host is also configured with the Kubernetes Kubectl command line interface (CLI) and the <code>helm</code> CLI for managing the Kubernetes cluster as well as the AWS CLI for general AWS management. <sup>[AWS-WA]</sup></p>
 </li>
 </ul>
 </div>
@@ -1077,7 +1071,7 @@ Refer to the <a href="https://github.com/quickstart-eks-gitlab/quickstart-repo-n
 <div class="ulist">
 <ul>
 <li>
-<p>An Auto Scaling group of Amazon Elastic Compute Cloud (Amazon EC2) Kubernetes nodes.<sup>2</sup> <sup>[AWS-WA]</sup></p>
+<p>An Auto Scaling group of Amazon EC2 Kubernetes nodes.<sup>2</sup> <sup>[AWS-WA]</sup></p>
 </li>
 <li>
 <p>An Amazon Elastic Kubernetes Service (Amazon EKS) cluster to create the Kubernetes control plane.</p>
@@ -1086,13 +1080,13 @@ Refer to the <a href="https://github.com/quickstart-eks-gitlab/quickstart-repo-n
 <p>An Amazon Relational Database Service (Amazon RDS) cluster for GitLab and Praefect databases. <sup>[GL-RAR][AWS-WA]</sup></p>
 </li>
 <li>
-<p>An Amazon ElastiCache: Redis cluster for caching. <sup>[GL-RAR][AWS-WA]</sup></p>
+<p>An Amazon ElastiCache Redis cluster for caching. <sup>[GL-RAR][AWS-WA]</sup></p>
 </li>
 <li>
-<p>A Praefect node Auto Scaling group spread across Availability Zones. <a href="https://docs.gitlab.com/ee/administration/reference_architectures/10k_users.html#cloud-native-hybrid-reference-architecture-with-helm-charts-alternative" target="_blank" rel="noopener">GitLab&#8217;s Cloud Native Hybrid reference architecture with Helm Charts (alternative)</a> calls for Praefect to be implemented on Amazon EC2 instance compute. <sup>[GL-RAR][AWS-WA]</sup></p>
+<p>A Praefect node Auto Scaling group. <a href="https://docs.gitlab.com/ee/administration/reference_architectures/10k_users.html#cloud-native-hybrid-reference-architecture-with-helm-charts-alternative" target="_blank" rel="noopener">GitLab&#8217;s Cloud Native Hybrid reference architecture with Helm Charts (alternative)</a> for Praefect to implement an Amazon EC2 compute instance. <sup>[GL-RAR][AWS-WA]</sup></p>
 </li>
 <li>
-<p>An Auto Scaling group with Gitaly nodes spread across Availability Zones. "GitLab&#8217;s Cloud Native Hybrid reference architecture with Helm Charts" calls for Gitaly to be implemented on Amazon EC2 instance compute and to utilize non-Network File System (NFS) storage for the file system containing Git repositories. <sup>[GL-RAR][AWS-WA]</sup></p>
+<p>An Auto Scaling group with Gitaly nodes. The GitLab hybrid architecture with Helm Charts calls for Gitaly to be implemented on an Amazon EC2 compute instance and to use non-Network File System (NFS) storage for the file system containing Git repositories. <sup>[GL-RAR][AWS-WA]</sup></p>
 </li>
 </ul>
 </div>
@@ -1101,10 +1095,10 @@ Refer to the <a href="https://github.com/quickstart-eks-gitlab/quickstart-repo-n
 <p>AWS Secrets Manager for securely storing credentials.</p>
 </li>
 <li>
-<p>Multiple Amazon Simple Storage Service (Amazon S3) buckets for platform-as-a-service (PaaS) of non-Git file systems and Git Large File Storage (LFS) systems. <sup>[GL-RAR][AWS-WA]</sup>. For more information, refer to <a href="#Object storage for GitLab storage types">[Object storage for GitLab storage types]</a>. <sup>[GL-RAR][AWS-WA]</sup></p>
+<p>Multiple Amazon Simple Storage Service (Amazon S3) buckets for PaaS of non-Git file systems and Git Large File Storage (LFS) systems. <sup>[GL-RAR][AWS-WA]</sup>. For more information, refer to <a href="#Object storage for GitLab storage types">[Object storage for GitLab storage types]</a>. <sup>[GL-RAR][AWS-WA]</sup></p>
 </li>
 <li>
-<p>An Amazon Route 53 hosted zone for Domain Name System (DNS) name resolution. <sup>[AWS-WA]</sup></p>
+<p>An Amazon Route 53–hosted zone for Domain Name System (DNS) name resolution. <sup>[AWS-WA]</sup></p>
 </li>
 <li>
 <p>An AWS Certificate Manager (ACM) for TLS traffic encryption. <sup>[AWS-WA]</sup></p>
@@ -1113,7 +1107,7 @@ Refer to the <a href="https://github.com/quickstart-eks-gitlab/quickstart-repo-n
 <p>An Amazon Simple Email Service (Amazon SES) domain for outgoing email messages. <sup>[AWS-WA]</sup></p>
 </li>
 <li>
-<p>Amazon CloudWatch Container Insights integration and agent for instance compute. <sup>[AWS-WA]</sup></p>
+<p>Amazon CloudWatch Container Insights integration and agent for compute instance. <sup>[AWS-WA]</sup></p>
 </li>
 <li>
 <p>AWS Systems Manager parameter store for storing infrastructure as code (IaC) parameters and outputs. <sup>[AWS-WA]</sup></p>
@@ -1138,10 +1132,10 @@ Refer to the <a href="https://github.com/quickstart-eks-gitlab/quickstart-repo-n
 <div class="ulist">
 <ul>
 <li>
-<p>Uses Amazon Linux 2 throughout and benefits from Amazon-specific optimizations for performance and compute density for both EKS and EC2 hosts. <sup>[AWS-WA]</sup></p>
+<p>Amazon Linux 2 throughout and benefits from Amazon-specific optimizations for performance and compute density for both EKS and EC2 hosts. <sup>[AWS-WA]</sup></p>
 </li>
 <li>
-<p>All GitLab logs are automatically aggregated into CloudWatch logs with CloudWatch Instance Agent and CloudWatch Container Insights. <sup>[AWS-WA]</sup></p>
+<p>All GitLab logs are aggregated into CloudWatch Logs with CloudWatch Instance Agent and CloudWatch Container Insights. <sup>[AWS-WA]</sup></p>
 </li>
 <li>
 <p>EKS workload monitoring with CloudWatch Container Insights. <sup>[AWS-WA]</sup></p>
@@ -1153,7 +1147,7 @@ Refer to the <a href="https://github.com/quickstart-eks-gitlab/quickstart-repo-n
 <p>Prometheus is always deployed.</p>
 </li>
 <li>
-<p>The container registry is automatically setup at <code>registry.[subdomain]</code>. <sup>[AWS-WA]</sup></p>
+<p>Sets up container registry at <code>registry.&lt;subdomain&gt;</code>. <sup>[AWS-WA]</sup></p>
 </li>
 </ul>
 </div>
@@ -1161,12 +1155,12 @@ Refer to the <a href="https://github.com/quickstart-eks-gitlab/quickstart-repo-n
 <div class="sect2">
 <h3 id="_security">Security</h3>
 <div class="paragraph">
-<p>If you choose to deploy GitLab with a private Kubernetes endpoint, an optional bastion host is available (preloaded with AWS, EKS and Kubernetes management utilities, and IAM permissions for cluster management). Configure this bation host with or without SSH keys for remote access, and securely access it using AWS Systems Manager (SSM) Session Manager. The bastion host has command audit logging enabled, and the log is uploaded to CloudWatch Logs.</p>
+<p>If you deploy GitLab with a private Kubernetes endpoint, an optional bastion host is available (preloaded with AWS, EKS and Kubernetes management utilities, and AWS Identity and Access Management (IAM) permissions for cluster management). For remote access, configure the bastion host with or without SSH keys, and securely access it using AWS Systems Manager Session Manager. The bastion host has command audit logging enabled, and the log is uploaded to CloudWatch Logs.</p>
 </div>
 <div class="sect3">
 <h4 id="_application_secrets">Application secrets</h4>
 <div class="paragraph">
-<p>This Partner Solution stores generated secrets in AWS Secrets Manager (example: generates a proper initial root password). <sup>[AWS-WA]</sup></p>
+<p>This Partner Solution stores generated secrets in AWS Secrets Manager (for example, it generates an initial root password). <sup>[AWS-WA]</sup></p>
 </div>
 </div>
 <div class="sect3">
@@ -1174,7 +1168,7 @@ Refer to the <a href="https://github.com/quickstart-eks-gitlab/quickstart-repo-n
 <div class="ulist">
 <ul>
 <li>
-<p>Data in Transit:</p>
+<p>Data in transit:</p>
 <div class="ulist">
 <ul>
 <li>
@@ -1184,16 +1178,16 @@ Refer to the <a href="https://github.com/quickstart-eks-gitlab/quickstart-repo-n
 <p>SSL for GitLab to Amazon S3. <sup>[AWS-WA]</sup></p>
 </li>
 <li>
-<p>SSL for GitLab to Amazon RDS: PostgreSQL. <sup>[AWS-WA]</sup></p>
+<p>SSL for GitLab to Amazon RDS PostgreSQL. <sup>[AWS-WA]</sup></p>
 </li>
 <li>
-<p>SSL for GitLab to Amazon ElastiCache: Redis. <sup>[AWS-WA]</sup></p>
+<p>SSL for GitLab to Amazon ElastiCache Redis. <sup>[AWS-WA]</sup></p>
 </li>
 <li>
 <p>SSL for GitLab to Runner. <sup>[AWS-WA]</sup></p>
 </li>
 <li>
-<p>SSL not yet available for GitLab to Praefect to Gitaly. <sup>[AWS-WA]</sup></p>
+<p>SSL not yet available for GitLab from Praefect to Gitaly. <sup>[AWS-WA]</sup></p>
 </li>
 </ul>
 </div>
@@ -1224,13 +1218,10 @@ Refer to the <a href="https://github.com/quickstart-eks-gitlab/quickstart-repo-n
 <div class="sect2">
 <h3 id="_database">Database</h3>
 <div class="paragraph">
-<p>The GitLab Partner Solution deploys a highly available (HA) PostgreSQL database cluster using the <a href="https://aws.amazon.com/quickstart/architecture/aurora-postgresql/" target="_blank" rel="noopener">Modular Architecture for Amazon Aurora PostgreSQL Partner Solution</a>.</p>
+<p>The GitLab Partner Solution deploys a highly available PostgreSQL database cluster using the <a href="https://aws.amazon.com/quickstart/architecture/aurora-postgresql/" target="_blank" rel="noopener">Modular Architecture for Amazon Aurora PostgreSQL Partner Solution</a>. Consider adjusting database instance size using the <code>DBInstanceClass</code> parameter, depending on the projected size of your GitLab deployment.</p>
 </div>
 <div class="paragraph">
-<p>Consider adjusting database instance size using the <code>DBInstanceClass</code> parameter, depending on the projected size of your GitLab deployment.</p>
-</div>
-<div class="paragraph">
-<p>These two databases are deployed to the same cluster:</p>
+<p>The following databases deploy to the same cluster:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -1238,7 +1229,7 @@ Refer to the <a href="https://github.com/quickstart-eks-gitlab/quickstart-repo-n
 <p>GitLab database.</p>
 </li>
 <li>
-<p>Praefect tracking database: requires a separate tracking database as described in <a href="https://docs.gitlab.com/ee/administration/gitaly/praefect.html" target="_blank" rel="noopener">Configure Gitaly Cluster</a>.</p>
+<p>Praefect tracking database. This requires a separate tracking database, as described in <a href="https://docs.gitlab.com/ee/administration/gitaly/praefect.html" target="_blank" rel="noopener">Configure Gitaly Cluster</a>.</p>
 </li>
 </ul>
 </div>
@@ -1249,7 +1240,7 @@ Refer to the <a href="https://github.com/quickstart-eks-gitlab/quickstart-repo-n
 <div class="sect2">
 <h3 id="_storage">Storage</h3>
 <div class="paragraph">
-<p>This Partner Solution creates Amazon S3 buckets for the use cases below. Apply S3 policies to these buckets to manage retention, storage tier, and replication.</p>
+<p>This Partner Solution creates Amazon S3 buckets for the following use cases. Apply Amazon S3 policies to these buckets to manage retention, storage tier, and replication.</p>
 </div>
 <div class="ulist">
 <ul>
@@ -1283,10 +1274,7 @@ Refer to the <a href="https://github.com/quickstart-eks-gitlab/quickstart-repo-n
 </ul>
 </div>
 <div class="paragraph">
-<p>By default, the contents of each bucket are encrypted with Amazon S3 server&#8209;side encryption (SSE-S3). The name of each bucket is auto&#8209;generated and exported as SSM parameters (see the <a href="#_exports">Exports</a> section).</p>
-</div>
-<div class="paragraph">
-<p>For more information, refer to <a href="https://docs.gitlab.com/charts/advanced/external-object-storage/" target="_blank" rel="noopener">Configure the GitLab chart with an external object storage</a>.</p>
+<p>By default, the contents of each bucket are encrypted with Amazon S3 server&#8209;side encryption (SSE-S3). The name of each bucket is generated and exported as SSM parameters (refer to the <a href="#_exports">Exports</a> section). For more information, refer to <a href="https://docs.gitlab.com/charts/advanced/external-object-storage/" target="_blank" rel="noopener">Configure the GitLab chart with an external object storage</a>.</p>
 </div>
 <div class="sect3">
 <h4 id="_git_repository_storage">Git repository storage</h4>
@@ -1298,12 +1286,12 @@ Refer to the <a href="https://github.com/quickstart-eks-gitlab/quickstart-repo-n
 <div class="sect2">
 <h3 id="_backups">Backups</h3>
 <div class="paragraph">
-<p>Backups include GitLab database snapshots and the contents of GitLab projects, such as Git repositories and wiki pages. For the following reasons, backups do not include the contents of Amazon S3 buckets (see object storage for a list of buckets):</p>
+<p>Backups include GitLab database snapshots and the contents of GitLab projects, such as Git repositories and wiki pages. For the following reasons, backups do not include the contents of Amazon S3 buckets. For a list of buckets, refer to <a href="#Object storage for GitLab storage types">[Object storage for GitLab storage types]</a>.</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Contents of these buckets may be very large (pipeline artifacts or Docker images) and that may affect stability and performance of the backup jobs.</p>
+<p>Contents of these buckets (for example, pipeline artifacts or Docker images) may be large and affect the stability and performance of backup jobs.</p>
 </li>
 <li>
 <p>Amazon S3 is a <a href="https://aws.amazon.com/s3/faqs/#Durability_.26_Data_Protection" target="_blank" rel="noopener">durable storage</a> option.</p>
@@ -1316,7 +1304,7 @@ Refer to the <a href="https://github.com/quickstart-eks-gitlab/quickstart-repo-n
 <div class="sect3">
 <h4 id="_schedule_backups">Schedule backups</h4>
 <div class="paragraph">
-<p>A cron expression controls the backup schedule and the default value is <code>0 1 * * * *</code> (daily at 1:00 AM). Set a different schedule using the <code>BackupSchedule</code> parameter.</p>
+<p>A cron expression controls the backup schedule and the default value is <code>0 1 * * * *</code>, which runs daily at 1:00 AM. To set a different schedule, use the <code>BackupSchedule</code> parameter.</p>
 </div>
 </div>
 <div class="sect3">
@@ -1328,13 +1316,13 @@ Refer to the <a href="https://github.com/quickstart-eks-gitlab/quickstart-repo-n
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-The disk volume required for backups is 2x larger than the backup tarball, so ensure you download all resources first and package to a tarball file (stored locally). Consider the size of your GitLab database and projects (mainly Git repositories) to set the size of the underlying EBS volumes appropriately, using <code>BackupVolumeSize</code> parameter.
+The disk volume required for backups is 2x larger than the backup tarball, so ensure that you download all resources and packages first to a tarball file (stored locally). Consider the size of your GitLab database and projects (mainly Git repositories) to set the size of the underlying Amazon EBS volumes appropriately using <code>BackupVolumeSize</code> parameter.
 </td>
 </tr>
 </table>
 </div>
 <div class="paragraph">
-<p>In testing, the average size of backups for the default configuration were 20 GB, and it took 30 minutes to create and upload to the Amazon S3 bucket.</p>
+<p>During testing, the average size of backups for the default configuration is 20 GB, and it takes about 30 minutes to create and upload backups to an Amazon S3 bucket.</p>
 </div>
 <div class="paragraph">
 <p>For large GitLab deployments, use <code>BackupCpu</code> and <code>BackupMemory</code> parameters to adjust the CPU and memory requirements for backup and restore pods.</p>
@@ -1352,10 +1340,7 @@ The disk volume required for backups is 2x larger than the backup tarball, so en
 <div class="sect3">
 <h4 id="_amazon_cloudwatch_container_insights">Amazon CloudWatch Container Insights</h4>
 <div class="paragraph">
-<p>To collect, aggregate, and summarize metrics &amp; logs, set the <code>ConfigureContainerInsights</code> parameter to <code>Yes</code> to integrate this Partner Solution to the Amazon EKS cluster with <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html" target="_blank" rel="noopener">Amazon CloudWatch Container Insights</a>.</p>
-</div>
-<div class="paragraph">
-<p>Access these logs and metrics from the Amazon CloudWatch console, as shown in <a href="#cloudwatch-container-insights">Figure 2</a>:</p>
+<p>To collect, aggregate, and summarize metrics and logs, set the <code>ConfigureContainerInsights</code> parameter to <code>Yes</code>. This integrates the Partner Solution with the Amazon EKS cluster using <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html" target="_blank" rel="noopener">Amazon CloudWatch Container Insights</a>. Access these logs and metrics from the Amazon CloudWatch console, as shown in <a href="#cloudwatch-container-insights">Figure 2</a>.</p>
 </div>
 <div id="cloudwatch-container-insights" class="imageblock">
 <div class="content">
@@ -1367,7 +1352,7 @@ The disk volume required for backups is 2x larger than the backup tarball, so en
 <div class="sect3">
 <h4 id="_prometheus_metrics">Prometheus metrics</h4>
 <div class="paragraph">
-<p>GitLab exposes Prometheus metrics under <code>/-/metrics</code> of the GitLab Ingress, as shown in <a href="#grafana">Figure 3</a>. You can also set the <code>ConfigureGrafana</code> parameter to <code>Yes</code> to enable a Grafana integration.</p>
+<p>GitLab exposes Prometheus metrics under <code>/-/metrics</code> of the GitLab inbound traffic, as shown in <a href="#grafana">Figure 3</a>. You can also set the <code>ConfigureGrafana</code> parameter to <code>Yes</code> to enable a Grafana integration.</p>
 </div>
 <div id="grafana" class="imageblock">
 <div class="content">
@@ -1382,10 +1367,7 @@ The disk volume required for backups is 2x larger than the backup tarball, so en
 <div class="sect3">
 <h4 id="_amazon_eks_console">Amazon EKS console</h4>
 <div class="paragraph">
-<p>Use the Amazon EKS Console to see the status of your Kubernetes clusters, applications, and associated cloud resources in one place, as shown in <a href="#aws-eks-console">Figure 4</a>.</p>
-</div>
-<div class="paragraph">
-<p>For information, refer to <a href="https://docs.aws.amazon.com/eks/latest/userguide/view-workloads.html" target="_blank" rel="noopener">View Kubernetes resources</a>.</p>
+<p>For the status of Kubernetes clusters, applications, and associated cloud resources, as shown in <a href="#aws-eks-console">Figure 4</a>, use the Amazon EKS Console. For information, refer to <a href="https://docs.aws.amazon.com/eks/latest/userguide/view-workloads.html" target="_blank" rel="noopener">View Kubernetes resources</a>.</p>
 </div>
 <div id="aws-eks-console" class="imageblock">
 <div class="content">
@@ -1398,10 +1380,10 @@ The disk volume required for backups is 2x larger than the backup tarball, so en
 <div class="sect2">
 <h3 id="_exports">Exports</h3>
 <div class="paragraph">
-<p>After you successfully deploy GitLab, the following AWS Systems Manager (SSM) Parameter Store parameters and AWS Secrets Manager secrets are exposed:</p>
+<p>After you successfully deploy GitLab, the following AWS Systems Manager Parameter Store parameters and AWS Secrets Manager secrets are exposed:</p>
 </div>
 <table id="ssm1" class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 2. AWS Systems Manager (SSM) Parameter Store parameters</caption>
+<caption class="title">Table 2. AWS Systems Manager Parameter Store parameters</caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 16.6666%;">
@@ -1423,12 +1405,12 @@ The disk volume required for backups is 2x larger than the backup tarball, so en
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">/quickstart/gitlab/<code>{env-name}</code>/infra/hosted-zone-id</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">SSM</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">GitLab Route53 hosted zone ID</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GitLab Route 53 hosted zone ID</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">/quickstart/gitlab/<code>{env-name}</code>/infra/hosted-zone-name</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">SSM</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">GitLab Route53 hosted zone name</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GitLab Route 53 hosted zone name</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">/quickstart/gitlab/<code>{env-name}</code>/cluster/name</p></td>
@@ -1438,17 +1420,17 @@ The disk volume required for backups is 2x larger than the backup tarball, so en
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">/quickstart/gitlab/<code>{env-name}</code>/storage/buckets/artifacts</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">SSM</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">S3 Artifacts bucket name</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">S3 artifacts bucket name</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">/quickstart/gitlab/<code>{env-name}</code>/storage/buckets/backup</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">SSM</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">S3 Backup bucket name</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">S3 backup bucket name</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">/quickstart/gitlab/<code>{env-name}</code>/storage/buckets/backup-tmp</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">SSM</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">S3 Backup Temp bucket name</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">S3 backup temporary bucket name</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">/quickstart/gitlab/<code>{env-name}</code>/storage/buckets/lfs</p></td>
@@ -1458,7 +1440,7 @@ The disk volume required for backups is 2x larger than the backup tarball, so en
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">/quickstart/gitlab/<code>{env-name}</code>/storage/buckets/packages</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">SSM</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">S3 Packages bucket name</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">S3 packages bucket name</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">/quickstart/gitlab/<code>{env-name}</code>/storage/buckets/pseudonymizer</p></td>
@@ -1468,7 +1450,7 @@ The disk volume required for backups is 2x larger than the backup tarball, so en
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">/quickstart/gitlab/<code>{env-name}</code>/storage/buckets/registry</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">SSM</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">S3 Registry bucket name</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">S3 registry bucket name</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">/quickstart/gitlab/<code>{env-name}</code>/storage/buckets/terraform</p></td>
@@ -1478,7 +1460,7 @@ The disk volume required for backups is 2x larger than the backup tarball, so en
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">/quickstart/gitlab/<code>{env-name}</code>/storage/buckets/uploads</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">SSM</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">S3 Uploads bucket name</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">S3 uploads bucket name</p></td>
 </tr>
 </tbody>
 </table>
@@ -1547,12 +1529,12 @@ The disk volume required for backups is 2x larger than the backup tarball, so en
 <h2 id="_predeployment_steps">Predeployment steps</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Secure the infrastructure that GitLab is deployed on according to that infrastructure&#8217;s security best practices.</p>
+<p>Secure the GitLab–deployed infrastructure according to best practices.</p>
 </div>
 <div class="sect2">
 <h3 id="_security_considerations">Security considerations</h3>
 <div class="paragraph">
-<p>The GitLab Partner Solution incorporates general security best practices, but if you have specific requirements that aren&#8217;t covered, you can customize the templates to meet your needs. For additional information, refer to the <a href="https://about.gitlab.com/blog/2020/05/20/gitlab-instance-security-best-practices/" target="_blank" rel="noopener">GitLab instance: security best practices</a>.</p>
+<p>The GitLab Partner Solution incorporates general security best practices, but if you have specific requirements that aren&#8217;t covered, you can customize the templates to meet your needs. For more information, refer to <a href="https://about.gitlab.com/blog/2020/05/20/gitlab-instance-security-best-practices/" target="_blank" rel="noopener">GitLab instance: security best practices</a>.</p>
 </div>
 <div class="sect3">
 <h4 id="_public_internet_access">Public internet access</h4>
@@ -1563,29 +1545,26 @@ The disk volume required for backups is 2x larger than the backup tarball, so en
 <i class="fa icon-warning" title="Warning"></i>
 </td>
 <td class="content">
-By default, the GitLab instance is configured with an internet ingress.
+By default, the GitLab instance is configured for inbound traffic.
 </td>
 </tr>
 </table>
 </div>
 <div class="paragraph">
-<p>If the GitLab instance is connected to the public internet, apply the industry advised security precautions and due diligences of public internet services. This includes, GitLab and infrastructure updates and patching.</p>
+<p>If the GitLab instance is connected to the public internet, apply the industry-advised security precautions of public internet services. This includes GitLab and infrastructure updates and patching.</p>
 </div>
 <div class="paragraph">
-<p>By default, the Partner Solution enables a secure administrative mode by configuring the EKS cluster without a public endpoint and a bastion host. The bastion host comes with cluster administration tools pre&#8209;installed such as kubectl, eksctl, AWS CLI, and Helm. The Partner Solution pre&#8209;installs the SSM agent and configures the SSM session manager permissions. The bastion host doesn&#8217;t need to have a port publicly exposed to get a console session, either through the AWS Management Console or a workstation installation of the AWS CLI with the SSM extensions.</p>
+<p>By default, the Partner Solution enables a secure administrative mode by configuring the EKS cluster without a public endpoint and bastion host. The bastion host comes with cluster administration tools preinstalled, such as Kubectl, Eksctl, AWS CLI, and Helm. The Partner Solution preinstalls the AWS Systems Manager agent and configures the session manager permissions. The bastion host doesn&#8217;t need a publicly exposed port for a console session, either through the AWS Management Console or a workstation installation of the AWS CLI with the AWS Systems Manager extensions.</p>
 </div>
 <div class="paragraph">
-<p>For production setups, don&#8217;t deploy GitLab Runner to the cluster that runs GitLab, especially in privileged mode.</p>
-</div>
-<div class="paragraph">
-<p>GitLab publishes new releases (including security hotfixes) on the <a href="https://about.gitlab.com/releases/categories/releases/" target="_blank" rel="noopener">Releases blog</a>.</p>
+<p>For production setups, don&#8217;t deploy GitLab Runner to the cluster it runs on, especially in privileged mode. GitLab publishes new releases (including security hotfixes) on the <a href="https://about.gitlab.com/releases/categories/releases/" target="_blank" rel="noopener">Releases blog</a>.</p>
 </div>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_instance_version_selection">Instance version selection</h3>
 <div class="paragraph">
-<p>The version of GitLab that&#8217;s deployed depends on the GitLab Helm chart version you select when you launch this Partner Solution. For additional information, see the <a href="https://docs.gitlab.com/charts/installation/version_mappings.html" target="_blank" rel="noopener">GitLab chart versions</a>.</p>
+<p>The version of GitLab that&#8217;s deployed depends on the Helm chart version you chose at launch time. For more information, refer to the <a href="https://docs.gitlab.com/charts/installation/version_mappings.html" target="_blank" rel="noopener">GitLab chart versions</a>.</p>
 </div>
 </div>
 <div class="sect2">
@@ -1597,7 +1576,7 @@ By default, the GitLab instance is configured with an internet ingress.
 <i class="fa icon-warning" title="Warning"></i>
 </td>
 <td class="content">
-If you&#8217;re migrating an existing GitLab instance to one built by this Partner Solution, it&#8217;s critical to have the new instance version match the old instance version during migration. You can upgrade the GitLab version on the old instance before migration or on the new instance after migration, but not during a migration using mismatched versions. This includes the versions of all underlying components such as PostgreSQL and Redis.
+If you&#8217;re migrating an existing GitLab instance to one built by this Partner Solution, the new instance version must match the old instance version during migration. You can upgrade the GitLab version on the old instance before migration—or on the new instance after migration—but not during a migration using mismatched versions. This includes the versions of all underlying components, such as PostgreSQL and Redis.
 </td>
 </tr>
 </table>
@@ -1606,13 +1585,13 @@ If you&#8217;re migrating an existing GitLab instance to one built by this Partn
 <div class="sect2">
 <h3 id="_component_sizing">Component sizing</h3>
 <div class="paragraph">
-<p>This Partner Solution creates GitLab cloud native reference architecture-compliant GitLab instances. GitLab reference architectures have a "Cloud Native Hybrid" section that has a manifest of required resources to use while deploying the template. For additional information, refer to <a href="https://docs.gitlab.com/ee/install/aws/gitlab_hybrid_on_aws.html#gitlab-cloud-native-hybrid-on-aws" target="_blank" rel="noopener">GitLab Cloud Native Hybrid on AWS</a>.</p>
+<p>This Partner Solution creates GitLab architecture-compliant GitLab instances. GitLab reference architectures have a hybrid section that has a manifest of required resources to use while deploying the template. For more information, refer to <a href="https://docs.gitlab.com/ee/install/aws/gitlab_hybrid_on_aws.html#gitlab-cloud-native-hybrid-on-aws" target="_blank" rel="noopener">GitLab Cloud Native Hybrid on AWS</a>.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_post_installation_considerations">Post-installation considerations</h3>
+<h3 id="_postinstallation_considerations">Postinstallation considerations</h3>
 <div class="paragraph">
-<p>Once operational, if you intend to integrate the GitLab instance with one or more new or existing Kubernetes cluster, see the following sections to ensure you configure the GitLab instance appropriately:</p>
+<p>If you intend to integrate the GitLab instance with one or more new or existing Kubernetes clusters, refer to the following sections to ensure you configure the GitLab instance properly:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -1627,18 +1606,18 @@ If you&#8217;re migrating an existing GitLab instance to one built by this Partn
 <div class="sect3">
 <h4 id="_deploying_gitlab_runners">Deploying GitLab Runners</h4>
 <div class="paragraph">
-<p>For a production deployment, don&#8217;t deploy the Kubernetes Runner chart integrated into the Partner Solution because it deploys to the same cluster as GitLab and creates workload scaling challenges. Don&#8217;t enable privileged mode because it gives very high privileges to the cluster for any Runner job. We advise a separate GitLab Runner design and deployment because without privileged mode, AutoDevOps, Review Apps and DinD based container builds won&#8217;t work (Kaniko based container builds can work).</p>
+<p>For a production deployment, don&#8217;t deploy the Kubernetes Runner chart integrated into the Partner Solution because it deploys to the same cluster as GitLab and creates workload scaling challenges. Don&#8217;t enable privileged mode because it grants high-level permissions to the cluster for any Runner job. We advise a separate GitLab Runner design and deployment because without privileged mode, AutoDevOps, Review Apps, and DinD-based container builds won&#8217;t work. Kaniko-based container builds, however, do work.</p>
 </div>
 <div class="paragraph">
-<p>Alternative GitLab Runner deployment options include:</p>
+<p>Alternative GitLab Runner deployment options include the following:</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>For groups and projects that are integrated into a Kubernetes cluster dedicated to development and/or production, you can deploy the GitLab Runner as a managed app. Refer to <a href="https://docs.gitlab.com/ee/user/infrastructure/clusters/manage/management_project_applications/runner.html" target="_blank" rel="noopener">Install GitLab Runner with a cluster management project</a> or use the <a href="https://docs.gitlab.com/runner/install/kubernetes.html" target="_blank" rel="noopener">GitLab Runner Helm Chart</a> after the clusters are integrated.</p>
+<p>For groups and projects that are integrated into a Kubernetes cluster dedicated to development or production, you can deploy the GitLab Runner as a managed application. After the clusters are integrated, refer to <a href="https://docs.gitlab.com/ee/user/infrastructure/clusters/manage/management_project_applications/runner.html" target="_blank" rel="noopener">Install GitLab Runner with a cluster management project</a>, or use the <a href="https://docs.gitlab.com/runner/install/kubernetes.html" target="_blank" rel="noopener">GitLab Runner Helm Chart</a>.</p>
 </li>
 <li>
-<p>For non-Kubernetes integrated groups or projects or for shared runners for the entire instance, use the <a href="https://gitlab.com/guided-explorations/aws/gitlab-runner-autoscaling-aws-asg" target="_blank" rel="noopener">GitLab HA Scaling Runner Vending Machine for AWS EC2 ASG</a> to deploy runners of all OS types and Runner Executor types using an AWS ASG.</p>
+<p>For non-Kubernetes-integrated groups or projects, or for shared runners for the entire instance, use the <a href="https://gitlab.com/guided-explorations/aws/gitlab-runner-autoscaling-aws-asg" target="_blank" rel="noopener">GitLab HA Scaling Runner Vending Machine for AWS EC2 ASG</a> to deploy runners of all OS types and Runner executor types using an AWS Auto Scaling Group.</p>
 </li>
 <li>
 <p>Implement a dedicated EKS cluster for a fleet of shared runners.</p>
@@ -1685,7 +1664,7 @@ Unless you&#8217;re customizing the Partner Solution templates or are instructed
 <p>On the <strong>Review</strong> page, review and confirm the template settings. Under <strong>Capabilities</strong>, select all of the check boxes to acknowledge that the template creates AWS Identity and Access Management (IAM)  resources that might require the ability to automatically expand macros.</p>
 </li>
 <li>
-<p>Choose <strong>Create stack</strong>. The stack takes about 1 to 2 hours to deploy.</p>
+<p>Choose <strong>Create stack</strong>. The stack takes about 1–2 hours to deploy.</p>
 </li>
 <li>
 <p>Monitor the stack&#8217;s status, and when the status is <strong>CREATE_COMPLETE</strong>, the GitLab deployment is ready.</p>
@@ -1701,14 +1680,14 @@ Unless you&#8217;re customizing the Partner Solution templates or are instructed
 <h2 id="_postdeployment_steps">Postdeployment steps</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This Partner Solution doesn&#8217;t setup GitLab Runners for you when deployed for production grade implementations. Consult <a href="https://docs.gitlab.com/runner/" target="_blank" rel="noopener">GitLab Runner</a> to setup runners or leverage <a href="https://gitlab.com/guided-explorations/aws/gitlab-runner-autoscaling-aws-asg" target="_blank" rel="noopener">GitLab HA Scaling Runner Vending Machine for AWS EC2 ASG</a>.</p>
+<p>This Partner Solution doesn&#8217;t set up GitLab Runners for you when deployed for production-grade implementations. To set up Runners, refer to <a href="https://docs.gitlab.com/runner/" target="_blank" rel="noopener">GitLab Runner</a>, or refer to <a href="https://gitlab.com/guided-explorations/aws/gitlab-runner-autoscaling-aws-asg" target="_blank" rel="noopener">GitLab HA Scaling Runner Vending Machine for AWS EC2 ASG</a>.</p>
 </div>
 <div class="sect2">
 <h3 id="_logging_in">Logging in</h3>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Sign in to the AWS Management Console, and open the <a href="https://console.aws.amazon.com/secretsmanager" target="_blank" rel="noopener">AWS Secrets Manager Console</a>.</p>
+<p>Sign in to the AWS Management Console, and navigate to the <a href="https://console.aws.amazon.com/secretsmanager" target="_blank" rel="noopener">AWS Secrets Manager Console</a>.</p>
 </li>
 <li>
 <p>On the top toolbar, choose the deployment&#8217;s AWS Region.</p>
@@ -1720,7 +1699,7 @@ Unless you&#8217;re customizing the Partner Solution templates or are instructed
 <p>Choose <strong>Retrieve secret value</strong>.</p>
 </li>
 <li>
-<p>Decode the base64 encoded password with one of the following commands (the password will be in your copy / paste buffer):</p>
+<p>Decode the Base64-encoded password with one of the following commands (the password is in your copy–paste buffer):</p>
 <div class="listingblock">
 <div class="title">Bash command</div>
 <div class="content">
@@ -1735,7 +1714,7 @@ Unless you&#8217;re customizing the Partner Solution templates or are instructed
 </div>
 </li>
 <li>
-<p>Copy the emitted password, or use one of the following commands to pipe the above command output directly to the clipboard:</p>
+<p>Copy the password, or use one of the following commands to pipe the previous command output directly to the clipboard:</p>
 <div class="ulist">
 <ul>
 <li>
@@ -1751,7 +1730,7 @@ Unless you&#8217;re customizing the Partner Solution templates or are instructed
 <p>Access the GitLab instance URL.</p>
 </li>
 <li>
-<p>Log in with the username <code>root</code>, and paste in the password.</p>
+<p>Log in with the user name <code>root</code>, and paste in the password.</p>
 </li>
 </ol>
 </div>
@@ -1765,13 +1744,13 @@ Unless you&#8217;re customizing the Partner Solution templates or are instructed
 <div class="ulist">
 <ul>
 <li>
-<p>If you get the error <code>Invalid Login or password.</code> verify that you used 'root' for the username.</p>
+<p>If you get the error <strong>Invalid login or password</strong>, verify that you used 'root' for the user name.</p>
 </li>
 <li>
-<p>If you get the error <code>This site can&#8217;t be reached</code> verify you&#8217;re using the actual host name you put in your hosts file.</p>
+<p>If you get the error <strong>This site can&#8217;t be reached</strong>, verify that you&#8217;re using the host name from the hosts file.</p>
 </li>
 <li>
-<p>If you get the message <code>default backend - 404</code> verify you prefixed the domain with <code>gitlab.</code> in your hosts file and in your browser.</p>
+<p>If you get the message <strong>Default backend—404</strong>, verify that you prefixed the domain with <code>gitlab.</code> in your hosts file and in your browser.</p>
 </li>
 </ul>
 </div>
@@ -1801,7 +1780,7 @@ Unless you&#8217;re customizing the Partner Solution templates or are instructed
 <p>It has permissions to access the cluster.</p>
 </li>
 <li>
-<p>It&#8217;s one of the few ways to access the cluster if you configured the GitLab instance to not expose a public endpoint for the cluster.</p>
+<p>It provides access to the cluster if you configured the GitLab instance to not expose a public endpoint.</p>
 </li>
 </ol>
 </div>
@@ -1817,7 +1796,7 @@ Unless you&#8217;re customizing the Partner Solution templates or are instructed
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Sign in to the AWS Management Console, and open the <a href="https://console.aws.amazon.com/ec2/v2/home?Instances" target="_blank" rel="noopener">Amazon EC2 Console</a>.</p>
+<p>Sign in to the AWS Management Console, and navigate to <a href="https://console.aws.amazon.com/ec2/v2/home?Instances" target="_blank" rel="noopener">Amazon EC2 Console</a>.</p>
 </li>
 <li>
 <p>On the top toolbar, choose the deployment&#8217;s AWS Region.</p>
@@ -1826,7 +1805,7 @@ Unless you&#8217;re customizing the Partner Solution templates or are instructed
 <p>In the left navigation pane, choose <strong>Instances</strong>.</p>
 </li>
 <li>
-<p>On the <strong>Instances</strong> page, open the context (right-click) menu for <strong>EKSBastion</strong>, and choose <strong>Connect</strong>.</p>
+<p>On the <strong>Instances</strong> page, navigate to context menu for <strong>EKSBastion</strong>, and choose <strong>Connect</strong>.</p>
 </li>
 <li>
 <p>Choose the <strong>Select Manager</strong> tab.</p>
@@ -1838,7 +1817,7 @@ Unless you&#8217;re customizing the Partner Solution templates or are instructed
 <p>Wait for several seconds to be placed in a shell console.</p>
 </li>
 <li>
-<p>Test with this command:</p>
+<p>Test the outcome by running the following command:</p>
 </li>
 </ol>
 </div>
@@ -1852,12 +1831,12 @@ Unless you&#8217;re customizing the Partner Solution templates or are instructed
 <div class="sect2">
 <h3 id="_enabling_outbound_email">Enabling outbound email</h3>
 <div class="paragraph">
-<p>Amazon Simple Email Service (Amazon SES) is purposely created in "sandbox" mode to prevent spam abuse using massively scaled email services. To enable it manually:</p>
+<p>Amazon Simple Email Service (Amazon SES) is purposely created in sandbox mode to prevent spam abuse. To enable it manually, complete the following steps:</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Sign in to the AWS Management Console and open the <a href="https://console.aws.amazon.com/ses">Amazon SES console<sup></a></sup>.</p>
+<p>Sign in to the AWS Management Console, and navigate to <a href="https://console.aws.amazon.com/ses">Amazon SES console<sup></a></sup>.</p>
 </li>
 <li>
 <p>In the left navigation pane, choose <strong>Account dashboard</strong>.</p>
@@ -1866,7 +1845,7 @@ Unless you&#8217;re customizing the Partner Solution templates or are instructed
 <p>Under <strong>Email sending</strong>, choose <strong>Sending statistics</strong>.</p>
 </li>
 <li>
-<p>On the right pane, next to <strong>Production access</strong>, visually validate that it says <strong>Sandbox</strong>.</p>
+<p>On the right pane, next to <strong>Production access</strong>, confirm that it says <strong>Sandbox</strong>.</p>
 </li>
 <li>
 <p>Choose <strong>Edit your account details</strong>.</p>
@@ -1875,16 +1854,16 @@ Unless you&#8217;re customizing the Partner Solution templates or are instructed
 <p>Next to <strong>Enable production access</strong>, choose <strong>Yes</strong>.</p>
 </li>
 <li>
-<p>For <strong>Mail type</strong>, leave the default of <strong>Transactional</strong>.</p>
+<p>For <strong>Mail type</strong>, keep the <strong>Transactional</strong> default value.</p>
 </li>
 <li>
-<p>For <strong>Website URL</strong>, enter <strong>your GitLab instance URL</strong>.</p>
+<p>For <strong>Website URL</strong>, enter your GitLab instance URL.</p>
 </li>
 <li>
-<p>Under <strong>Use case description</strong>, type <code>Testing GitLab instance outbound email</code>.</p>
+<p>Under <strong>Use case description</strong>, enter <code>Testing GitLab instance outbound email</code>.</p>
 </li>
 <li>
-<p>Under <strong>Additional contact addresses</strong> enter <strong>your real email address</strong>.</p>
+<p>Under <strong>Additional contact addresses</strong>, enter your email address.</p>
 </li>
 <li>
 <p>Select <strong>I agree to the AWS Service Terms and AUP</strong>.</p>
@@ -1901,7 +1880,7 @@ Unless you&#8217;re customizing the Partner Solution templates or are instructed
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-Notice the new banner near the top that displays <strong>Your account details are currently under review</strong>.
+The new banner near the top should display <strong>Your account details are currently under review</strong>.
 </td>
 </tr>
 </table>
@@ -1912,19 +1891,19 @@ Notice the new banner near the top that displays <strong>Your account details ar
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Sign in to the AWS Management Console, and open the <a href="https://console.aws.amazon.com/secretsmanager" target="_blank" rel="noopener">AWS Secrets Manager Console</a>.</p>
+<p>Sign in to the AWS Management Console, and navigate to <a href="https://console.aws.amazon.com/secretsmanager" target="_blank" rel="noopener">AWS Secrets Manager Console</a>.</p>
 </li>
 <li>
 <p>On the top toolbar, choose the deployment&#8217;s AWS Region.</p>
 </li>
 <li>
-<p>Choose the secret ending in <strong>initial-grafana-password</strong>.</p>
+<p>Choose the secret that ends with <strong>initial-grafana-password</strong>.</p>
 </li>
 <li>
 <p>Choose <strong>Retrieve secret value</strong>.</p>
 </li>
 <li>
-<p>Decode the base64 encoded password with one of the following commands (the password will be in your copy / paste buffer):</p>
+<p>Decode the Base64-encoded password using one of the following commands (the password is in your copy–paste buffer):</p>
 <div class="listingblock">
 <div class="title">Bash command</div>
 <div class="content">
@@ -1939,13 +1918,13 @@ Notice the new banner near the top that displays <strong>Your account details ar
 </div>
 </li>
 <li>
-<p>Access <strong>your GitLab URL</strong> + /-/grafana.</p>
+<p>Access your GitLab URL* + /-/grafana.</p>
 </li>
 <li>
-<p>Log in with the username <code>root</code>.</p>
+<p>Log in with the user name <code>root</code>.</p>
 </li>
 <li>
-<p>Use the password retrieved earlier.</p>
+<p>Use the password that you retrieved earlier.</p>
 </li>
 </ol>
 </div>
@@ -1958,30 +1937,30 @@ Notice the new banner near the top that displays <strong>Your account details ar
 <div class="sect3">
 <h4 id="_provisioning_new_kubernetes_clusters">Provisioning new Kubernetes clusters</h4>
 <div class="paragraph">
-<p>You can configure GitLab to provision Amazon EKS clusters into AWS accounts. This requires configuration of an AWS IAM Role (and potentially an IAM user) for GitLab authentication in an AWS account. Each account where clusters are provisioned also require at least one IAM Role for EKS cluster provisioning to be defined. For additional information, refer to <a href="https://docs.gitlab.com/ee/user/project/clusters/add_eks_clusters.html#configure-amazon-authentication" target="_blank" rel="noopener">Configure Amazon authentication</a>.</p>
+<p>You can configure GitLab to provision Amazon EKS clusters into AWS accounts. This requires configuration of an AWS IAM role (and potentially an IAM user) for GitLab authentication in an AWS account. Each account where clusters are provisioned also requires at least one IAM role for EKS cluster provisioning to be defined. For more information, refer to <a href="https://docs.gitlab.com/ee/user/project/clusters/add_eks_clusters.html#configure-amazon-authentication" target="_blank" rel="noopener">Configure Amazon authentication</a>.</p>
 </div>
 </div>
 <div class="sect3">
 <h4 id="_integrating_with_existing_kubernetes_clusters">Integrating with existing Kubernetes clusters</h4>
 <div class="paragraph">
-<p>A GitLab instance of any type (doesn&#8217;t have to be running on Kubernetes) can integrate to a Kubernetes cluster for Review Apps and AutoDevOps to pre&#8209;production and production environments. For production deployments, the cluster containing your GitLab instance shouldn&#8217;t be used for this purpose due to the level of privileges required to deploy Review Apps and AutoDevOps to the cluster.</p>
+<p>A GitLab instance of any type (doesn&#8217;t have to be running on Kubernetes) can integrate with a Kubernetes cluster for Review Apps and AutoDevOps to pre&#8209;production and production environments. For production deployments, the cluster containing your GitLab instance shouldn&#8217;t be used for this purpose due to the level of permissions required to deploy Review Apps and AutoDevOps to the cluster.</p>
 </div>
 </div>
 <div class="sect3">
 <h4 id="_performance_monitoring">Performance monitoring</h4>
 <div class="paragraph">
-<p>Use CloudWatch or Prometheus to collect metrics.</p>
+<p>Use Amazon CloudWatch or Prometheus to collect metrics.</p>
 </div>
 <div class="sect4">
-<h5 id="_using_cloudwatch_metrics">Using CloudWatch Metrics</h5>
+<h5 id="_using_amazon_cloudwatch_metrics">Using Amazon CloudWatch metrics</h5>
 <div class="paragraph">
-<p>Collect CloudWatch metrics for instances and containers. Use these metrics for performance analysis, graphing, and alarms and events in AWS CloudWatch. As per standard CloudWatch capabilities, alarms and events can interact with many other AWS services for notifications or automated actions.</p>
+<p>Collect CloudWatch metrics for instances and containers. Use these metrics for performance analysis, graphing, alarms, and events. As per standard CloudWatch capabilities, alarms and events interact with other AWS services for notifications and automated actions.</p>
 </div>
 </div>
 <div class="sect4">
 <h5 id="_using_prometheus">Using Prometheus</h5>
 <div class="paragraph">
-<p>The Partner Solution wires up GitLab to Prometheus deployed to the cluster to expose all GitLab surfaced application metrics. The Grafana deployment option enables "in&#8209;instance" Grafana capabilities with these metrics.</p>
+<p>To expose all GitLab–surfaced application metrics, this Partner Solution connects GitLab to Prometheus when deployed to the cluster. The Grafana deployment option enables in&#8209;instance Grafana capabilities with these metrics.</p>
 </div>
 </div>
 </div>
@@ -2000,16 +1979,13 @@ Notice the new banner near the top that displays <strong>Your account details ar
 <h2 id="_additional_information">Additional information</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>When GitLab relies on AWS services like CloudWatch and S3, the AWS&#8209;specific practices for those services are applicable. If these services are correctly integrated, they&#8217;re abstracted in GitLab. Utilizing AWS services offers features for covering use cases out of scope of the GitLab solution, such as using S3 storage policies for replicating backups to another region.</p>
+<p>When GitLab relies on AWS services like Amazon CloudWatch and Amazon S3, the AWS&#8209;–specific practices for those services are applicable. If these services are correctly integrated, they&#8217;re abstracted in GitLab. Using AWS services offers features for covering use cases out of scope of this solution, such as using Amazon S3 storage policies for replicating backups to another Region.</p>
 </div>
 <div class="paragraph">
-<p>GitLab has distinctive site&#8209;reliability engineering (SRE) management concerns that need to be monitored and adjusted. Aspects of GitLab operations can be impacted by <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html" target="_blank" rel="noopener">Amazon EC2 instance type</a> choices, <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/provisioned-iops.html" target="_blank" rel="noopener">Amazon EBS Provisioned IOPS</a>, and other cloud&#8209;level implementation decisions.</p>
+<p>GitLab has distinctive site&#8209;reliability engineering (SRE) management concerns that must be monitored and adjusted. Aspects of GitLab operations can be affected by <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html" target="_blank" rel="noopener">Amazon EC2 instance type</a> choices, <a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/provisioned-iops.html" target="_blank" rel="noopener">Amazon EBS Provisioned IOPS</a>, and other cloud&#8209;level implementation decisions.</p>
 </div>
 <div class="paragraph">
-<p>GitLab provides the <a href="https://gitlab.com/gitlab-org/quality/performance" target="_blank" rel="noopener">GitLab Performance Tool (gpt)</a> and <a href="https://gitlab.com/gitlab-org/quality/performance/-/wikis/Benchmarks/Latest" target="_blank" rel="noopener">Reference Architecture performance benchmarks</a> for the reference of GitLab instance SREs. If you need to scale your instance, run the gpt tool against it for a baseline performance to help with scale planning.</p>
-</div>
-<div class="paragraph">
-<p>Refer to the <a href="https://docs.gitlab.com" target="_blank" rel="noopener">GitLab Documentation</a> for general operations and usage information.</p>
+<p>GitLab provides the <a href="https://gitlab.com/gitlab-org/quality/performance" target="_blank" rel="noopener">GitLab Performance Tool (GPT)</a> and <a href="https://gitlab.com/gitlab-org/quality/performance/-/wikis/Benchmarks/Latest" target="_blank" rel="noopener">Reference Architecture performance benchmarks</a> for referencing GitLab instance SREs. If you must scale your instance, run the GPT tool against it for a baseline performance to help with scale planning. For more information, refer to the <a href="https://docs.gitlab.com" target="_blank" rel="noopener">GitLab Documentation</a>.</p>
 </div>
 </div>
 </div>

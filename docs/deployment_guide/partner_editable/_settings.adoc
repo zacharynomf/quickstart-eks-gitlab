@@ -11,8 +11,8 @@
 :partner-contributors: Darwin Sanoy, {partner-company-name}
 // :other-contributors: Akua Mansa, Trek10
 :aws-contributors: Dmitry Kolomiets, AWS WWCO ProServe team
-:aws-ia-contributors: Andrew Gargan & Troy Lindsay, AWS Integration & Automation team
-:deployment_time: 1 to 2 hours
+:aws-ia-contributors: Andrew Gargan and Troy Lindsay, AWS Integration & Automation team
+:deployment_time: 1–2 hours
 :default_deployment_region: us-east-1
 // :private_repo:
 
