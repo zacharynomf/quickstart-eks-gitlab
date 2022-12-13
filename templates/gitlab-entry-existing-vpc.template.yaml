@@ -887,6 +887,7 @@ Resources:
         ConfigSetName: !If [EmptyEnvironmentName, !Ref AWS::StackName, !Ref EnvironmentName]
         NodeVolumeSize: !Ref NodeVolumeSize
         BastionInstanceType: !Ref BastionInstanceType
+        KubernetesVersion: 1.21
 
   EKSStack:
     Type: AWS::CloudFormation::Stack
