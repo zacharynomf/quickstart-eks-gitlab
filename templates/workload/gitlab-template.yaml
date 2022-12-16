@@ -53,10 +53,6 @@ Parameters:
     AllowedValues: ['Yes', 'No']
 
 # Database Parameters
-  AuroraDBEngineVersion:
-    Type: String
-    MinLength: 4
-    AllowedValues: [9.6.16, 9.6.17, 9.6.18, 9.6.19, 10.11, 10.12, 10.13, 10.14, 11.6, 11.7, 11.8, 11.9, 12.4]
   RDSDBEngineVersion:
     Type: String
     Description: >-
@@ -92,13 +88,8 @@ Parameters:
     Type: Number
     MinValue: 1150
     MaxValue: 65535
-  AuroraDBInstanceClass:
-    Type: String
   RDSDBInstanceClass:
     Type: String
-  UsingAurora:
-    Type: String
-    AllowedValues: ['Yes', 'No']
 
 # Object Storage Parameters
   ObjectStorageSSEAlgorithm:
@@ -333,10 +324,7 @@ Resources:
         VPCCIDR: !Ref VPCCIDR
         Subnet1ID: !Ref PrivateSubnet1ID
         Subnet2ID: !Ref PrivateSubnet2ID
-        UsingAurora: !Ref UsingAurora
-        AuroraDBEngineVersion: !Ref AuroraDBEngineVersion
         RDSDBEngineVersion: !Ref RDSDBEngineVersion
-        AuroraDBInstanceClass: !Ref AuroraDBInstanceClass
         RDSDBInstanceClass: !Ref RDSDBInstanceClass
         DBName: !Ref DBName
         DBPraefectName: !Ref DBPraefectName
