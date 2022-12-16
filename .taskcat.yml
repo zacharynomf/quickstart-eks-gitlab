@@ -3,7 +3,6 @@ project:
   shorten_stack_name: true
   template: templates/gitlab-entry-new-vpc.template.yaml
   parameters:
-    RemoteAccessCIDR: 127.0.0.1/32
     QSS3BucketName: $[taskcat_autobucket]
     QSS3BucketRegion: $[taskcat_current_region]
   package_lambda: true

@@ -27,10 +27,6 @@ Parameters:
     Type: AWS::EC2::Subnet::Id
 
 # Database Parameters
-  AuroraDBEngineVersion:
-    Type: String
-    MinLength: 4
-    AllowedValues: [9.6.16, 9.6.17, 9.6.18, 9.6.19, 10.11, 10.12, 10.13, 10.14, 11.6, 11.7, 11.8, 11.9, 12.4]
   RDSDBEngineVersion:
     Type: String
     MinLength: 4
@@ -78,13 +74,8 @@ Parameters:
     Type: Number
     MinValue: 1150
     MaxValue: 65535
-  AuroraDBInstanceClass:
-    Type: String
   RDSDBInstanceClass:
     Type: String
-  UsingAurora:
-    Type: String
-    AllowedValues: ['Yes', 'No']
 
 # Quickstart location Parameters
   QSS3BucketName:
@@ -98,8 +89,6 @@ Parameters:
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, aws-quickstart]
-  UsingAurora: !Equals [!Ref UsingAurora, 'Yes']
-  UsingRDS: !Equals [!Ref UsingAurora, 'No']
 
 Resources:
 
@@ -160,53 +149,8 @@ Resources:
         ExcludeCharacters: "\"@/\\'"
         RequireEachIncludedType: True
 
-  GitLabAuroraDatabase:
-    Type: AWS::CloudFormation::Stack
-    Condition: UsingAurora
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Delete
-    Properties:
-      TemplateURL: !Sub
-        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-aurora-postgresql/templates/aurora_postgres.template.yaml
-        - S3Region: !If [UsingDefaultBucket, !Ref AWS::Region, !Ref QSS3BucketRegion]
-          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-      Parameters:
-        DBEngineVersion: !Ref AuroraDBEngineVersion
-        DBInstanceClass: !Ref AuroraDBInstanceClass
-        DBName: !Ref DBName
-        DBMasterUsername: !Sub '{{resolve:secretsmanager:${GitLabDBPassword}:SecretString:username}}'
-        DBMasterUserPassword: !Sub '{{resolve:secretsmanager:${GitLabDBPassword}:SecretString:password}}'
-        DBPort: !Ref DBPort
-        VPCID: !Ref VPCID
-        Subnet1ID: !Ref Subnet1ID
-        Subnet2ID: !Ref Subnet2ID
-        CustomDBSecurityGroup: !GetAtt DatabaseSecurityGroup.GroupId
-
-  PraefectAuroraDatabase:
-    Type: AWS::CloudFormation::Stack
-    Condition: UsingAurora
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Delete
-    Properties:
-      TemplateURL: !Sub
-        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-aurora-postgresql/templates/aurora_postgres.template.yaml
-        - S3Region: !If [UsingDefaultBucket, !Ref AWS::Region, !Ref QSS3BucketRegion]
-          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-      Parameters:
-        DBEngineVersion: !Ref AuroraDBEngineVersion
-        DBInstanceClass: !Ref AuroraDBInstanceClass
-        DBName: !Ref DBPraefectName
-        DBMasterUsername: !Sub '{{resolve:secretsmanager:${PraefectDBPassword}:SecretString:username}}'
-        DBMasterUserPassword: !Sub '{{resolve:secretsmanager:${PraefectDBPassword}:SecretString:password}}'
-        DBPort: !Ref DBPort
-        VPCID: !Ref VPCID
-        Subnet1ID: !Ref Subnet1ID
-        Subnet2ID: !Ref Subnet2ID
-        CustomDBSecurityGroup: !GetAtt DatabaseSecurityGroup.GroupId
-
   GitLabRDSDatabase:
     Type: AWS::CloudFormation::Stack
-    Condition: UsingRDS
     UpdateReplacePolicy: Retain
     DeletionPolicy: Delete
     Properties:
@@ -228,7 +172,6 @@ Resources:
 
   PraefectRDSDatabase:
     Type: AWS::CloudFormation::Stack
-    Condition: UsingRDS
     UpdateReplacePolicy: Retain
     DeletionPolicy: Delete
     Properties:
@@ -254,8 +197,8 @@ Outputs:
   PraefectSecretName:
     Value: !Ref PraefectDBPassword
   GitLabEndpointAddress:
-    Value: !If [UsingAurora, !GetAtt GitLabAuroraDatabase.Outputs.RDSEndPointAddress, !GetAtt GitLabRDSDatabase.Outputs.RDSEndPointAddress]
+    Value: !GetAtt GitLabRDSDatabase.Outputs.RDSEndPointAddress
   GitLabReadEndpointAddress:
-    Value: !If [UsingAurora, !GetAtt GitLabAuroraDatabase.Outputs.RDSReadEndPointAddress, !GetAtt GitLabRDSDatabase.Outputs.RDSEndPointAddress]
+    Value: !GetAtt GitLabRDSDatabase.Outputs.RDSEndPointAddress
   PraefectEndpointAddress:
-    Value: !If [UsingAurora, !GetAtt PraefectAuroraDatabase.Outputs.RDSEndPointAddress, !GetAtt PraefectRDSDatabase.Outputs.RDSEndPointAddress]
+    Value: !GetAtt PraefectRDSDatabase.Outputs.RDSEndPointAddress
