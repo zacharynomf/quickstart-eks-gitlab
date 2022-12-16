@@ -55,9 +55,6 @@ Metadata:
       - Label:
           default: GitLab database configuration
         Parameters:
-          - UsingAurora
-          - AuroraDBEngineVersion
-          - AuroraDBInstanceClass
           - RDSDBEngineVersion
           - RDSDBInstanceClass
           - DBName
@@ -176,12 +173,6 @@ Metadata:
       ConfigureGrafana:
         default: Provision and integrate Grafana
     # Database configuration
-      UsingAurora:
-        default: Use Amazon Aurora
-      AuroraDBEngineVersion:
-        default: GitLab Aurora PostgreSQL version
-      AuroraDBInstanceClass:
-        default: GitLab Aurora PostgreSQL instance class
       RDSDBEngineVersion:
         default: GitLab RDS PostgreSQL version
       RDSDBInstanceClass:
@@ -438,47 +429,6 @@ Parameters:
     Default: 'No'
 
 # Database Parameters
-  UsingAurora:
-    Type: String
-    Description: >-
-      Amazon RDS is the default database engine. Set to 'Yes' if Amazon Aurora
-      need to be used.
-    AllowedValues: ['Yes', 'No']
-    Default: 'No'
-  AuroraDBEngineVersion:
-    Type: String
-    Description: >-
-      Select database engine version. The version must be supported by your
-      target version of GitLab:
-      https://docs.gitlab.com/omnibus/settings/database.html#gitlab-140-and-later
-      and by the Aurora RDS instance type you choose:
-      https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html.
-    AllowedValues:
-      - 9.6.16
-      - 9.6.17
-      - 9.6.18
-      - 9.6.19
-      - 10.11
-      - 10.12
-      - 10.13
-      - 10.14
-      - 11.6
-      - 11.7
-      - 11.8
-      - 11.9
-      - 12.4
-    Default: 12.4
-  AuroraDBInstanceClass:
-    Type: String
-    Description: >-
-      The name of the compute and memory capacity class of the database
-      instance. This Quick Start deploys Multi-AZ Postgres replicas in
-      different Availability Zones. The instance class is applied to both
-      primary and standby instances. The instance class you choose must support
-      the needed PostgreSQL version:
-      https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.DBInstanceClass.html.
-    AllowedPattern: ^db\.[a-z0-9]+\.[a-z0-9]+$
-    Default: db.r5.large
   RDSDBEngineVersion:
     Type: String
     Description: Select database engine version.
@@ -961,15 +911,12 @@ Resources:
         ConfigureContainerInsights: !Ref ConfigureContainerInsights
         ConfigureGrafana: !Ref ConfigureGrafana
         # Database properties
-        AuroraDBEngineVersion: !Ref AuroraDBEngineVersion
         RDSDBEngineVersion: !Ref RDSDBEngineVersion
-        AuroraDBInstanceClass: !Ref AuroraDBInstanceClass
         RDSDBInstanceClass: !Ref RDSDBInstanceClass
         DBName: !Ref DBName
         DBPraefectName: !Ref DBPraefectName
         DBUserName: !Ref DBUserName
         DBPort: !Ref DBPort
-        UsingAurora: !Ref UsingAurora
         # Object storage properties
         ObjectStorageSSEAlgorithm: !Ref ObjectStorageSSEAlgorithm
         ObjectStorageKMSKeyID: !Ref ObjectStorageKMSKeyID
