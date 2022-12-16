@@ -2,10 +2,6 @@
 	path = submodules/quickstart-amazon-eks
 	url = https://github.com/aws-quickstart/quickstart-amazon-eks.git
 	branch = main
-[submodule "submodules/quickstart-amazon-aurora-postgresql"]
-	path = submodules/quickstart-amazon-aurora-postgresql
-	url = https://github.com/aws-quickstart/quickstart-amazon-aurora-postgresql.git
-	branch = main
 [submodule "functions/source/CfnSesDomain/aws-cfn-ses-domain"]
 	path = functions/source/CfnSesDomain/aws-cfn-ses-domain
 	url = https://github.com/medmunds/aws-cfn-ses-domain.git
