@@ -185,6 +185,27 @@ Resources:
       TTL: 900
       ResourceRecords:
         - !GetAtt  LoadBalancerQuery.Response
+  KASPrivateDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref PrivateHostedZoneId
+      Comment: DNS name for GitLab Web service.
+      Name: !Sub kas.${DomainName}
+      Type: CNAME
+      TTL: 900
+      ResourceRecords:
+        - !GetAtt  InternalLoadBalancerQuery.Response
+  KASDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Condition: RegisterDns
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Comment: DNS name for GitLab Web service.
+      Name: !Sub kas.${DomainName}
+      Type: CNAME
+      TTL: 900
+      ResourceRecords:
+        - !GetAtt  LoadBalancerQuery.Response
 
   # 4. Store cluster name as SSM parameter
   ClusterNameParameter:

@@ -86,6 +86,7 @@ tests:
 #The cluster cannot use ARM yet - must specific x86 instances.
 #Gitaly must be set to 3 instances
 #14.9.0 is the first release that has ARM packages for AL2.
+#Do this on the console (region and AZs set for us-east-2) and fix up any parameters set to SUBSTITUTE_YOUR_ACTUAL_VALUE: https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/quickcreate?templateUrl=https://aws-quickstart.s3.us-east-1.amazonaws.com/quickstart-eks-gitlab/templates/gitlab-entry-new-vpc.template.yaml&stackName=GitLabCostConstrainedSpot2AZst&param_NumberOfAZs=2&param_AvailabilityZones=us-east-2b,us-east-2c&param_NodeInstanceType=t3.medium&param_NumberOfNodes=2&param_MaxNumberOfNodes=3&param_DBInstanceClass=db.t4g.small&param_CacheNodes=2&param_CacheNodeType=cache.t4g.small&param_GitalyInstanceType=t4g.small&param_NumberOfGitalyReplicas=3&param_PraefectInstanceType=t4g.micro&param_NumberOfPraefectReplicas=3&param_GitalyPraefectInstanceArchitecture=arm64&param_ProvisionBastionHost=Enabled&param_RemoteAccessCIDR=198.51.100.0/24&param_KeyPairName=eks-quickstart&param_CreateSslCertificate=Yes&param_SslCertificateIssuerEmail=dsanoy@gitlab.com&param_SMTPDomain=CreateNew&param_RDSDBEngineVersion=12.11&param_GitLabVersion=15.4.1&param_HelmChartVersion=6.4.1&param_PublicDNS=UseExisting&param_PublicHostedZoneId=SUBSTITUTE_YOUR_ACTUAL_VALUE&param_DomainName=SUBSTITUTE_YOUR_ACTUAL_VALUE
   smallest-possible-arm-spot:
     parameters:
       OnDemandPercentage: 0 #100% spot EKS cluster
