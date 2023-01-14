@@ -39,6 +39,7 @@ Metadata:
         Parameters:
           - ProvisionBastionHost
           - BastionInstanceType
+          - OnDemandBastionPercentage
           - RemoteAccessCIDR
       - Label:
           default: Amazon EKS cluster configuration
@@ -150,6 +151,8 @@ Metadata:
         default: Provision a bastion host
       BastionInstanceType:
         default: Bastion host instance type
+      OnDemandBastionPercentage:
+        default: On-demand percentage
       RemoteAccessCIDR:
         default: Allowed bastion external access CIDR
     # Amazon EKS cluster configuration
@@ -353,6 +356,15 @@ Parameters:
       Instance type for the bastion host. Select an instance from this list:
       https://aws.amazon.com/ec2/instance-types/.
     Default: t3.micro
+  OnDemandBastionPercentage:
+    Type: Number
+    Description: >-
+      Set the percentage of on-demand instances and spot instances. With a
+      default of 100, the percentages are 100% for on-demand instances and 0%
+      for spot instances.
+    MinValue: 0
+    MaxValue: 100
+    Default: 100
   RemoteAccessCIDR:
     Type: String
     Description: >-
@@ -808,6 +820,7 @@ Resources:
         OnDemandPercentage: !Ref OnDemandPercentage
         NodeVolumeSize: !Ref NodeVolumeSize
         BastionInstanceType: !Ref BastionInstanceType
+        OnDemandBastionPercentage: !Ref OnDemandBastionPercentage
         KubernetesVersion: 1.21
 
   EKSStack:

@@ -88,6 +88,7 @@ tests:
   smallest-possible-arm-spot:
     parameters:
       OnDemandPercentage: 0 #100% spot EKS cluster
+      OnDemandBastionPercentage: 0
       GitLabVersion: 15.4.6
       AvailabilityZones: $[taskcat_genaz_2]
       NumberOfAZs: 2
