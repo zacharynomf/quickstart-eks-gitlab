@@ -53,22 +53,6 @@ Parameters:
     AllowedValues: ['Yes', 'No']
 
 # Database Parameters
-  RDSDBEngineVersion:
-    Type: String
-    Description: >-
-      Select database engine version. The version must be supported by your
-      target version of GitLab as documented here:
-      https://docs.gitlab.com/ee/administration/package_information/postgresql_versions.html
-    AllowedValues:
-      - 11.7
-      - 11.9
-      - 12.7
-      - 12.8
-      - 12.9
-      - 12.10
-      - 12.11
-      - 13.6
-    Default: 13.6
   DBName:
     Type: String
     MinLength: 0
@@ -132,8 +116,6 @@ Parameters:
   HelmChartNamespace:
     Type: String
   HelmChartName:
-    Type: String
-  HelmChartVersion:
     Type: String
   GitLabVersion:
     Type: String
@@ -209,6 +191,124 @@ Conditions:
   PrivilegedMode: !Equals [!Ref PrivilegedMode, 'Yes']
 
 Mappings:
+  GitLabVersion:
+  # CacheEngineVersion: https://docs.gitlab.com/ee/install/requirements.html#redis-versions
+  # HelmChartVersion: https://docs.gitlab.com/charts/installation/version_mappings.html
+  # RDSDBEngineVersion:
+  # * https://docs.gitlab.com/ee/administration/package_information/postgresql_versions.html
+  # * https://docs.gitlab.com/ee/install/requirements.html#postgresql-requirements
+    # 13.1.11:
+    #   CacheEngineVersion: 5.0.6
+    #   HelmChartVersion: 4.1.12
+    #   RDSDBEngineVersion: 11.9
+    # 13.2.10:
+    #   CacheEngineVersion: 5.0.6
+    #   HelmChartVersion: 4.2.10
+    #   RDSDBEngineVersion: 11.9
+    # 13.3.9:
+    #   CacheEngineVersion: 5.0.6
+    #   HelmChartVersion: 4.3.9
+    #   RDSDBEngineVersion: 11.9
+    # 13.4.7:
+    #   CacheEngineVersion: 5.0.6
+    #   HelmChartVersion: 4.4.6
+    #   RDSDBEngineVersion: 11.9
+    # 13.5.7:
+    #   CacheEngineVersion: 5.0.6
+    #   HelmChartVersion: 4.5.7
+    #   RDSDBEngineVersion: 11.9
+    # 13.6.7:
+    #   CacheEngineVersion: 5.0.6
+    #   HelmChartVersion: 4.6.7
+    #   RDSDBEngineVersion: 11.9
+    # 13.7.9:
+    #   CacheEngineVersion: 5.0.6
+    #   HelmChartVersion: 4.7.9
+    #   RDSDBEngineVersion: 12.4
+    # 13.8.8:
+    #   CacheEngineVersion: 5.0.6
+    #   HelmChartVersion: 4.8.8
+    #   RDSDBEngineVersion: 12.4
+    # 13.9.7:
+    #   CacheEngineVersion: 6.0
+    #   HelmChartVersion: 4.9.7
+    #   RDSDBEngineVersion: 12.4
+    # 13.10.5:
+    #   CacheEngineVersion: 6.0
+    #   HelmChartVersion: 4.10.5
+    #   RDSDBEngineVersion: 12.4
+    # 13.11.7:
+    #   CacheEngineVersion: 6.0
+    #   HelmChartVersion: 4.11.7
+    #   RDSDBEngineVersion: 12.4
+    # 13.12.15:
+    #   CacheEngineVersion: 6.0
+    #   HelmChartVersion: 4.12.13
+    #   RDSDBEngineVersion: 12.4
+    14.2.7:
+      CacheEngineVersion: 6.0
+      HelmChartVersion: 5.2.7
+      RDSDBEngineVersion: 12.7
+    14.3.6:
+      CacheEngineVersion: 6.0
+      HelmChartVersion: 5.3.6
+      RDSDBEngineVersion: 12.7
+    14.4.5:
+      CacheEngineVersion: 6.0
+      HelmChartVersion: 5.4.5
+      RDSDBEngineVersion: 12.7
+    14.5.4:
+      CacheEngineVersion: 6.0
+      HelmChartVersion: 5.5.4
+      RDSDBEngineVersion: 12.7
+    14.6.7:
+      CacheEngineVersion: 6.0
+      HelmChartVersion: 5.6.7
+      RDSDBEngineVersion: 12.7
+    14.7.7:
+      CacheEngineVersion: 6.0
+      HelmChartVersion: 5.7.7
+      RDSDBEngineVersion: 12.7
+    14.8.6:
+      CacheEngineVersion: 6.0
+      HelmChartVersion: 5.8.6
+      RDSDBEngineVersion: 12.7
+    14.9.5:
+      CacheEngineVersion: 6.0
+      HelmChartVersion: 5.9.5
+      RDSDBEngineVersion: 12.7
+    14.10.5:
+      CacheEngineVersion: 6.0
+      HelmChartVersion: 5.10.5
+      RDSDBEngineVersion: 12.7
+    15.1.6:
+      CacheEngineVersion: 6.0
+      HelmChartVersion: 6.1.6
+      RDSDBEngineVersion: 13.6
+    15.2.5:
+      CacheEngineVersion: 6.0
+      HelmChartVersion: 6.0.5
+      RDSDBEngineVersion: 13.6
+    15.3.5:
+      CacheEngineVersion: 6.0
+      HelmChartVersion: 6.3.5
+      RDSDBEngineVersion: 13.6
+    15.4.6:
+      CacheEngineVersion: 6.0
+      HelmChartVersion: 6.4.6
+      RDSDBEngineVersion: 13.6
+    15.5.7:
+      CacheEngineVersion: 6.0
+      HelmChartVersion: 6.5.8
+      RDSDBEngineVersion: 13.6
+    15.6.4:
+      CacheEngineVersion: 6.0
+      HelmChartVersion: 6.6.4
+      RDSDBEngineVersion: 13.8
+    15.7.3:
+      CacheEngineVersion: 6.0
+      HelmChartVersion: 6.7.3
+      RDSDBEngineVersion: 13.8
   PartitionMap:
     aws:
       IngressImageRepository: k8s.gcr.io/defaultbackend-amd64
@@ -307,6 +407,7 @@ Resources:
         Subnet3ID: !Ref PrivateSubnet3ID
         IngressSecurityGroupId: !Ref NodeGroupSecurityGroup
         CacheNodes: !Ref CacheNodes
+        CacheEngineVersion: !FindInMap [GitLabVersion, !Ref GitLabVersion, CacheEngineVersion]
         CacheNodeType: !Ref CacheNodeType
 
   Database:
@@ -324,7 +425,7 @@ Resources:
         VPCCIDR: !Ref VPCCIDR
         Subnet1ID: !Ref PrivateSubnet1ID
         Subnet2ID: !Ref PrivateSubnet2ID
-        RDSDBEngineVersion: !Ref RDSDBEngineVersion
+        RDSDBEngineVersion: !FindInMap [GitLabVersion, !Ref GitLabVersion, RDSDBEngineVersion]
         RDSDBInstanceClass: !Ref RDSDBInstanceClass
         DBName: !Ref DBName
         DBPraefectName: !Ref DBPraefectName
@@ -479,7 +580,7 @@ Resources:
       Repository: https://charts.gitlab.io/
       Chart: gitlab/gitlab
       Name: !Ref HelmChartName
-      Version: !Ref HelmChartVersion
+      Version: !FindInMap [GitLabVersion, !Ref GitLabVersion, HelmChartVersion]
 
       ValueYaml: !Sub
         - |

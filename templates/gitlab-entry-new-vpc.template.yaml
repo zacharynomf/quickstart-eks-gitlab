@@ -57,7 +57,6 @@ Metadata:
       - Label:
           default: GitLab database configuration
         Parameters:
-          - RDSDBEngineVersion
           - RDSDBInstanceClass
           - DBName
           - DBPraefectName
@@ -66,7 +65,6 @@ Metadata:
       - Label:
           default: GitLab cache configuration
         Parameters:
-          - CacheEngineVersion
           - CacheMode
           - CacheNodes
           - CacheNodeType
@@ -91,7 +89,6 @@ Metadata:
           - HelmChartNamespaceCreate
           - HelmChartNamespace
           - HelmChartName
-          - HelmChartVersion
           - GitLabVersion
       - Label:
           default: GitLab Git repository storage configuration
@@ -178,8 +175,6 @@ Metadata:
       ConfigureGrafana:
         default: Provision and integrate Grafana
     # Database configuration
-      RDSDBEngineVersion:
-        default: GitLab RDS PostgreSQL version
       RDSDBInstanceClass:
         default: GitLab database instance class
       DBName:
@@ -191,8 +186,6 @@ Metadata:
       DBPort:
         default: Database port
     # Cache configuration
-      CacheEngineVersion:
-        default: Redis version to provision
       CacheMode:
         default: Where to provision Redis
       CacheNodes:
@@ -226,8 +219,6 @@ Metadata:
         default: Kubernetes namespace for GitLab Helm chart
       HelmChartName:
         default: GitLab Helm chart name
-      HelmChartVersion:
-        default: GitLab Helm chart version
       GitLabVersion:
         default: GitLab application version
     # GitLab Git repository storage configuration
@@ -461,22 +452,6 @@ Parameters:
     Default: 'No'
 
 # Database Parameters
-  RDSDBEngineVersion:
-    Type: String
-    Description: >-
-      Select database engine version. The version must be supported by your
-      target version of GitLab as documented here:
-      https://docs.gitlab.com/ee/administration/package_information/postgresql_versions.html
-    AllowedValues:
-      - 11.7
-      - 11.9
-      - 12.7
-      - 12.8
-      - 12.9
-      - 12.10
-      - 12.11
-      - 13.6
-    Default: 13.6
   RDSDBInstanceClass:
     Type: String
     Description: >-
@@ -520,12 +495,6 @@ Parameters:
     Default: 5432
 
 # Cache Parameters
-  CacheEngineVersion:
-    Type: String
-    Default: 5.0
-    AllowedValues:
-      - 5.0
-      - 6.0
   CacheMode:
     Type: String
     Description: >-
@@ -629,37 +598,40 @@ Parameters:
     Type: String
     Description: Name of Helm GitLab deployment.
     Default: gitlab
-  HelmChartVersion:
-    Type: String
-    Description: >-
-      Version of GitLab application - must correspond to helm chart version
-      above. See
-      https://docs.gitlab.com/charts/installation/version_mappings.html.
-    AllowedPattern: ^(4\.([1-9]|1[0-2])|5\.([2-9]|10)|6\.[1-4])\.\d+$
-    ConstraintDescription: >-
-      Only GitLab versions 4.1-12, 5.2-10, and 6.1-4 are currently tested and
-      supported. The version format must be 'x.y.z' where all positions are
-      numbers.
-    Default: 5.10.0
   GitLabVersion:
     Type: String
-    Description: >-
-      Version of GitLab application - must correspond to helm chart version
-      above. See
-      https://docs.gitlab.com/charts/installation/version_mappings.html.
-    AllowedPattern: ^(13\.([1-9]|1[0-2])|14\.([2-9]|10)|15\.[1-4])\.\d+$
+    Description: Version of GitLab application.
+    AllowedValues:
+      # Mapped RDSDBEngineVersion is deprecated
+      # - 13.1.11
+      # - 13.2.10
+      # - 13.3.9
+      # - 13.4.7
+      # - 13.5.7
+      # - 13.6.7
+      # - 13.7.9
+      # - 13.8.8
+      # - 13.9.7
+      # - 13.10.5
+      # - 13.11.7
+      # - 13.12.15
+      - 14.2.7
+      - 14.3.6
+      - 14.4.5
+      - 14.5.4
+      - 14.6.7
+      - 14.7.7
+      - 14.8.6
+      - 14.9.5
+      - 14.10.5
+      - 15.1.6
+      - 15.2.5
+      - 15.3.5
+      - 15.4.6
     ConstraintDescription: >-
       Only GitLab versions 13.1-12, 14.2-10, and 15.1-4 are currently tested
-      and supported. The version format must be 'x.y.z' where all positions are
-      numbers.
-    Default: 14.10.0
-    # While the AllowedPatterns for HelmChartVersion and GitLabVersion are
-    # verbose, they allows control over the maximum minor version including
-    # limiting it to 12 or less or completely eliminating minor versions in a
-    # series. For example, GitLab 14 only went to 14.10 and 14.1 did not work
-    # as CNH only on AWS due to classic load balancer.
-    # PATTERN LIKE: ^(13\.(1|2|3|4|5|6|7|8|9|10|11|12)\.\d+|14\.(1|2|3|4|5|6|7|8|9|10)\.\d+)$
-    # It is also easy to understand.
+      and supported.
+    Default: 14.10.5
 
 # Gitaly Storage Parameters
   GitalyPraefectInstanceArchitecture:
@@ -895,7 +867,6 @@ Resources:
         ConfigureContainerInsights: !Ref ConfigureContainerInsights
         ConfigureGrafana: !Ref ConfigureGrafana
         # Database Parameters
-        RDSDBEngineVersion: !Ref RDSDBEngineVersion
         RDSDBInstanceClass: !Ref RDSDBInstanceClass
         DBName: !Ref DBName
         DBPraefectName: !Ref DBPraefectName
@@ -920,7 +891,6 @@ Resources:
         HelmChartNamespaceCreate: !Ref HelmChartNamespaceCreate
         HelmChartNamespace: !Ref HelmChartNamespace
         HelmChartName: !Ref HelmChartName
-        HelmChartVersion: !Ref HelmChartVersion
         GitLabVersion: !Ref GitLabVersion
         # Gitaly Storage Parameters
         GitalyPraefectInstanceArchitecture: !Ref GitalyPraefectInstanceArchitecture
