@@ -173,6 +173,9 @@ Resources:
         VPCID: !Ref VPCID
         Subnet1ID: !Ref Subnet1ID
         Subnet2ID: !Ref Subnet2ID
+        EnableBastion: 'false'
+        PublicSubnet1ID: !Ref Subnet1ID
+        PublicSubnet2ID: !Ref Subnet2ID
         CustomDBSecurityGroup: !GetAtt DatabaseSecurityGroup.GroupId
 
   PraefectRDSDatabase:
@@ -194,6 +197,9 @@ Resources:
         VPCID: !Ref VPCID
         Subnet1ID: !Ref Subnet1ID
         Subnet2ID: !Ref Subnet2ID
+        EnableBastion: 'false'
+        PublicSubnet1ID: !Ref Subnet1ID
+        PublicSubnet2ID: !Ref Subnet2ID
         CustomDBSecurityGroup: !GetAtt DatabaseSecurityGroup.GroupId
 
 Outputs:
