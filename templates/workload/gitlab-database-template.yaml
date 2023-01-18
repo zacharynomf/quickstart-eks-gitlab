@@ -177,6 +177,10 @@ Resources:
         PublicSubnet1ID: !Ref Subnet1ID
         PublicSubnet2ID: !Ref Subnet2ID
         CustomDBSecurityGroup: !GetAtt DatabaseSecurityGroup.GroupId
+        EnableEventSubscription: 'false'
+        DBAllocatedStorageEncrypted: 'true'
+        DBAllowMajorVersionUpgrade: 'false'
+        DBAutoMinorVersionUpgrade: 'false'
 
   PraefectRDSDatabase:
     Type: AWS::CloudFormation::Stack
@@ -201,6 +205,10 @@ Resources:
         PublicSubnet1ID: !Ref Subnet1ID
         PublicSubnet2ID: !Ref Subnet2ID
         CustomDBSecurityGroup: !GetAtt DatabaseSecurityGroup.GroupId
+        EnableEventSubscription: 'false'
+        DBAllocatedStorageEncrypted: 'true'
+        DBAllowMajorVersionUpgrade: 'false'
+        DBAutoMinorVersionUpgrade: 'false'
 
 Outputs:
   DatabaseSecretName:
