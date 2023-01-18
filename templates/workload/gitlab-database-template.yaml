@@ -181,6 +181,7 @@ Resources:
         DBAllocatedStorageEncrypted: 'true'
         DBAllowMajorVersionUpgrade: 'false'
         DBAutoMinorVersionUpgrade: 'false'
+        Application: GitLab
 
   PraefectRDSDatabase:
     Type: AWS::CloudFormation::Stack
@@ -209,6 +210,7 @@ Resources:
         DBAllocatedStorageEncrypted: 'true'
         DBAllowMajorVersionUpgrade: 'false'
         DBAutoMinorVersionUpgrade: 'false'
+        Application: Praefect
 
 Outputs:
   DatabaseSecretName:
