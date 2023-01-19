@@ -230,83 +230,83 @@ Mappings:
     #   HelmChartVersion: 4.8.8
     #   RDSDBEngineVersion: 12.4
     # 13.9.7:
-    #   CacheEngineVersion: 6.0
+    #   CacheEngineVersion: 6.2
     #   HelmChartVersion: 4.9.7
     #   RDSDBEngineVersion: 12.4
     # 13.10.5:
-    #   CacheEngineVersion: 6.0
+    #   CacheEngineVersion: 6.2
     #   HelmChartVersion: 4.10.5
     #   RDSDBEngineVersion: 12.4
     # 13.11.7:
-    #   CacheEngineVersion: 6.0
+    #   CacheEngineVersion: 6.2
     #   HelmChartVersion: 4.11.7
     #   RDSDBEngineVersion: 12.4
     # 13.12.15:
-    #   CacheEngineVersion: 6.0
+    #   CacheEngineVersion: 6.2
     #   HelmChartVersion: 4.12.13
     #   RDSDBEngineVersion: 12.4
     14.2.7:
-      CacheEngineVersion: 6.0
+      CacheEngineVersion: 6.2
       HelmChartVersion: 5.2.7
       RDSDBEngineVersion: 12.7
     14.3.6:
-      CacheEngineVersion: 6.0
+      CacheEngineVersion: 6.2
       HelmChartVersion: 5.3.6
       RDSDBEngineVersion: 12.7
     14.4.5:
-      CacheEngineVersion: 6.0
+      CacheEngineVersion: 6.2
       HelmChartVersion: 5.4.5
       RDSDBEngineVersion: 12.7
     14.5.4:
-      CacheEngineVersion: 6.0
+      CacheEngineVersion: 6.2
       HelmChartVersion: 5.5.4
       RDSDBEngineVersion: 12.7
     14.6.7:
-      CacheEngineVersion: 6.0
+      CacheEngineVersion: 6.2
       HelmChartVersion: 5.6.7
       RDSDBEngineVersion: 12.7
     14.7.7:
-      CacheEngineVersion: 6.0
+      CacheEngineVersion: 6.2
       HelmChartVersion: 5.7.7
       RDSDBEngineVersion: 12.7
     14.8.6:
-      CacheEngineVersion: 6.0
+      CacheEngineVersion: 6.2
       HelmChartVersion: 5.8.6
       RDSDBEngineVersion: 12.7
     14.9.5:
-      CacheEngineVersion: 6.0
+      CacheEngineVersion: 6.2
       HelmChartVersion: 5.9.5
       RDSDBEngineVersion: 12.7
     14.10.5:
-      CacheEngineVersion: 6.0
+      CacheEngineVersion: 6.2
       HelmChartVersion: 5.10.5
       RDSDBEngineVersion: 12.7
     15.1.6:
-      CacheEngineVersion: 6.0
+      CacheEngineVersion: 6.2
       HelmChartVersion: 6.1.6
       RDSDBEngineVersion: 13.6
     15.2.5:
-      CacheEngineVersion: 6.0
+      CacheEngineVersion: 6.2
       HelmChartVersion: 6.0.5
       RDSDBEngineVersion: 13.6
     15.3.5:
-      CacheEngineVersion: 6.0
+      CacheEngineVersion: 6.2
       HelmChartVersion: 6.3.5
       RDSDBEngineVersion: 13.6
     15.4.6:
-      CacheEngineVersion: 6.0
+      CacheEngineVersion: 6.2
       HelmChartVersion: 6.4.6
       RDSDBEngineVersion: 13.6
     15.5.7:
-      CacheEngineVersion: 6.0
+      CacheEngineVersion: 6.2
       HelmChartVersion: 6.5.8
       RDSDBEngineVersion: 13.6
     15.6.4:
-      CacheEngineVersion: 6.0
+      CacheEngineVersion: 6.2
       HelmChartVersion: 6.6.4
       RDSDBEngineVersion: 13.8
     15.7.3:
-      CacheEngineVersion: 6.0
+      CacheEngineVersion: 6.2
       HelmChartVersion: 6.7.3
       RDSDBEngineVersion: 13.8
   PartitionMap:
