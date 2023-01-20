@@ -50,7 +50,6 @@ tests:
   smallest-possible-x86:
     parameters:
       GitLabVersion: 14.10.5
-      HelmChartVersion: 5.10.5
       AvailabilityZones: $[taskcat_genaz_2]
       NumberOfAZs: 2
       EKSPublicAccessEndpoint: Disabled
@@ -73,7 +72,6 @@ tests:
       GitalyInstanceType: t3a.small
       NumberOfPraefectReplicas: 3
       PraefectInstanceType: t3a.micro
-      KeyPairName: eks-quickstart
       GitalyPraefectInstanceArchitecture: x86_64
     regions:
       - ap-south-1
@@ -90,8 +88,8 @@ tests:
   smallest-possible-arm-spot:
     parameters:
       OnDemandPercentage: 0 #100% spot EKS cluster
-      GitLabVersion: 15.4.1
-      HelmChartVersion: 6.4.1
+      OnDemandBastionPercentage: 0
+      GitLabVersion: 15.4.6
       AvailabilityZones: $[taskcat_genaz_2]
       NumberOfAZs: 2
       EKSPublicAccessEndpoint: Disabled
@@ -116,7 +114,6 @@ tests:
       GitalyInstanceType: t4g.small
       NumberOfPraefectReplicas: 3
       PraefectInstanceType: t4g.micro
-      KeyPairName: eks-quickstart
       GitalyPraefectInstanceArchitecture: arm64
     regions:
       - ap-south-1

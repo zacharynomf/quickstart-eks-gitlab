@@ -28,7 +28,12 @@ Parameters:
     Type: Number
   CacheEngineVersion:
     Type: String
-    Default: 5.0.6 # GitLab does not support 6.x redis (https://gitlab.com/gitlab-org/gitlab/-/issues/281683)
+    # awscli: aws elasticache describe-cache-engine-versions
+    AllowedValues:
+      - 5.0.6
+      - 6.0
+      - 6.2
+      - 7.0
   CacheNodeType:
     Type: String
     AllowedPattern: ^cache\.[a-z0-9]+\.[a-z0-9]+$
@@ -36,6 +41,17 @@ Parameters:
 
 Conditions:
   Use3AvailabilityZones: !Not [!Equals [!Ref Subnet3ID, '']]
+
+Mappings:
+  CacheEngineVersion:
+    5.0.6:
+      CacheParameterGroupName: default.redis5.0
+    '6.0':
+      CacheParameterGroupName: default.redis6.x
+    '6.2':
+      CacheParameterGroupName: default.redis6.x
+    '7.0':
+      CacheParameterGroupName: default.redis7
 
 Resources:
 
@@ -73,7 +89,7 @@ Resources:
       EngineVersion: !Ref CacheEngineVersion
       CacheNodeType: !Ref CacheNodeType
       CacheSubnetGroupName: !Ref CacheSubnetGroup
-      CacheParameterGroupName: default.redis5.0
+      CacheParameterGroupName: !FindInMap [CacheEngineVersion, !Ref CacheEngineVersion, CacheParameterGroupName]
       NumCacheClusters: !Ref CacheNodes
       SecurityGroupIds: [!Ref CacheSecurityGroup]
 

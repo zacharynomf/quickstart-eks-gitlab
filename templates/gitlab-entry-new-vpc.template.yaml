@@ -41,6 +41,7 @@ Metadata:
         Parameters:
           - ProvisionBastionHost
           - BastionInstanceType
+          - OnDemandBastionPercentage
           - RemoteAccessCIDR
       - Label:
           default: Amazon EKS cluster configuration
@@ -49,6 +50,7 @@ Metadata:
           - AdditionalEKSAdminUserArn
           - AdditionalEKSAdminRoleArn
           - NodeInstanceType
+          - OnDemandPercentage
           - NodeVolumeSize
           - NumberOfNodes
           - MaxNumberOfNodes
@@ -57,7 +59,6 @@ Metadata:
       - Label:
           default: GitLab database configuration
         Parameters:
-          - RDSDBEngineVersion
           - RDSDBInstanceClass
           - DBName
           - DBPraefectName
@@ -90,7 +91,6 @@ Metadata:
           - HelmChartNamespaceCreate
           - HelmChartNamespace
           - HelmChartName
-          - HelmChartVersion
           - GitLabVersion
       - Label:
           default: GitLab Git repository storage configuration
@@ -155,6 +155,8 @@ Metadata:
         default: Provision a bastion host
       BastionInstanceType:
         default: Bastion host instance type
+      OnDemandBastionPercentage:
+        default: On-demand percentage
       RemoteAccessCIDR:
         default: Allowed bastion external access CIDR
     # Amazon EKS cluster configuration
@@ -166,6 +168,8 @@ Metadata:
         default: Additional EKS admin ARN (IAM role)
       NodeInstanceType:
         default: EKS node instance type
+      OnDemandPercentage:
+        default: On-demand percentage
       NodeVolumeSize:
         default: EKS node volume capacity
       NumberOfNodes:
@@ -177,8 +181,6 @@ Metadata:
       ConfigureGrafana:
         default: Provision and integrate Grafana
     # Database configuration
-      RDSDBEngineVersion:
-        default: GitLab RDS PostgreSQL version
       RDSDBInstanceClass:
         default: GitLab database instance class
       DBName:
@@ -223,8 +225,6 @@ Metadata:
         default: Kubernetes namespace for GitLab Helm chart
       HelmChartName:
         default: GitLab Helm chart name
-      HelmChartVersion:
-        default: GitLab Helm chart version
       GitLabVersion:
         default: GitLab application version
     # GitLab Git repository storage configuration
@@ -386,6 +386,15 @@ Parameters:
       Instance type for the bastion host. Select an instance from this list:
       https://aws.amazon.com/ec2/instance-types/.
     Default: t3.micro
+  OnDemandBastionPercentage:
+    Type: Number
+    Description: >-
+      Set the percentage of on-demand instances and spot instances. With a
+      default of 100, the percentages are 100% for on-demand instances and 0%
+      for spot instances.
+    MinValue: 0
+    MaxValue: 100
+    Default: 100
   RemoteAccessCIDR:
     Type: String
     Description: >-
@@ -423,6 +432,15 @@ Parameters:
     AllowedValues: [t3a.nano, t3.nano, t2.nano, t3a.micro, t3.micro, t2.micro, t3a.small, t1.micro, t3.small, t2.small, a1.medium, c6g.medium, t3a.medium, c6gd.medium, m6g.medium, t3.medium, m1.small, m6gd.medium, t2.medium, r6g.medium, a1.large, r6gd.medium, m3.medium, c6g.large, t3a.large, c6gd.large, m6g.large, c5a.large, t3.large, c5.large, c5ad.large, m5a.large, m1.medium, m6gd.large, t2.large, c5d.large, m5.large, m4.large, c4.large, r6g.large, a1.xlarge, m5ad.large, c3.large, c5n.large, r5a.large, m5d.large, r6gd.large, m5n.large, r5.large, c1.medium, r5ad.large, r4.large, m3.large, c6g.xlarge, m5dn.large, r5d.large, r5n.large, t3a.xlarge, c6gd.xlarge, m6g.xlarge, c5a.xlarge, i3.large, r3.large, t3.xlarge, r5dn.large, c5.xlarge, c5ad.xlarge, m5a.xlarge, m1.large, m6gd.xlarge, t2.xlarge, z1d.large, m5.xlarge, c5d.xlarge, c4.xlarge, m4.xlarge, r6g.xlarge, a1.2xlarge, m5ad.xlarge, c3.xlarge, c5n.xlarge, m5d.xlarge, r5a.xlarge, i3en.large, r6gd.xlarge, m5n.xlarge, m2.xlarge, r5.xlarge, r5ad.xlarge, m3.xlarge, r4.xlarge, m5dn.xlarge, c6g.2xlarge, r5d.xlarge, r5n.xlarge, t3a.2xlarge, c6gd.2xlarge, c5a.2xlarge, m6g.2xlarge, i3.xlarge, t3.2xlarge, r3.xlarge, r5dn.xlarge, c5.2xlarge, m5a.2xlarge, c5ad.2xlarge, m1.xlarge, m6gd.2xlarge, inf1.xlarge, t2.2xlarge, z1d.xlarge, c5d.2xlarge, m5.2xlarge, c4.2xlarge, m4.2xlarge, r6g.2xlarge, a1.metal, a1.4xlarge, m5ad.2xlarge, c3.2xlarge, c5n.2xlarge, r5a.2xlarge, i3en.xlarge, m5d.2xlarge, r6gd.2xlarge, h1.2xlarge, m5n.2xlarge, m2.2xlarge, r5.2xlarge, c1.xlarge, r5ad.2xlarge, g4dn.xlarge, r4.2xlarge, m3.2xlarge, m5dn.2xlarge, c6g.4xlarge, r5d.2xlarge, inf1.2xlarge, r5n.2xlarge, c6gd.4xlarge, c5a.4xlarge, m6g.4xlarge, i3.2xlarge, g2.2xlarge, r3.2xlarge, r5dn.2xlarge, c5.4xlarge, c5ad.4xlarge, m5a.4xlarge, d2.xlarge, m6gd.4xlarge, z1d.2xlarge, g3s.xlarge, g4dn.2xlarge, m5.4xlarge, c5d.4xlarge, c4.4xlarge, m4.4xlarge, r6g.4xlarge, m5ad.4xlarge, x1e.xlarge, c3.4xlarge, i2.xlarge, c5n.4xlarge, p2.xlarge, r5a.4xlarge, i3en.2xlarge, m5d.4xlarge, r6gd.4xlarge, h1.4xlarge, m5n.4xlarge, m2.4xlarge, r5.4xlarge, r5ad.4xlarge, r4.4xlarge, c6g.8xlarge, m5dn.4xlarge, z1d.3xlarge, g3.4xlarge, r5d.4xlarge, r5n.4xlarge, g4dn.4xlarge, c6gd.8xlarge, m6g.8xlarge, c5a.8xlarge, i3.4xlarge, r3.4xlarge, r5dn.4xlarge, i3en.3xlarge, m5a.8xlarge, c5ad.8xlarge, d2.2xlarge, m6gd.8xlarge, c5.9xlarge, m5.8xlarge, c4.8xlarge, r6g.8xlarge, c6g.12xlarge, m5ad.8xlarge, f1.2xlarge, x1e.2xlarge, c3.8xlarge, i2.2xlarge, c5d.9xlarge, m5d.8xlarge, r5a.8xlarge, r6gd.8xlarge, c6gd.12xlarge, c5a.12xlarge, m6g.12xlarge, h1.8xlarge, m5n.8xlarge, inf1.6xlarge, c5n.9xlarge, i3en.24xlarge, i3en.metal, p3.8xlarge, f1.16xlarge, x1.32xlarge, x1e.16xlarge, p2.16xlarge, m4.10xlarge, cc2.8xlarge, r5.8xlarge, c5.12xlarge, c5ad.12xlarge, m5a.12xlarge, r5ad.8xlarge, r4.8xlarge, m6gd.12xlarge, m5dn.8xlarge, c6g.16xlarge, g4dn.8xlarge, c6g.metal, z1d.6xlarge, g3.8xlarge, m5.12xlarge, c5d.12xlarge, r5d.8xlarge, r5n.8xlarge, r6g.12xlarge, c6gd.metal, c6gd.16xlarge, m6g.metal, c5a.16xlarge, m6g.16xlarge, m5ad.12xlarge, i3.8xlarge, g2.8xlarge, r3.8xlarge, r5dn.8xlarge, r5a.12xlarge, m5d.12xlarge, i3en.6xlarge, c5ad.16xlarge, m5a.16xlarge, d2.4xlarge, r6gd.12xlarge, m5n.12xlarge, m6gd.metal, m6gd.16xlarge, p3.16xlarge, x1e.32xlarge, r5.12xlarge, p3.2xlarge, c5.18xlarge, m5.16xlarge, r5ad.12xlarge, m4.16xlarge, r6g.16xlarge, r6g.metal, m5dn.12xlarge, m5ad.16xlarge, f1.4xlarge, x1e.4xlarge, i2.4xlarge, c5d.18xlarge, r5d.12xlarge, r5n.12xlarge, m5d.16xlarge, r5a.16xlarge, r6gd.metal, r6gd.16xlarge, c5a.24xlarge, h1.16xlarge, m5n.16xlarge, c5n.18xlarge, c5n.metal, g4dn.12xlarge, p3dn.24xlarge, r5dn.12xlarge, r5.16xlarge, c5.metal, c5.24xlarge, c5ad.24xlarge, m5a.24xlarge, r5ad.16xlarge, r4.16xlarge, m5dn.16xlarge, g4dn.16xlarge, z1d.metal, z1d.12xlarge, g3.16xlarge, m5.24xlarge, m5.metal, c5d.24xlarge, r5d.16xlarge, c5d.metal, r5n.16xlarge, m5ad.24xlarge, i3.metal, i3.16xlarge, r5dn.16xlarge, m5d.metal, i3en.12xlarge, m5d.24xlarge, r5a.24xlarge, d2.8xlarge, m5n.24xlarge, r5.24xlarge, r5.metal, r5ad.24xlarge, m5dn.24xlarge, x1.16xlarge, x1e.8xlarge, i2.8xlarge, r5d.24xlarge, r5d.metal, r5n.24xlarge, p2.8xlarge, inf1.24xlarge, g4dn.metal, r5dn.24xlarge, t4g.nano, t4g.medium, t4g.large, t4g.micro, t4g.small, t4g.2xlarge, t4g.xlarge]
     ConstraintDescription: Must be a valid EC2 instance type.
     Default: t3.large
+  OnDemandPercentage:
+    Type: Number
+    Description: >-
+      Set the percentage of on-demand instances and spot instances. With a
+      default of 100, the percentages are 100% for on-demand instances and 0%
+      for spot instances.
+    MinValue: 0
+    MaxValue: 100
+    Default: 100
   NodeVolumeSize:
     Type: Number
     Description: >-
@@ -458,35 +476,6 @@ Parameters:
     Default: 'No'
 
 # Database Parameters
-  RDSDBEngineVersion:
-    Type: String
-    Description: Select database engine version.
-    AllowedValues:
-      - 10.17
-      - 10.18
-      - 10.19
-      - 10.20
-      - 10.21
-      - 11.12
-      - 11.13
-      - 11.14
-      - 11.15
-      - 11.16
-      - 12.7
-      - 12.8
-      - 12.9
-      - 12.10
-      - 12.11
-      - 13.3
-      - 13.4
-      - 13.5
-      - 13.6
-      - 13.7
-      - 14.1
-      - 14.2
-      - 14.3
-      - 14.4
-    Default: 14.4
   RDSDBInstanceClass:
     Type: String
     Description: >-
@@ -633,37 +622,40 @@ Parameters:
     Type: String
     Description: Name of Helm GitLab deployment.
     Default: gitlab
-  HelmChartVersion:
-    Type: String
-    Description: >-
-      Version of GitLab application - must correspond to helm chart version
-      above. See
-      https://docs.gitlab.com/charts/installation/version_mappings.html.
-    AllowedPattern: ^(4\.([1-9]|1[0-2])|5\.([2-9]|10)|6\.[1-4])\.\d+$
-    ConstraintDescription: >-
-      Only GitLab versions 4.1-12, 5.2-10, and 6.1-4 are currently tested and
-      supported. The version format must be 'x.y.z' where all positions are
-      numbers.
-    Default: 5.10.0
   GitLabVersion:
     Type: String
-    Description: >-
-      Version of GitLab application - must correspond to helm chart version
-      above. See
-      https://docs.gitlab.com/charts/installation/version_mappings.html.
-    AllowedPattern: ^(13\.([1-9]|1[0-2])|14\.([2-9]|10)|15\.[1-4])\.\d+$
+    Description: Version of GitLab application.
+    AllowedValues:
+      # Mapped RDSDBEngineVersion is deprecated
+      # - 13.1.11
+      # - 13.2.10
+      # - 13.3.9
+      # - 13.4.7
+      # - 13.5.7
+      # - 13.6.7
+      # - 13.7.9
+      # - 13.8.8
+      # - 13.9.7
+      # - 13.10.5
+      # - 13.11.7
+      # - 13.12.15
+      - 14.2.7
+      - 14.3.6
+      - 14.4.5
+      - 14.5.4
+      - 14.6.7
+      - 14.7.7
+      - 14.8.6
+      - 14.9.5
+      - 14.10.5
+      - 15.1.6
+      - 15.2.5
+      - 15.3.5
+      - 15.4.6
     ConstraintDescription: >-
       Only GitLab versions 13.1-12, 14.2-10, and 15.1-4 are currently tested
-      and supported. The version format must be 'x.y.z' where all positions are
-      numbers.
-    Default: 14.10.0
-    # While the AllowedPatterns for HelmChartVersion and GitLabVersion are
-    # verbose, they allows control over the maximum minor version including
-    # limiting it to 12 or less or completely eliminating minor versions in a
-    # series. For example, GitLab 14 only went to 14.10 and 14.1 did not work
-    # as CNH only on AWS due to classic load balancer.
-    # PATTERN LIKE: ^(13\.(1|2|3|4|5|6|7|8|9|10|11|12)\.\d+|14\.(1|2|3|4|5|6|7|8|9|10)\.\d+)$
-    # It is also easy to understand.
+      and supported.
+    Default: 14.10.5
 
 # Gitaly Storage Parameters
   GitalyPraefectInstanceArchitecture:
@@ -887,19 +879,20 @@ Resources:
         # Bastion parameters
         ProvisionBastionHost: !Ref ProvisionBastionHost
         BastionInstanceType: !Ref BastionInstanceType
+        OnDemandBastionPercentage: !Ref OnDemandBastionPercentage
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
         # Cluster parameters
         EKSPublicAccessEndpoint: !Ref EKSPublicAccessEndpoint
         AdditionalEKSAdminUserArn: !Ref AdditionalEKSAdminUserArn
         AdditionalEKSAdminRoleArn: !Ref AdditionalEKSAdminRoleArn
         NodeInstanceType: !Ref NodeInstanceType
+        OnDemandPercentage: !Ref OnDemandPercentage
         NodeVolumeSize: !Ref NodeVolumeSize
         NumberOfNodes: !Ref NumberOfNodes
         MaxNumberOfNodes: !Ref MaxNumberOfNodes
         ConfigureContainerInsights: !Ref ConfigureContainerInsights
         ConfigureGrafana: !Ref ConfigureGrafana
         # Database Parameters
-        RDSDBEngineVersion: !Ref RDSDBEngineVersion
         RDSDBInstanceClass: !Ref RDSDBInstanceClass
         DBName: !Ref DBName
         DBPraefectName: !Ref DBPraefectName
@@ -924,7 +917,6 @@ Resources:
         HelmChartNamespaceCreate: !Ref HelmChartNamespaceCreate
         HelmChartNamespace: !Ref HelmChartNamespace
         HelmChartName: !Ref HelmChartName
-        HelmChartVersion: !Ref HelmChartVersion
         GitLabVersion: !Ref GitLabVersion
         # Gitaly Storage Parameters
         GitalyPraefectInstanceArchitecture: !Ref GitalyPraefectInstanceArchitecture
