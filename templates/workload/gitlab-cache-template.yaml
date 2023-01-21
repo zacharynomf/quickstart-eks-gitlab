@@ -45,13 +45,13 @@ Mappings:
   CacheEngineVersion:
   # https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/ParameterGroups.Redis.html
     5.0.6:
-      CacheParameterGroupName: default.redis5.0.cluster.on
+      CacheParameterGroupName: default.redis5.0
     '6.0':
-      CacheParameterGroupName: default.redis6.x.cluster.on
+      CacheParameterGroupName: default.redis6.x
     '6.2':
-      CacheParameterGroupName: default.redis6.x.cluster.on
+      CacheParameterGroupName: default.redis6.x
     '7.0':
-      CacheParameterGroupName: default.redis7.cluster.on
+      CacheParameterGroupName: default.redis7
 
 Resources:
 
