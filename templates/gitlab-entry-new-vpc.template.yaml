@@ -1392,10 +1392,10 @@ Rules:
   BastionParameters:
     RuleCondition: !Equals [!Ref ProvisionBastionHost, Enabled]
     Assertions:
-    - Assert: !Not [!Equals [!Ref RemoteAccessCIDR, '']]
-      AssertDescription: >-
-        You must provide RemoteAccessCIDR you chose to set ProvisionBastionHost
-        to Enabled.
+      - Assert: !Not [!Equals [!Ref RemoteAccessCIDR, '']]
+        AssertDescription: >-
+          You must provide RemoteAccessCIDR you chose to set ProvisionBastionHost
+          to Enabled.
   UnsupportedGitalyPraefectInstanceArchitecture:
     RuleCondition: !Equals [!Ref GitalyPraefectInstanceArchitecture, arm64]
     Assertions:
