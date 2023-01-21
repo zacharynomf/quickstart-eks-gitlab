@@ -111,7 +111,6 @@ Metadata:
         Parameters:
           - ConfigureRunner
           - RunnerChartName
-          - RunnerChartVersion
           - RunnerImage
           - MaximumConcurrentJobs
           - PrivilegedMode
@@ -250,8 +249,6 @@ Metadata:
         default: Configure GitLab Runner
       RunnerChartName:
         default: GitLab Runner Helm chart name
-      RunnerChartVersion:
-        default: GitLab Runner chart version
       RunnerImage:
         default: Default runner image
       MaximumConcurrentJobs:
@@ -1296,10 +1293,6 @@ Parameters:
     Type: String
     Description: Name of Helm GitLab Runner deployment.
     Default: runner
-  RunnerChartVersion:
-    Type: String
-    Description: Version of GitLab Runner Helm chart for deployment.
-    Default: 0.27.0
   RunnerImage:
     Type: String
     Description: Default GitLab Runner image.
@@ -1521,7 +1514,6 @@ Resources:
         # Runner properties
         ConfigureRunner: !Ref ConfigureRunner
         RunnerChartName: !Ref RunnerChartName
-        RunnerChartVersion: !Ref RunnerChartVersion
         RunnerImage: !Ref RunnerImage
         MaximumConcurrentJobs: !Ref MaximumConcurrentJobs
         PrivilegedMode: !Ref PrivilegedMode
