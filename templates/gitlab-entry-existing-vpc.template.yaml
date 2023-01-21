@@ -1401,6 +1401,14 @@ Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, aws-quickstart]
   UsingSpotNodeGroups: !Not [!Equals [!Ref OnDemandPercentage, 100]]
   EmptyEnvironmentName: !Equals [!Ref EnvironmentName, '']
+  UsingArmBastion: !Or
+    - !Equals [!Ref BastionInstanceType, t4g.nano]
+    - !Equals [!Ref BastionInstanceType, t4g.micro]
+    - !Equals [!Ref BastionInstanceType, t4g.small]
+    - !Equals [!Ref BastionInstanceType, t4g.medium]
+    - !Equals [!Ref BastionInstanceType, t4g.large]
+    - !Equals [!Ref BastionInstanceType, t4g.xlarge]
+    - !Equals [!Ref BastionInstanceType, t4g.2xlarge]
 
 Resources:
 
@@ -1419,6 +1427,7 @@ Resources:
         OnDemandPercentage: !Ref OnDemandPercentage
         NodeVolumeSize: !Ref NodeVolumeSize
         BastionInstanceType: !Ref BastionInstanceType
+        BastionOS: !If [UsingArmBastion, Amazon-Linux2-HVM-ARM, Amazon-Linux2-HVM]
         OnDemandBastionPercentage: !Ref OnDemandBastionPercentage
         KubernetesVersion: 1.21
 
