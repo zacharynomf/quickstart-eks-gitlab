@@ -156,8 +156,6 @@ Parameters:
     AllowedValues: [ 'Yes', 'No' ]
   RunnerChartName:
     Type: String
-  RunnerChartVersion:
-    Type: String
   RunnerImage:
     Type: String
   MaximumConcurrentJobs:
@@ -197,118 +195,147 @@ Mappings:
   # RDSDBEngineVersion:
   # * https://docs.gitlab.com/ee/administration/package_information/postgresql_versions.html
   # * https://docs.gitlab.com/ee/install/requirements.html#postgresql-requirements
+  # RunnerChartVersion: https://docs.gitlab.com/runner/install/kubernetes.html
     # 13.1.11:
     #   CacheEngineVersion: 5.0.6
     #   HelmChartVersion: 4.1.12
     #   RDSDBEngineVersion: 11.9
+    #   RunnerChartVersion: 0.18.3
     # 13.2.10:
     #   CacheEngineVersion: 5.0.6
     #   HelmChartVersion: 4.2.10
     #   RDSDBEngineVersion: 11.9
+    #   RunnerChartVersion: 0.19.4
     # 13.3.9:
     #   CacheEngineVersion: 5.0.6
     #   HelmChartVersion: 4.3.9
     #   RDSDBEngineVersion: 11.9
+    #   RunnerChartVersion: 0.20.2
     # 13.4.7:
     #   CacheEngineVersion: 5.0.6
     #   HelmChartVersion: 4.4.6
     #   RDSDBEngineVersion: 11.9
+    #   RunnerChartVersion: 0.21.1
     # 13.5.7:
     #   CacheEngineVersion: 5.0.6
     #   HelmChartVersion: 4.5.7
     #   RDSDBEngineVersion: 11.9
+    #   RunnerChartVersion: 0.22.0
     # 13.6.7:
     #   CacheEngineVersion: 5.0.6
     #   HelmChartVersion: 4.6.7
     #   RDSDBEngineVersion: 11.9
+    #   RunnerChartVersion: 0.23.0
     # 13.7.9:
     #   CacheEngineVersion: 5.0.6
     #   HelmChartVersion: 4.7.9
     #   RDSDBEngineVersion: 12.4
+    #   RunnerChartVersion: 0.24.0
     # 13.8.8:
     #   CacheEngineVersion: 5.0.6
     #   HelmChartVersion: 4.8.8
     #   RDSDBEngineVersion: 12.4
+    #   RunnerChartVersion: 0.25.0
     # 13.9.7:
     #   CacheEngineVersion: 6.2
     #   HelmChartVersion: 4.9.7
     #   RDSDBEngineVersion: 12.4
+    #   RunnerChartVersion: 0.26.0
     # 13.10.5:
     #   CacheEngineVersion: 6.2
     #   HelmChartVersion: 4.10.5
     #   RDSDBEngineVersion: 12.4
+    #   RunnerChartVersion: 0.27.0
     # 13.11.7:
     #   CacheEngineVersion: 6.2
     #   HelmChartVersion: 4.11.7
     #   RDSDBEngineVersion: 12.4
+    #   RunnerChartVersion: 0.28.0
     # 13.12.15:
     #   CacheEngineVersion: 6.2
     #   HelmChartVersion: 4.12.13
     #   RDSDBEngineVersion: 12.4
+    #   RunnerChartVersion: 0.29.0
     14.2.7:
       CacheEngineVersion: 6.2
       HelmChartVersion: 5.2.7
       RDSDBEngineVersion: 12.7
+      RunnerChartVersion: 0.32.0
     14.3.6:
       CacheEngineVersion: 6.2
       HelmChartVersion: 5.3.6
       RDSDBEngineVersion: 12.7
+      RunnerChartVersion: 0.33.3
     14.4.5:
       CacheEngineVersion: 6.2
       HelmChartVersion: 5.4.5
       RDSDBEngineVersion: 12.7
+      RunnerChartVersion: 0.34.0
     14.5.4:
       CacheEngineVersion: 6.2
       HelmChartVersion: 5.5.4
       RDSDBEngineVersion: 12.7
+      RunnerChartVersion: 0.35.3
     14.6.7:
       CacheEngineVersion: 6.2
       HelmChartVersion: 5.6.7
       RDSDBEngineVersion: 12.7
+      RunnerChartVersion: 0.36.1
     14.7.7:
       CacheEngineVersion: 6.2
       HelmChartVersion: 5.7.7
       RDSDBEngineVersion: 12.7
+      RunnerChartVersion: 0.37.3
     14.8.6:
       CacheEngineVersion: 6.2
       HelmChartVersion: 5.8.6
       RDSDBEngineVersion: 12.7
+      RunnerChartVersion: 0.38.2
     14.9.5:
       CacheEngineVersion: 6.2
       HelmChartVersion: 5.9.5
       RDSDBEngineVersion: 12.7
+      RunnerChartVersion: 0.39.1
     14.10.5:
       CacheEngineVersion: 6.2
       HelmChartVersion: 5.10.5
       RDSDBEngineVersion: 12.7
+      RunnerChartVersion: 0.40.1
     15.1.6:
       CacheEngineVersion: 6.2
       HelmChartVersion: 6.1.6
       RDSDBEngineVersion: 13.6
+      RunnerChartVersion: 0.42.0
     15.2.5:
       CacheEngineVersion: 6.2
       HelmChartVersion: 6.0.5
       RDSDBEngineVersion: 13.6
+      RunnerChartVersion: 0.43.2
     15.3.5:
       CacheEngineVersion: 6.2
       HelmChartVersion: 6.3.5
       RDSDBEngineVersion: 13.6
+      RunnerChartVersion: 0.44.3
     15.4.6:
       CacheEngineVersion: 6.2
       HelmChartVersion: 6.4.6
       RDSDBEngineVersion: 13.6
+      RunnerChartVersion: 0.45.2
     15.5.7:
       CacheEngineVersion: 6.2
       HelmChartVersion: 6.5.8
       RDSDBEngineVersion: 13.6
+      RunnerChartVersion: 0.46.1
     15.6.4:
       CacheEngineVersion: 6.2
       HelmChartVersion: 6.6.4
       RDSDBEngineVersion: 13.8
+      RunnerChartVersion: 0.47.3
     15.7.3:
       CacheEngineVersion: 6.2
       HelmChartVersion: 6.7.3
       RDSDBEngineVersion: 13.8
+      RunnerChartVersion: 0.48.2
   PartitionMap:
     aws:
       IngressImageRepository: k8s.gcr.io/defaultbackend-amd64
@@ -782,7 +809,7 @@ Resources:
         ClusterName: !Ref KubeClusterName
         HelmChartNamespace: !Ref HelmChartNamespace
         HelmChartName: !Ref RunnerChartName
-        HelmChartVersion: !Ref RunnerChartVersion
+        HelmChartVersion: !FindInMap [GitLabVersion, !Ref GitLabVersion, RunnerChartVersion]
         DomainName: !Ref DomainName
         RunnerRegistrationToken: !GetAtt RunnerRegistrationToken.Value
         RunnerImage: !Ref RunnerImage

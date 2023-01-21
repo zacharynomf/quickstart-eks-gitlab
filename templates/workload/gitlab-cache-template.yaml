@@ -37,13 +37,13 @@ Parameters:
   CacheNodeType:
     Type: String
     AllowedPattern: ^cache\.[a-z0-9]+\.[a-z0-9]+$
-    Default: cache.t3.medium
 
 Conditions:
   Use3AvailabilityZones: !Not [!Equals [!Ref Subnet3ID, '']]
 
 Mappings:
   CacheEngineVersion:
+  # https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/ParameterGroups.Redis.html
     5.0.6:
       CacheParameterGroupName: default.redis5.0
     '6.0':
