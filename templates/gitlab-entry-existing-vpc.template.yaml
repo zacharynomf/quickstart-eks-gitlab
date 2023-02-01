@@ -1429,7 +1429,7 @@ Resources:
         BastionInstanceType: !Ref BastionInstanceType
         BastionOS: !If [UsingArmBastion, Amazon-Linux2-HVM-ARM, Amazon-Linux2-HVM]
         OnDemandBastionPercentage: !Ref OnDemandBastionPercentage
-        KubernetesVersion: 1.21
+        KubernetesVersion: 1.22
 
   EKSStack:
     Type: AWS::CloudFormation::Stack
