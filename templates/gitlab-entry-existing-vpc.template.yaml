@@ -1467,6 +1467,7 @@ Resources:
         NumberOfNodes: !Ref NumberOfNodes
         MaxNumberOfNodes: !Ref MaxNumberOfNodes
         ConfigSetName: !If [EmptyEnvironmentName, !Ref AWS::StackName, !Ref EnvironmentName]
+        PrometheusIntegration: Enabled
         # Shared resources
         PerAccountSharedResources: !Ref PerAccountSharedResources
         PerRegionSharedResources: !Ref PerRegionSharedResources
