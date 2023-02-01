@@ -1,12 +1,14 @@
-:partner-solution-project-name: partner-solution-repo-name
+:partner-solution-project-name: quickstart-eks-gitlab
 :partner-solution-github-org: aws-quickstart
-:partner-product-name: Full Product Name
-:partner-product-short-name: Product Name
-:partner-company-name: Example Company Name, Ltd.
-:doc-month: January
-:doc-year: 2022
-//:partner-contributors: John Smith, {partner-company-name}
-//:other-contributors: Akua Mansa, Trek10
-//:aws-contributors: Janine Singh, AWS IoT Partner team
-//:aws-ia-contributors: Toni Jones, AWS Integration & Automation team
-// :private_repo:
+:partner-product-name: GitLab
+:partner-product-short-name: GitLab
+:partner-product-long-name: GitLab hybrid reference architecture for Amazon EKS
+:partner-product-edition: {partner-product-name} Enterprise Edition
+:partner-company-name: GitLab Inc.
+:partner-company-short-name: GitLab
+:doc-month: February
+:doc-year: 2023
+:partner-contributors: Darwin Sanoy, {partner-company-name}
+// :other-contributors: Akua Mansa, Trek10
+:aws-contributors: Dmitry Kolomiets, AWS WWCO ProServe team
+:aws-ia-contributors: Andrew Gargan and Troy Lindsay, AWS Integration & Automation team
