@@ -39,15 +39,15 @@ def handler(event, context):
                     StartRecordName=record_name,
                     StartRecordType=record_type
                 )
-                
+
                 record = next(filter(lambda x: x['Name'] == record_name, response['ResourceRecordSets']))
 
                 changes.append({
-                    'Action': 'DELETE', 
+                    'Action': 'DELETE',
                     'ResourceRecordSet': {
-                        'Name': record_name, 
-                        'Type': record_type, 
-                        'TTL': record['TTL'], 
+                        'Name': record_name,
+                        'Type': record_type,
+                        'TTL': record['TTL'],
                         'ResourceRecords': record['ResourceRecords']
                     }
                 })
