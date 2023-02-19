@@ -1512,7 +1512,8 @@ Resources:
         NodeGroupSecurityGroup: !GetAtt EKSStack.Outputs.NodeGroupSecurityGroup
         # Cluster properties
         KubeClusterName: !GetAtt EKSStack.Outputs.EKSClusterName
-        OIDCIssuerURLWithoutProtocol: !Join ['', !Split [https://, !GetAtt EKSStack.Outputs.OIDCIssuerURL]]
+        OIDCProviderArn: !GetAtt EKSStack.Outputs.OIDCProviderArn
+        OIDCProviderEndpoint: !GetAtt EKSStack.Outputs.OIDCProviderEndpoint
         ConfigureContainerInsights: !Ref ConfigureContainerInsights
         ConfigureGrafana: !Ref ConfigureGrafana
         # Database properties

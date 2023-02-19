@@ -43,7 +43,9 @@ Parameters:
 # Cluster Parameters
   KubeClusterName:
     Type: String
-  OIDCIssuerURLWithoutProtocol:
+  OIDCProviderArn:
+    Type: String
+  OIDCProviderEndpoint:
     Type: String
   ConfigureContainerInsights:
     Type: String
@@ -539,7 +541,8 @@ Resources:
         KMSKeyID: !Ref ObjectStorageKMSKeyID
         EnvironmentName: !Ref EnvironmentName
         HelmChartNamespace: !Ref HelmChartNamespace
-        OIDCIssuerURLWithoutProtocol: !Ref OIDCIssuerURLWithoutProtocol
+        OIDCProviderArn: !Ref OIDCProviderArn
+        OIDCProviderEndpoint: !Ref OIDCProviderEndpoint
         DeleteBucketContentsFunctionArn: !GetAtt Functions.Outputs.DeleteBucketContentsFunctionArn
         DeleteBucketContentsRoleName: !GetAtt Functions.Outputs.DeleteBucketContentsRoleName
 

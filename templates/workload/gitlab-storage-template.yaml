@@ -23,7 +23,9 @@ Parameters:
     Type: String
   HelmChartNamespace:
     Type: String
-  OIDCIssuerURLWithoutProtocol:
+  OIDCProviderArn:
+    Type: String
+  OIDCProviderEndpoint:
     Type: String
   DeleteBucketContentsFunctionArn:
     Type: String
@@ -31,6 +33,7 @@ Parameters:
     Type: String
 
 Conditions:
+  Commercial: !Equals [!Ref AWS::Partition, aws]
   UseKMS: !Equals [!Ref SSEAlgorithm, aws:kms]
 
 Resources:
@@ -220,12 +223,16 @@ Resources:
             {
               "Effect": "Allow",
               "Principal": {
-                "Federated": "arn:${AWS::Partition}:iam::${AWS::AccountId}:oidc-provider/${OIDCIssuerURLWithoutProtocol}"
+                "Federated": "${OIDCProviderArn}"
               },
               "Action": "sts:AssumeRoleWithWebIdentity",
               "Condition": {
                 "StringEquals": {
-                  "${OIDCIssuerURLWithoutProtocol}:sub": [
+                  "${OIDCProviderEndpoint}:aud": [
+                    "sts.amazonaws.com",
+                    "sts.${AWS::Region}.amazonaws.com"
+                  ],
+                  "${OIDCProviderEndpoint}:sub": [
                     "system:serviceaccount:${HelmChartNamespace}:gitlab-registry",
                     "system:serviceaccount:${HelmChartNamespace}:gitlab-webservice",
                     "system:serviceaccount:${HelmChartNamespace}:gitlab-sidekiq",
