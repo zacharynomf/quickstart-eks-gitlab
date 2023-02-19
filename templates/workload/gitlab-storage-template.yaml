@@ -27,16 +27,19 @@ Parameters:
     Type: String
   OIDCProviderEndpoint:
     Type: String
-  DeleteBucketContentsFunctionArn:
-    Type: String
-  DeleteBucketContentsRoleName:
-    Type: String
 
 Conditions:
   Commercial: !Equals [!Ref AWS::Partition, aws]
   UseKMS: !Equals [!Ref SSEAlgorithm, aws:kms]
 
 Resources:
+
+  GetDeleteBucketContentsFunctionArn:
+    Type: Custom::ResourceReader
+    Properties:
+      ServiceToken: !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:eks-quickstart-ResourceReader
+      AwsCliCommand: lambda get-function --function-name eks-quickstart-DeleteBucketContents --query 'Configuration'
+      IdField: FunctionArn
 
   ArtifactsBucket:
     Type: AWS::S3::Bucket
@@ -50,7 +53,7 @@ Resources:
     Type: Custom::DeleteBucketContents
     DependsOn: DeleteBucketContentsRolePolicy
     Properties:
-      ServiceToken: !Ref DeleteBucketContentsFunctionArn
+      ServiceToken: !Ref GetDeleteBucketContentsFunctionArn
       Bucket: !Ref ArtifactsBucket
 
   LfsBucket:
@@ -65,7 +68,7 @@ Resources:
     Type: Custom::DeleteBucketContents
     DependsOn: DeleteBucketContentsRolePolicy
     Properties:
-      ServiceToken: !Ref DeleteBucketContentsFunctionArn
+      ServiceToken: !Ref GetDeleteBucketContentsFunctionArn
       Bucket: !Ref LfsBucket
 
   UploadsBucket:
@@ -80,7 +83,7 @@ Resources:
     Type: Custom::DeleteBucketContents
     DependsOn: DeleteBucketContentsRolePolicy
     Properties:
-      ServiceToken: !Ref DeleteBucketContentsFunctionArn
+      ServiceToken: !Ref GetDeleteBucketContentsFunctionArn
       Bucket: !Ref UploadsBucket
 
   PackagesBucket:
@@ -95,7 +98,7 @@ Resources:
     Type: Custom::DeleteBucketContents
     DependsOn: DeleteBucketContentsRolePolicy
     Properties:
-      ServiceToken: !Ref DeleteBucketContentsFunctionArn
+      ServiceToken: !Ref GetDeleteBucketContentsFunctionArn
       Bucket: !Ref PackagesBucket
 
   TerraformBucket:
@@ -110,7 +113,7 @@ Resources:
     Type: Custom::DeleteBucketContents
     DependsOn: DeleteBucketContentsRolePolicy
     Properties:
-      ServiceToken: !Ref DeleteBucketContentsFunctionArn
+      ServiceToken: !Ref GetDeleteBucketContentsFunctionArn
       Bucket: !Ref TerraformBucket
 
   PseudonymizerBucket:
@@ -125,7 +128,7 @@ Resources:
     Type: Custom::DeleteBucketContents
     DependsOn: DeleteBucketContentsRolePolicy
     Properties:
-      ServiceToken: !Ref DeleteBucketContentsFunctionArn
+      ServiceToken: !Ref GetDeleteBucketContentsFunctionArn
       Bucket: !Ref PseudonymizerBucket
 
   RegistryBucket:
@@ -140,7 +143,7 @@ Resources:
     Type: Custom::DeleteBucketContents
     DependsOn: DeleteBucketContentsRolePolicy
     Properties:
-      ServiceToken: !Ref DeleteBucketContentsFunctionArn
+      ServiceToken: !Ref GetDeleteBucketContentsFunctionArn
       Bucket: !Ref RegistryBucket
 
   BackupBucket:
@@ -155,7 +158,7 @@ Resources:
     Type: Custom::DeleteBucketContents
     DependsOn: DeleteBucketContentsRolePolicy
     Properties:
-      ServiceToken: !Ref DeleteBucketContentsFunctionArn
+      ServiceToken: !Ref GetDeleteBucketContentsFunctionArn
       Bucket: !Ref BackupBucket
 
   BackupTempBucket:
@@ -170,7 +173,7 @@ Resources:
     Type: Custom::DeleteBucketContents
     DependsOn: DeleteBucketContentsRolePolicy
     Properties:
-      ServiceToken: !Ref DeleteBucketContentsFunctionArn
+      ServiceToken: !Ref GetDeleteBucketContentsFunctionArn
       Bucket: !Ref BackupTempBucket
 
   # IAM resources
@@ -178,8 +181,7 @@ Resources:
   DeleteBucketContentsRolePolicy:
     Type: AWS::IAM::Policy
     Properties:
-      Roles:
-        - !Ref DeleteBucketContentsRoleName
+      Roles: [eks-quickstart-DeleteBucketContents]
       PolicyName: !Sub ${EnvironmentName}-delete-bucket-contents
       PolicyDocument:
         Version: 2012-10-17

@@ -27,47 +27,6 @@ Conditions:
 
 Resources:
 
-  # Using lambda packages from EKS quickstart.
-  # NOTE: This creates a dependency on EKS QS implementaton.
-  # Consider this safe as DeleteBucketContents lambda is generic enough.
-
-  CrHelperLayer:
-    DependsOn: CopyZips
-    Type: AWS::Lambda::LayerVersion
-    Properties:
-      LayerName: !Sub ['${Prefix}-Crhelper', {Prefix: !FindInMap [Config, GitLabPrefix, Value]}]
-      CompatibleRuntimes:
-        - python3.7
-      Content:
-        S3Bucket: !Sub ['${Prefix}-lambdazips-${AWS::Region}-${AWS::AccountId}', {Prefix: !FindInMap [Config, EksPrefix, Value]}]
-        S3Key: !Sub ${QSS3KeyPrefix}submodules/quickstart-amazon-eks/functions/packages/crhelperLayer/lambda.zip
-
-  DeleteBucketContentsFunction:
-    Type: AWS::Lambda::Function
-    Properties:
-      Handler: lambda_function.lambda_handler
-      MemorySize: 128
-      Role: !GetAtt DeleteBucketContentsRole.Arn
-      Runtime: python3.7
-      Timeout: 900
-      Layers: [!Ref CrHelperLayer]
-      Code:
-        S3Bucket: !Sub ['${Prefix}-lambdazips-${AWS::Region}-${AWS::AccountId}', {Prefix: !FindInMap [Config, EksPrefix, Value]}]
-        S3Key: !Sub ${QSS3KeyPrefix}submodules/quickstart-amazon-eks/functions/packages/DeleteBucketContents/lambda.zip
-
-  DeleteBucketContentsRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-            Action: sts:AssumeRole
-      ManagedPolicyArns:
-        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-
   CopyZips:
     Type: Custom::CopyZips
     Properties:
@@ -113,7 +72,3 @@ Outputs:
     Value: !Sub ['${Prefix}-lambdazips-${AWS::Region}-${AWS::AccountId}', {Prefix: !FindInMap [Config, EksPrefix, Value]}]
   RandomStringFunctionArn:
     Value: !GetAtt RandomStringFunction.Arn
-  DeleteBucketContentsFunctionArn:
-    Value: !GetAtt DeleteBucketContentsFunction.Arn
-  DeleteBucketContentsRoleName:
-    Value: !Ref DeleteBucketContentsRole
