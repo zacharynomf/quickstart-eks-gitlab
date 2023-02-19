@@ -364,6 +364,8 @@ Resources:
 
   DnsManagementQueue:
     Type: AWS::SQS::Queue
+    Metadata:
+      cfn-lint: { config: { ignore_checks: [I3013] } }
     UpdateReplacePolicy: Retain
     DeletionPolicy: Delete
     Properties:
