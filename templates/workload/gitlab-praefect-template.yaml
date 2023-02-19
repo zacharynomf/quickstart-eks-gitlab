@@ -210,6 +210,7 @@ Resources:
               python3: []
               python3-pip: []
               python2-pip: []
+              deltarpm: []
 
           commands:
             100_gitlab_yum_repo:

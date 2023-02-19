@@ -226,10 +226,11 @@ Resources:
         02_prereqs:
           packages:
             yum:
-              wget: []
               python3: []
               python3-pip: []
               python2-pip: []
+              deltarpm: []
+
           commands:
             100_gitlab_yum_repo:
               command: curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh | bash
