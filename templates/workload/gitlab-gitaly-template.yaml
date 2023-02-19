@@ -377,29 +377,7 @@ Resources:
     Properties:
       VisibilityTimeout: 180
 
-  DnsManagementFunction:
-    Type: AWS::Lambda::Function
-    Properties:
-      Description: Updates Route53 records for Gitaly instances.
-      Role: !GetAtt DnsManagementFunctionRole.Arn
-      ReservedConcurrentExecutions: 1
-      MemorySize: 256
-      Runtime: python3.8
-      Timeout: 30
-      Environment:
-        Variables:
-          HOSTED_ZONE_NAME: !Ref DomainName
-          HOSTED_ZONE_ID: !Ref PrivateHostedZoneId
-          ENVIRONMENT_NAME: !Ref EnvironmentName
-          ENVIRONMENT_TAG_NAME: !Ref GitalyEnvironmentTagName
-          REPLICA_TAG_NAME: !Ref GitalyReplicaTagName
-          MAX_REPLICAS: !Ref GitalyReplicasCount
-      Handler: handler.lambda_handler
-      Code:
-        S3Bucket: !Ref FunctionsBucketName
-        S3Key: !Sub ${QSS3KeyPrefix}functions/packages/UpdateDnsRecord/lambda.zip
-
-  DnsManagementFunctionRole:
+  UpdateDnsRecordRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -441,10 +419,32 @@ Resources:
                   - sqs:ReceiveMessage
                 Resource: !GetAtt DnsManagementQueue.Arn
 
+  UpdateDnsRecordFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Updates Route53 records for Gitaly instances.
+      Role: !GetAtt UpdateDnsRecordRole.Arn
+      ReservedConcurrentExecutions: 1
+      MemorySize: 256
+      Runtime: python3.8
+      Timeout: 30
+      Environment:
+        Variables:
+          HOSTED_ZONE_NAME: !Ref DomainName
+          HOSTED_ZONE_ID: !Ref PrivateHostedZoneId
+          ENVIRONMENT_NAME: !Ref EnvironmentName
+          ENVIRONMENT_TAG_NAME: !Ref GitalyEnvironmentTagName
+          REPLICA_TAG_NAME: !Ref GitalyReplicaTagName
+          MAX_REPLICAS: !Ref GitalyReplicasCount
+      Handler: index.handler
+      Code:
+        S3Bucket: !Ref FunctionsBucketName
+        S3Key: !Sub ${QSS3KeyPrefix}functions/packages/UpdateDnsRecord/lambda.zip
+
   SQSTrigger:
     Type: AWS::Lambda::EventSourceMapping
     Properties:
       Enabled: true
       BatchSize: 1
       EventSourceArn: !GetAtt DnsManagementQueue.Arn
-      FunctionName: !Ref DnsManagementFunction
+      FunctionName: !Ref UpdateDnsRecordFunction

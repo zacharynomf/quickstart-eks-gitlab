@@ -56,10 +56,10 @@ def get_free_replica_number():
 def get_replica_number_for_transition(instance, transition):
   if transition == LAUNCHING_TRANSITION:
     return get_free_replica_number()
-  
+
   if transition == TERMINATING_TRANSITION:
     return get_replica_number(instance)
-  
+
   raise RuntimeError(f'Unsupported transition: {transition}')
 
 def update_dns_record(transition, replica_hostname, instance_ip):
@@ -114,22 +114,22 @@ def complete_lifecycle_hook(instance_id, event, action_result):
       print(f"Lifecycle hook could not be completed: {response}")
   except:
       print(f"Lifecycle hook completion could not be executed: {traceback.format_exc()}")
-      return None    
+      return None
 
 def lambda_handler(event, context):
   for record in event['Records']:
     payload = record['body']
     print(f'Received message: {payload}')
-    request = json.loads(payload)              
+    request = json.loads(payload)
     transition = request.get('LifecycleTransition', '')
 
     if transition in [ LAUNCHING_TRANSITION, TERMINATING_TRANSITION ]:
-      instance_id = request['EC2InstanceId'] 
+      instance_id = request['EC2InstanceId']
 
-      try:                
+      try:
         instance = get_instance_by_id(instance_id)
         instance_ip = get_instance_ip_address(instance)
-        slot = get_replica_number_for_transition(instance, transition)       
+        slot = get_replica_number_for_transition(instance, transition)
         replica_hostname = create_replica_host_name(slot)
 
         print(f'updating DNS for {replica_hostname} = {instance_ip}')
