@@ -123,7 +123,9 @@ Resources:
         BlockDeviceMappings:
           - DeviceName: !Ref RootDeviceName
             Ebs:
+              VolumeType: gp2
               VolumeSize: !Ref RootVolumeSize
+              Encrypted: true
         UserData:
           Fn::Base64: !Sub |
             #!/bin/bash
