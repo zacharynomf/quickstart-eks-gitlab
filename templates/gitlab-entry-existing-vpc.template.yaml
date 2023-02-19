@@ -1461,6 +1461,7 @@ Resources:
         ProvisionBastionHost: !Ref ProvisionBastionHost
         AdditionalEKSAdminUserArn: !Ref AdditionalEKSAdminUserArn
         AdditionalEKSAdminRoleArn: !Ref AdditionalEKSAdminRoleArn
+        LoadBalancerController: Enabled
         ClusterAutoScaler: Enabled
         MetricsServer: Enabled
         NodeInstanceType: !Ref NodeInstanceType
