@@ -1462,6 +1462,7 @@ Resources:
         AdditionalEKSAdminUserArn: !Ref AdditionalEKSAdminUserArn
         AdditionalEKSAdminRoleArn: !Ref AdditionalEKSAdminRoleArn
         ClusterAutoScaler: Enabled
+        MetricsServer: Enabled
         NodeInstanceType: !Ref NodeInstanceType
         NodeGroupType: !If [UsingSpotNodeGroups, Unmanaged, Managed]
         NumberOfNodes: !Ref NumberOfNodes
@@ -1471,18 +1472,6 @@ Resources:
         # Shared resources
         PerAccountSharedResources: !Ref PerAccountSharedResources
         PerRegionSharedResources: !Ref PerRegionSharedResources
-
-  MetricsServer:
-    Type: AWS::CloudFormation::Stack
-    UpdateReplacePolicy: Retain
-    DeletionPolicy: Delete
-    Properties:
-      TemplateURL: !Sub
-        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-eks/templates/amazon-eks-metrics-server.template.yaml
-        - S3Region: !If [UsingDefaultBucket, !Ref AWS::Region, !Ref QSS3BucketRegion]
-          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-      Parameters:
-        EksClusterName: !GetAtt EKSStack.Outputs.EKSClusterName
 
   GitLabStack:
     Type: AWS::CloudFormation::Stack
