@@ -796,7 +796,7 @@ Parameters:
   RunnerImage:
     Type: String
     Description: Default GitLab Runner image.
-    Default: public.ecr.aws/gitlab/gitlab-runner
+    Default: public.ecr.aws/docker/library/ubuntu:22.04
   MaximumConcurrentJobs:
     Type: Number
     Description: The maximum number of concurrent jobs.
