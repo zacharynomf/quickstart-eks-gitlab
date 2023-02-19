@@ -3,11 +3,17 @@ import cfnresponse
 import json
 import logging
 
+logger = logging.getLogger(__name__)
+
 acm_client = boto3.client("acm")
 r53_client = boto3.client("route53")
 
 def handler(event, context):
-    print('Received event: %s' % json.dumps(event))
+    props = event.get("ResourceProperties", {})
+    logger.setLevel(props.get("LogLevel", logging.INFO))
+
+    logger.debug(json.dumps(event))
+
     status = cfnresponse.SUCCESS
     physical_resource_id = None
     data = {}
@@ -68,7 +74,7 @@ def handler(event, context):
             )
 
     except Exception as e:
-        logging.error('Exception: %s' % e, exc_info=True)
+        logger.exception("Unhandled exception")
         reason = str(e)
         status = cfnresponse.FAILED
     finally:
