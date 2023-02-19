@@ -2,12 +2,7 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: Deploys EKS telemetry integration. (qs-1rpegts6f)
 
 Metadata:
-  cfn-lint:
-    config:
-      ignore_checks:
-        - W9002
-        - W9003
-        - W9004
+  cfn-lint: { config: { ignore_checks: [W9002, W9003, W9004] } }
 
 Parameters:
   ClusterName:
@@ -176,7 +171,7 @@ Resources:
                     #    protocol: UDP
                     resources:
                       limits:
-                        cpu:  200m
+                        cpu: 200m
                         memory: 200Mi
                       requests:
                         cpu: 200m
@@ -260,7 +255,7 @@ Resources:
         - ConfigMapName: cluster-info
           ConfigMapNamespace: amazon-cloudwatch
           ClusterName: !Ref ClusterName
-          Region: !Ref 'AWS::Region'
+          Region: !Ref AWS::Region
 
   FluentdServiceAccount:
     Type: AWSQS::Kubernetes::Resource

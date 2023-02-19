@@ -1,13 +1,8 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: 2010-09-09
 Description: Deploys Gitaly instances. (qs-1rpegts49)
 
 Metadata:
-  cfn-lint:
-    config:
-      ignore_checks:
-        - W9002
-        - W9003
-        - W9004
+  cfn-lint: { config: { ignore_checks: [W9002, W9003, W9004] } }
 
 Parameters:
   # Infrastructure
@@ -90,8 +85,7 @@ Resources:
   EC2InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
-      Roles:
-      - !Ref EC2Role
+      Roles: [!Ref EC2Role]
 
   EC2Role:
     Type: AWS::IAM::Role
@@ -99,56 +93,53 @@ Resources:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
-        - Effect: Allow
-          Principal:
-            Service:
-            - ec2.amazonaws.com
-            - ssm.amazonaws.com
-          Action:
-          - sts:AssumeRole
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+                - ssm.amazonaws.com
+            Action: sts:AssumeRole
       ManagedPolicyArns:
         - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonEC2RoleforSSM
       Policies:
-      - PolicyName: S3Access
-        PolicyDocument:
-          Version: 2012-10-17
-          Statement:
-          # - Effect: Allow
-          #   Action:
-          #   - kms:Decrypt
-          #   - kms:GenerateDataKey
-          #   Resource:
-          #   - !Ref CMKArn
-          - Effect: Allow
-            Action:
-            - logs:CreateLogGroup
-            - logs:CreateLogStream
-            - logs:PutLogEvents
-            - logs:DescribeLogStreams
-            Resource:
-            - !Sub 'arn:${AWS::Partition}:logs:*:${AWS::AccountId}:*'
+        - PolicyName: S3Access
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              # - Effect: Allow
+              #   Action:
+              #     - kms:Decrypt
+              #     - kms:GenerateDataKey
+              #   Resource: !Ref CMKArn
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogStreams
+                Resource: !Sub arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:*
 
   GitalyLaunchTemplate:
     Type: AWS::EC2::LaunchTemplate
-
     Properties:
       LaunchTemplateData:
         InstanceType: !Ref GitalyInstanceType
         ImageId: !Ref GitalyAMIId
-        SecurityGroupIds:
-          - !Ref GitalySecurityGroup
+        SecurityGroupIds: [!Ref GitalySecurityGroup]
         IamInstanceProfile:
           Arn: !GetAtt EC2InstanceProfile.Arn
         BlockDeviceMappings:
-        - DeviceName: !Ref RootDeviceName
-          Ebs:
-            VolumeSize: !Ref RootVolumeSize
-        - DeviceName: !Ref GitDeviceName
-          Ebs:
-            VolumeSize: !Ref GitVolumeSize
-            VolumeType: gp2
-            Encrypted: true
-            # KmsKeyId: !Ref CMKArn
+          - DeviceName: !Ref RootDeviceName
+            Ebs:
+              VolumeType: gp2
+              VolumeSize: !Ref RootVolumeSize
+              Encrypted: true
+          - DeviceName: !Ref GitDeviceName
+            Ebs:
+              VolumeType: gp2
+              VolumeSize: !Ref GitVolumeSize
+              Encrypted: true
+              # KmsKeyId: !Ref CMKArn
         UserData:
           Fn::Base64: !Sub |
             #!/bin/bash
@@ -175,9 +166,9 @@ Resources:
       AWS::CloudFormation::Init:
         configSets:
           install_all:
-          - 01_setup_cloud_watch_logs
-          - 02_prereqs
-          - 03_install_gitaly
+            - 01_setup_cloud_watch_logs
+            - 02_prereqs
+            - 03_install_gitaly
 
         01_setup_cloud_watch_logs:
           files:
@@ -216,9 +207,10 @@ Resources:
                 log_stream_name = {instance_id}/gitaly_hooks.log
                 datetime_format = %Y-%m-%d %H:%M:%S
 
-              mode: "000444"
+              mode: '000444' # cfn-lint requires string values for this property
               owner: root
               group: root
+
           commands:
             100_download_awslogs:
               command: wget https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py
@@ -242,18 +234,18 @@ Resources:
             100_gitlab_yum_repo:
               command: curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh | bash
 
-            # 105_gitlab_distro_mapping:
-            #   command: !Sub |
-            #     IFS='.' read -r major minor patch <<< '${GitLabVersion}'; if [ ${major} -ge 15 ]; then sed -i 's/\\/el\\/7/\\/amazon\\/2/g' /etc/yum.repos.d/gitlab_gitlab*.repo; else sed -i 's/\\/amazon\\/2/\\/el\\/7/g' /etc/yum.repos.d/gitlab_gitlab*.repo; fi; yum clean all ; yum makecache;
-
             105_gitlab_distro_mapping:
-              command:
-                Fn::Join:
-                  - ""
-                  - - "echo 'WARNING: ARM for Amazon Linux is not supported before GitLab 14.9.0 and this stack will fail if that combination is specified.'; IFS='.' read -r major minor patch <<< '"
-                    - !Ref GitLabVersion
-                    - "'; if [[ ${major} -ge 15 || (${major} -eq 14 && ${minor} -ge 9) ]]; then sed -i 's/\\/el\\/7/\\/amazon\\/2/g' /etc/yum.repos.d/gitlab_gitlab*.repo; else sed -i 's/\\/amazon\\/2/\\/el\\/7/g' /etc/yum.repos.d/gitlab_gitlab*.repo; fi; yum clean all ; yum makecache;"
-#                    - "'; if [[ ${major} -ge 14 ]]; then sed -i 's/\\/el\\/7/\\/amazon\\/2/g' /etc/yum.repos.d/gitlab_gitlab*.repo; else sed -i 's/\\/amazon\\/2/\\/el\\/7/g' /etc/yum.repos.d/gitlab_gitlab*.repo; fi; yum clean all ; yum makecache;"
+              command: !Sub |
+                echo 'WARNING: ARM for Amazon Linux is not supported before GitLab 14.9.0 and this stack will fail if that combination is specified.'
+                IFS='.' read -r major minor patch <<< '${GitLabVersion}'
+                if [[ $major -ge 15 || ($major -eq 14 && $minor -ge 9) ]]
+                then
+                  sed -i 's/\/el\/7/\/amazon\/2/g' /etc/yum.repos.d/gitlab_gitlab*.repo
+                else
+                  sed -i 's/\/amazon\/2/\/el\/7/g' /etc/yum.repos.d/gitlab_gitlab*.repo
+                fi
+                yum clean all
+                yum makecache
 
             200_update_yum:
               command: yum update -y --exclude=gitlab-ee*
@@ -265,11 +257,10 @@ Resources:
                 - !Ref GitLabVersion
 
           files:
-
             /etc/gitlab/trusted-certs/cacert.pem:
               content: !Ref TlsCA
               encoding: base64
-              mode: "000700"
+              mode: '000700' # cfn-lint requires string values for this property
               owner: root
               group: root
 
@@ -310,7 +301,7 @@ Resources:
                   }
                 })
 
-              mode: "000700"
+              mode: '000700' # cfn-lint requires string values for this property
               owner: root
               group: root
 
@@ -324,7 +315,7 @@ Resources:
                 echo "/dev/sdg /gitlab-data ext4 defaults 0 0" >> /etc/fstab
                 chown -R git:git /gitlab-data/
 
-              mode: "000700"
+              mode: '000700' # cfn-lint requires string values for this property
               owner: root
               group: root
 
@@ -341,13 +332,13 @@ Resources:
       MinSize: !Ref GitalyReplicasCount
       MaxSize: !Ref GitalyReplicasCount
       LifecycleHookSpecificationList:
-        - LifecycleTransition: "autoscaling:EC2_INSTANCE_LAUNCHING"
-          LifecycleHookName: "LaunchingHook"
+        - LifecycleTransition: autoscaling:EC2_INSTANCE_LAUNCHING
+          LifecycleHookName: LaunchingHook
           HeartbeatTimeout: 600
           NotificationTargetARN: !GetAtt DnsManagementQueue.Arn
           RoleARN: !GetAtt NotificationsRole.Arn
-        - LifecycleTransition: "autoscaling:EC2_INSTANCE_TERMINATING"
-          LifecycleHookName: "TerminatingHook"
+        - LifecycleTransition: autoscaling:EC2_INSTANCE_TERMINATING
+          LifecycleHookName: TerminatingHook
           HeartbeatTimeout: 600
           NotificationTargetARN: !GetAtt DnsManagementQueue.Arn
           RoleARN: !GetAtt NotificationsRole.Arn
@@ -385,8 +376,7 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              Service:
-                - lambda.amazonaws.com
+              Service: lambda.amazonaws.com
             Action: sts:AssumeRole
       Path: /
       ManagedPolicyArns:
@@ -397,20 +387,16 @@ Resources:
             Version: 2012-10-17
             Statement:
               - Effect: Allow
-                Action:
-                  - autoscaling:CompleteLifecycleAction
+                Action: autoscaling:CompleteLifecycleAction
                 Resource: !Sub arn:${AWS::Partition}:autoscaling:${AWS::Region}:${AWS::AccountId}:autoScalingGroup:*:autoScalingGroupName/${EnvironmentName}-gitaly
               - Effect: Allow
-                Action:
-                  - ec2:DescribeInstances
+                Action: ec2:DescribeInstances
                 Resource: '*'
               - Effect: Allow
-                Action:
-                  - ec2:CreateTags
+                Action: ec2:CreateTags
                 Resource: !Sub arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:instance/*
               - Effect: Allow
-                Action:
-                  - route53:ChangeResourceRecordSets
+                Action: route53:ChangeResourceRecordSets
                 Resource: !Sub arn:${AWS::Partition}:route53:::hostedzone/${PrivateHostedZoneId}
               - Effect: Allow
                 Action:

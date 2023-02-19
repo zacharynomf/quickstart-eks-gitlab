@@ -645,7 +645,7 @@ Parameters:
   CreateSslCertificate:
     Type: String
     Description: >-
-      Choose 'Yes' if you want to request  AWS Certificate Manager SSL
+      Choose 'Yes' if you want to request AWS Certificate Manager SSL
       certificate for GitLab domain.
     AllowedValues: ['Yes', 'No']
     Default: 'No'
@@ -881,7 +881,7 @@ Parameters:
     AllowedValues: [AutoDetect, 'Yes', 'No']
     Default: AutoDetect
 Conditions:
-  Using3AvailabilityZones:  !Equals [!Ref NumberOfAZs, 3]
+  Using3AvailabilityZones: !Equals [!Ref NumberOfAZs, 3]
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, aws-quickstart]
 
 Resources:

@@ -2,12 +2,7 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: Deploys GitLab cluster. (qs-1rpegts6r)
 
 Metadata:
-  cfn-lint:
-    config:
-      ignore_checks:
-        - W9002
-        - W9003
-        - W9004
+  cfn-lint: { config: { ignore_checks: [W9002, W9003, W9004] } }
 
 Parameters:
 # Infra Parameters
@@ -177,13 +172,13 @@ Parameters:
     AllowedPattern: ^[0-9a-zA-Z-/]*$
 
 Conditions:
-  Using3AvailabilityZones:  !Not [!Equals [!Ref PrivateSubnet3ID, '']]
+  Using3AvailabilityZones: !Not [!Equals [!Ref PrivateSubnet3ID, '']]
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, aws-quickstart]
   ConfigureContainerInsights: !Equals [!Ref ConfigureContainerInsights, 'Yes']
   ConfigureGrafana: !Equals [!Ref ConfigureGrafana, 'Yes']
   OutgoingEmailEnabled: !Not [!Equals [!Ref SMTPDomain, Disabled]]
   CreateEmailDomain: !Equals [!Ref SMTPDomain, CreateNew]
-  HostedZoneInUse: !Not [!Equals  [!Ref PublicDNS, Disabled]]
+  HostedZoneInUse: !Not [!Equals [!Ref PublicDNS, Disabled]]
   AcmIngressConfigured: !And [!Equals [!Ref CreateSslCertificate, 'Yes'], !Condition HostedZoneInUse]
   HelmChartNamespaceCreate: !Equals [!Ref HelmChartNamespaceCreate, CreateNew]
   CreateCacheCluster: !Equals [!Ref CacheMode, External]

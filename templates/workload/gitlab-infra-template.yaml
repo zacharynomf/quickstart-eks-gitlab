@@ -2,12 +2,7 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: Deploys GitLab infrastructure resources. (qs-1rpegts4g)
 
 Metadata:
-  cfn-lint:
-    config:
-      ignore_checks:
-        - W9002
-        - W9003
-        - W9004
+  cfn-lint: { config: { ignore_checks: [W9002, W9003, W9004] } }
 
 Parameters:
   VPCID:
@@ -115,7 +110,6 @@ Resources:
         - DomainName: !Sub '*.${DomainName}'
           HostedZoneId: !If [HostedZoneToBeCreated, !Ref HostedZone, !Ref PublicHostedZoneId]
 
-
   CleanupACMDNSValidationLambdaRole:
     Type: AWS::IAM::Role
     Condition: CertificateRequested
@@ -137,8 +131,7 @@ Resources:
             Version: 2012-10-17
             Statement:
               - Effect: Allow
-                Action:
-                  - acm:DescribeCertificate
+                Action: acm:DescribeCertificate
                 Resource: !Ref SslCertificate
               - Effect: Allow
                 Action:
@@ -250,11 +243,11 @@ Resources:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
-        - Sid: AssumeLambdaExecutionRole
-          Effect: Allow
-          Principal:
-            Service: lambda.amazonaws.com
-          Action: sts:AssumeRole
+          - Sid: AssumeLambdaExecutionRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
       ManagedPolicyArns:
         # (allows logging)
         - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole

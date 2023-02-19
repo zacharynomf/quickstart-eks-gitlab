@@ -4,12 +4,7 @@ Description: >-
   (qs-1rpegts3l)
 
 Metadata:
-  cfn-lint:
-    config:
-      ignore_checks:
-        - W9002
-        - W9003
-        - W9004
+  cfn-lint: { config: { ignore_checks: [W9002, W9003, W9004] } }
 
 Parameters:
   QSS3BucketName:

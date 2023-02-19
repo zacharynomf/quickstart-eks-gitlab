@@ -48,7 +48,7 @@ def get_free_replica_number():
   reservations = response['Reservations']
   running_replicas = { get_replica_number(instance) for r in reservations for instance in r['Instances'] }
   print(f'running replicas: {running_replicas}')
-  free_replicas =  ALL_REPLICAS.difference(running_replicas)
+  free_replicas = ALL_REPLICAS.difference(running_replicas)
   print(f'free replicas: {free_replicas}')
 
   return next(iter(free_replicas))
