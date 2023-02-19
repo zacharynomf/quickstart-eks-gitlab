@@ -11,7 +11,7 @@ Parameters:
     Default: AES256
   KMSKeyID:
     Type: String
-    AllowedPattern: ^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}|$
+    AllowedPattern: ^(arn:(aws|aws-cn|aws-us-gov):kms:\S+:[0-9]{12}:key/)?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|$
     ConstraintDescription: Must be a valid KMS key ID.
     Default: ''
   EnvironmentName:
