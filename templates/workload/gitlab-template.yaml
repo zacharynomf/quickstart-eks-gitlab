@@ -275,6 +275,13 @@ Mappings:
       HelmChartVersion: 6.7.3
       RDSDBEngineVersion: 13.8
       RunnerChartVersion: 0.48.2
+  PartitionMap:
+    aws:
+      IngressImageRepository: registry.k8s.io/defaultbackend-amd64
+    aws-us-gov:
+      IngressImageRepository: registry.k8s.io/defaultbackend-amd64
+    aws-cn:
+      IngressImageRepository: registry.aliyuncs.com/google_containers/defaultbackend
 
 Resources:
 
@@ -615,7 +622,8 @@ Resources:
         global.ingress.configureCertmanager: false
 
         global.ingress.enabled: true
-        nginx-ingress.defaultBackend.image.repository: public.ecr.aws/nginx/nginx-ingress:latest
+        nginx-ingress.defaultBackend.image.repository:
+          !FindInMap [PartitionMap, !Ref AWS::Partition, IngressImageRepository]
 
         # telemetry configuration
         global.grafana.enabled: !If [ConfigureGrafana, true, false]
