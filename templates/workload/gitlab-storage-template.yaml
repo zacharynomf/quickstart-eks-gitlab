@@ -38,7 +38,8 @@ Resources:
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
+          - BucketKeyEnabled: !If [UseKMS, true, !Ref AWS::NoValue]
+            ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
               KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref AWS::NoValue]
   DeleteArtifactsBucketContents:
@@ -53,7 +54,8 @@ Resources:
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
+          - BucketKeyEnabled: !If [UseKMS, true, !Ref AWS::NoValue]
+            ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
               KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref AWS::NoValue]
   DeleteLfsBucketContents:
@@ -68,7 +70,8 @@ Resources:
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
+          - BucketKeyEnabled: !If [UseKMS, true, !Ref AWS::NoValue]
+            ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
               KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref AWS::NoValue]
   DeleteUploadsBucketContents:
@@ -83,7 +86,8 @@ Resources:
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
+          - BucketKeyEnabled: !If [UseKMS, true, !Ref AWS::NoValue]
+            ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
               KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref AWS::NoValue]
   DeletePackagesBucketContents:
@@ -98,7 +102,8 @@ Resources:
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
+          - BucketKeyEnabled: !If [UseKMS, true, !Ref AWS::NoValue]
+            ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
               KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref AWS::NoValue]
   DeleteTerraformBucketContents:
@@ -113,7 +118,8 @@ Resources:
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
+          - BucketKeyEnabled: !If [UseKMS, true, !Ref AWS::NoValue]
+            ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
               KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref AWS::NoValue]
   DeletePseudonymizerBucketContents:
@@ -128,7 +134,8 @@ Resources:
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
+          - BucketKeyEnabled: !If [UseKMS, true, !Ref AWS::NoValue]
+            ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
               KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref AWS::NoValue]
   DeleteRegistryBucketContents:
@@ -143,7 +150,8 @@ Resources:
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
+          - BucketKeyEnabled: !If [UseKMS, true, !Ref AWS::NoValue]
+            ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
               KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref AWS::NoValue]
   DeleteBackupBucketContents:
@@ -158,7 +166,8 @@ Resources:
     Properties:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
+          - BucketKeyEnabled: !If [UseKMS, true, !Ref AWS::NoValue]
+            ServerSideEncryptionByDefault:
               SSEAlgorithm: !Ref SSEAlgorithm
               KMSMasterKeyID: !If [UseKMS, !Ref KMSKeyID, !Ref AWS::NoValue]
   DeleteBackupTempBucketContents:
