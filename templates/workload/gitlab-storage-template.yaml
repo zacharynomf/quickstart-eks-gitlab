@@ -2,12 +2,7 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: Deploys Gitlab S3 buckets. (qs-1rpegts5o)
 
 Metadata:
-  cfn-lint:
-    config:
-      ignore_checks:
-        - W9002
-        - W9003
-        - W9004
+  cfn-lint: { config: { ignore_checks: [W9002, W9003, W9004] } }
 
 Parameters:
   SSEAlgorithm:
@@ -23,7 +18,9 @@ Parameters:
     Type: String
   HelmChartNamespace:
     Type: String
-  OIDCIssuerURLWithoutProtocol:
+  OIDCProviderArn:
+    Type: String
+  OIDCProviderEndpoint:
     Type: String
   DeleteBucketContentsFunctionArn:
     Type: String
@@ -31,6 +28,7 @@ Parameters:
     Type: String
 
 Conditions:
+  Commercial: !Equals [!Ref AWS::Partition, aws]
   UseKMS: !Equals [!Ref SSEAlgorithm, aws:kms]
 
 Resources:
@@ -175,8 +173,7 @@ Resources:
   DeleteBucketContentsRolePolicy:
     Type: AWS::IAM::Policy
     Properties:
-      Roles:
-        - !Ref DeleteBucketContentsRoleName
+      Roles: [!Ref DeleteBucketContentsRoleName]
       PolicyName: !Sub ${EnvironmentName}-delete-bucket-contents
       PolicyDocument:
         Version: 2012-10-17
@@ -184,29 +181,29 @@ Resources:
           - Effect: Allow
             Action: s3:ListBucketVersions
             Resource:
-              - !Sub arn:${AWS::Partition}:s3:::${ArtifactsBucket}
-              - !Sub arn:${AWS::Partition}:s3:::${LfsBucket}
-              - !Sub arn:${AWS::Partition}:s3:::${UploadsBucket}
-              - !Sub arn:${AWS::Partition}:s3:::${PackagesBucket}
-              - !Sub arn:${AWS::Partition}:s3:::${TerraformBucket}
-              - !Sub arn:${AWS::Partition}:s3:::${PseudonymizerBucket}
-              - !Sub arn:${AWS::Partition}:s3:::${RegistryBucket}
-              - !Sub arn:${AWS::Partition}:s3:::${BackupBucket}
-              - !Sub arn:${AWS::Partition}:s3:::${BackupTempBucket}
+              - !GetAtt ArtifactsBucket.Arn
+              - !GetAtt LfsBucket.Arn
+              - !GetAtt UploadsBucket.Arn
+              - !GetAtt PackagesBucket.Arn
+              - !GetAtt TerraformBucket.Arn
+              - !GetAtt PseudonymizerBucket.Arn
+              - !GetAtt RegistryBucket.Arn
+              - !GetAtt BackupBucket.Arn
+              - !GetAtt BackupTempBucket.Arn
           - Effect: Allow
             Action:
               - s3:DeleteObject
               - s3:DeleteObjectVersion
             Resource:
-              - !Sub arn:${AWS::Partition}:s3:::${ArtifactsBucket}/*
-              - !Sub arn:${AWS::Partition}:s3:::${LfsBucket}/*
-              - !Sub arn:${AWS::Partition}:s3:::${UploadsBucket}/*
-              - !Sub arn:${AWS::Partition}:s3:::${PackagesBucket}/*
-              - !Sub arn:${AWS::Partition}:s3:::${TerraformBucket}/*
-              - !Sub arn:${AWS::Partition}:s3:::${PseudonymizerBucket}/*
-              - !Sub arn:${AWS::Partition}:s3:::${RegistryBucket}/*
-              - !Sub arn:${AWS::Partition}:s3:::${BackupBucket}/*
-              - !Sub arn:${AWS::Partition}:s3:::${BackupTempBucket}/*
+              - !Sub ${ArtifactsBucket.Arn}/*
+              - !Sub ${LfsBucket.Arn}/*
+              - !Sub ${UploadsBucket.Arn}/*
+              - !Sub ${PackagesBucket.Arn}/*
+              - !Sub ${TerraformBucket.Arn}/*
+              - !Sub ${PseudonymizerBucket.Arn}/*
+              - !Sub ${RegistryBucket.Arn}/*
+              - !Sub ${BackupBucket.Arn}/*
+              - !Sub ${BackupTempBucket.Arn}/*
 
   ObjectStorageServiceAccountRole:
     Type: AWS::IAM::Role
@@ -220,12 +217,16 @@ Resources:
             {
               "Effect": "Allow",
               "Principal": {
-                "Federated": "arn:${AWS::Partition}:iam::${AWS::AccountId}:oidc-provider/${OIDCIssuerURLWithoutProtocol}"
+                "Federated": "${OIDCProviderArn}"
               },
               "Action": "sts:AssumeRoleWithWebIdentity",
               "Condition": {
                 "StringEquals": {
-                  "${OIDCIssuerURLWithoutProtocol}:sub": [
+                  "${OIDCProviderEndpoint}:aud": [
+                    "sts.amazonaws.com",
+                    "sts.${AWS::Region}.amazonaws.com"
+                  ],
+                  "${OIDCProviderEndpoint}:sub": [
                     "system:serviceaccount:${HelmChartNamespace}:gitlab-registry",
                     "system:serviceaccount:${HelmChartNamespace}:gitlab-webservice",
                     "system:serviceaccount:${HelmChartNamespace}:gitlab-sidekiq",
@@ -236,55 +237,60 @@ Resources:
             }
           ]
         }
+      ManagedPolicyArns:
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+        - !If
+            - Commercial
+            - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly
+            - !Ref AWS::NoValue
       Policies:
         - PolicyName: root
           PolicyDocument:
             Version: 2012-10-17
             Statement:
-            # Common object storage permissions
-            - Effect: Allow
-              Action:
-                - s3:ListBucket
-              Resource:
-                - !Sub arn:${AWS::Partition}:s3:::${ArtifactsBucket}
-                - !Sub arn:${AWS::Partition}:s3:::${LfsBucket}
-                - !Sub arn:${AWS::Partition}:s3:::${UploadsBucket}
-                - !Sub arn:${AWS::Partition}:s3:::${PackagesBucket}
-                - !Sub arn:${AWS::Partition}:s3:::${TerraformBucket}
-                - !Sub arn:${AWS::Partition}:s3:::${PseudonymizerBucket}
-                - !Sub arn:${AWS::Partition}:s3:::${RegistryBucket}
-                - !Sub arn:${AWS::Partition}:s3:::${BackupBucket}
-                - !Sub arn:${AWS::Partition}:s3:::${BackupTempBucket}
-            - Effect: Allow
-              Action:
-                - s3:*Object
-              Resource:
-                - !Sub arn:${AWS::Partition}:s3:::${ArtifactsBucket}/*
-                - !Sub arn:${AWS::Partition}:s3:::${LfsBucket}/*
-                - !Sub arn:${AWS::Partition}:s3:::${UploadsBucket}/*
-                - !Sub arn:${AWS::Partition}:s3:::${PackagesBucket}/*
-                - !Sub arn:${AWS::Partition}:s3:::${TerraformBucket}/*
-                - !Sub arn:${AWS::Partition}:s3:::${PseudonymizerBucket}/*
-                - !Sub arn:${AWS::Partition}:s3:::${RegistryBucket}/*
-                - !Sub arn:${AWS::Partition}:s3:::${BackupBucket}/*
-                - !Sub arn:${AWS::Partition}:s3:::${BackupTempBucket}/*
-            # Additional registry & backup permissions below
-            - Effect: Allow
-              Action:
-                - s3:GetBucketLocation
-                - s3:ListBucketMultipartUploads
-              Resource:
-                - !Sub arn:${AWS::Partition}:s3:::${RegistryBucket}
-                - !Sub arn:${AWS::Partition}:s3:::${BackupBucket}
-                - !Sub arn:${AWS::Partition}:s3:::${BackupTempBucket}
-            - Effect: Allow
-              Action:
-                - s3:ListMultipartUploadParts
-                - s3:AbortMultipartUpload
-              Resource:
-                - !Sub arn:${AWS::Partition}:s3:::${RegistryBucket}/*
-                - !Sub arn:${AWS::Partition}:s3:::${BackupBucket}/*
-                - !Sub arn:${AWS::Partition}:s3:::${BackupTempBucket}/*
+              # Common object storage permissions
+              - Effect: Allow
+                Action: s3:ListBucket
+                Resource:
+                  - !GetAtt ArtifactsBucket.Arn
+                  - !GetAtt LfsBucket.Arn
+                  - !GetAtt UploadsBucket.Arn
+                  - !GetAtt PackagesBucket.Arn
+                  - !GetAtt TerraformBucket.Arn
+                  - !GetAtt PseudonymizerBucket.Arn
+                  - !GetAtt RegistryBucket.Arn
+                  - !GetAtt BackupBucket.Arn
+                  - !GetAtt BackupTempBucket.Arn
+              - Effect: Allow
+                Action:
+                  - s3:*Object
+                Resource:
+                  - !Sub ${ArtifactsBucket.Arn}/*
+                  - !Sub ${LfsBucket.Arn}/*
+                  - !Sub ${UploadsBucket.Arn}/*
+                  - !Sub ${PackagesBucket.Arn}/*
+                  - !Sub ${TerraformBucket.Arn}/*
+                  - !Sub ${PseudonymizerBucket.Arn}/*
+                  - !Sub ${RegistryBucket.Arn}/*
+                  - !Sub ${BackupBucket.Arn}/*
+                  - !Sub ${BackupTempBucket.Arn}/*
+              # Additional registry & backup permissions below
+              - Effect: Allow
+                Action:
+                  - s3:GetBucketLocation
+                  - s3:ListBucketMultipartUploads
+                Resource:
+                  - !GetAtt RegistryBucket.Arn
+                  - !GetAtt BackupBucket.Arn
+                  - !GetAtt BackupTempBucket.Arn
+              - Effect: Allow
+                Action:
+                  - s3:ListMultipartUploadParts
+                  - s3:AbortMultipartUpload
+                Resource:
+                  - !Sub ${RegistryBucket.Arn}/*
+                  - !Sub ${BackupBucket.Arn}/*
+                  - !Sub ${BackupTempBucket.Arn}/*
 
   ArtifactsBucketParameter:
     Type: AWS::SSM::Parameter

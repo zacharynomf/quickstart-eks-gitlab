@@ -2,12 +2,7 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: Deploys GitLab cluster. (qs-1rpegts6r)
 
 Metadata:
-  cfn-lint:
-    config:
-      ignore_checks:
-        - W9002
-        - W9003
-        - W9004
+  cfn-lint: { config: { ignore_checks: [W9002, W9003, W9004] } }
 
 Parameters:
 # Infra Parameters
@@ -43,7 +38,9 @@ Parameters:
 # Cluster Parameters
   KubeClusterName:
     Type: String
-  OIDCIssuerURLWithoutProtocol:
+  OIDCProviderArn:
+    Type: String
+  OIDCProviderEndpoint:
     Type: String
   ConfigureContainerInsights:
     Type: String
@@ -175,13 +172,13 @@ Parameters:
     AllowedPattern: ^[0-9a-zA-Z-/]*$
 
 Conditions:
-  Using3AvailabilityZones:  !Not [!Equals [!Ref PrivateSubnet3ID, '']]
+  Using3AvailabilityZones: !Not [!Equals [!Ref PrivateSubnet3ID, '']]
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, aws-quickstart]
   ConfigureContainerInsights: !Equals [!Ref ConfigureContainerInsights, 'Yes']
   ConfigureGrafana: !Equals [!Ref ConfigureGrafana, 'Yes']
   OutgoingEmailEnabled: !Not [!Equals [!Ref SMTPDomain, Disabled]]
   CreateEmailDomain: !Equals [!Ref SMTPDomain, CreateNew]
-  HostedZoneInUse: !Not [!Equals  [!Ref PublicDNS, Disabled]]
+  HostedZoneInUse: !Not [!Equals [!Ref PublicDNS, Disabled]]
   AcmIngressConfigured: !And [!Equals [!Ref CreateSslCertificate, 'Yes'], !Condition HostedZoneInUse]
   HelmChartNamespaceCreate: !Equals [!Ref HelmChartNamespaceCreate, CreateNew]
   CreateCacheCluster: !Equals [!Ref CacheMode, External]
@@ -190,72 +187,14 @@ Conditions:
 
 Mappings:
   GitLabVersion:
-  # CacheEngineVersion: https://docs.gitlab.com/ee/install/requirements.html#redis-versions
-  # HelmChartVersion: https://docs.gitlab.com/charts/installation/version_mappings.html
-  # RDSDBEngineVersion:
-  # * https://docs.gitlab.com/ee/administration/package_information/postgresql_versions.html
-  # * https://docs.gitlab.com/ee/install/requirements.html#postgresql-requirements
-  # RunnerChartVersion: https://docs.gitlab.com/runner/install/kubernetes.html
-    # 13.1.11:
-    #   CacheEngineVersion: 5.0.6
-    #   HelmChartVersion: 4.1.12
-    #   RDSDBEngineVersion: 11.9
-    #   RunnerChartVersion: 0.18.3
-    # 13.2.10:
-    #   CacheEngineVersion: 5.0.6
-    #   HelmChartVersion: 4.2.10
-    #   RDSDBEngineVersion: 11.9
-    #   RunnerChartVersion: 0.19.4
-    # 13.3.9:
-    #   CacheEngineVersion: 5.0.6
-    #   HelmChartVersion: 4.3.9
-    #   RDSDBEngineVersion: 11.9
-    #   RunnerChartVersion: 0.20.2
-    # 13.4.7:
-    #   CacheEngineVersion: 5.0.6
-    #   HelmChartVersion: 4.4.6
-    #   RDSDBEngineVersion: 11.9
-    #   RunnerChartVersion: 0.21.1
-    # 13.5.7:
-    #   CacheEngineVersion: 5.0.6
-    #   HelmChartVersion: 4.5.7
-    #   RDSDBEngineVersion: 11.9
-    #   RunnerChartVersion: 0.22.0
-    # 13.6.7:
-    #   CacheEngineVersion: 5.0.6
-    #   HelmChartVersion: 4.6.7
-    #   RDSDBEngineVersion: 11.9
-    #   RunnerChartVersion: 0.23.0
-    # 13.7.9:
-    #   CacheEngineVersion: 5.0.6
-    #   HelmChartVersion: 4.7.9
-    #   RDSDBEngineVersion: 12.4
-    #   RunnerChartVersion: 0.24.0
-    # 13.8.8:
-    #   CacheEngineVersion: 5.0.6
-    #   HelmChartVersion: 4.8.8
-    #   RDSDBEngineVersion: 12.4
-    #   RunnerChartVersion: 0.25.0
-    # 13.9.7:
-    #   CacheEngineVersion: 6.2
-    #   HelmChartVersion: 4.9.7
-    #   RDSDBEngineVersion: 12.4
-    #   RunnerChartVersion: 0.26.0
-    # 13.10.5:
-    #   CacheEngineVersion: 6.2
-    #   HelmChartVersion: 4.10.5
-    #   RDSDBEngineVersion: 12.4
-    #   RunnerChartVersion: 0.27.0
-    # 13.11.7:
-    #   CacheEngineVersion: 6.2
-    #   HelmChartVersion: 4.11.7
-    #   RDSDBEngineVersion: 12.4
-    #   RunnerChartVersion: 0.28.0
-    # 13.12.15:
-    #   CacheEngineVersion: 6.2
-    #   HelmChartVersion: 4.12.13
-    #   RDSDBEngineVersion: 12.4
-    #   RunnerChartVersion: 0.29.0
+    # These version mappings follow GitLab best practices, but can be customized
+    # for specific use cases.
+    # CacheEngineVersion: https://docs.gitlab.com/ee/install/requirements.html#redis-versions
+    # HelmChartVersion: https://docs.gitlab.com/charts/installation/version_mappings.html
+    # RDSDBEngineVersion:
+    # * https://docs.gitlab.com/ee/administration/package_information/postgresql_versions.html
+    # * https://docs.gitlab.com/ee/install/requirements.html#postgresql-requirements
+    # RunnerChartVersion: https://docs.gitlab.com/runner/install/kubernetes.html
     14.2.7:
       CacheEngineVersion: 6.2
       HelmChartVersion: 5.2.7
@@ -338,9 +277,9 @@ Mappings:
       RunnerChartVersion: 0.48.2
   PartitionMap:
     aws:
-      IngressImageRepository: k8s.gcr.io/defaultbackend-amd64
+      IngressImageRepository: registry.k8s.io/defaultbackend-amd64
     aws-us-gov:
-      IngressImageRepository: k8s.gcr.io/defaultbackend-amd64
+      IngressImageRepository: registry.k8s.io/defaultbackend-amd64
     aws-cn:
       IngressImageRepository: registry.aliyuncs.com/google_containers/defaultbackend
 
@@ -539,7 +478,8 @@ Resources:
         KMSKeyID: !Ref ObjectStorageKMSKeyID
         EnvironmentName: !Ref EnvironmentName
         HelmChartNamespace: !Ref HelmChartNamespace
-        OIDCIssuerURLWithoutProtocol: !Ref OIDCIssuerURLWithoutProtocol
+        OIDCProviderArn: !Ref OIDCProviderArn
+        OIDCProviderEndpoint: !Ref OIDCProviderEndpoint
         DeleteBucketContentsFunctionArn: !GetAtt Functions.Outputs.DeleteBucketContentsFunctionArn
         DeleteBucketContentsRoleName: !GetAtt Functions.Outputs.DeleteBucketContentsRoleName
 

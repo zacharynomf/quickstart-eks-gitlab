@@ -1,4 +1,4 @@
-FROM lambci/lambda:build-python3.7
+FROM public.ecr.aws/sam/build-python3.9:latest
 
 COPY aws-cfn-ses-domain ./
 

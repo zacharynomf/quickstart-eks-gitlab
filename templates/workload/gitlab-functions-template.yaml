@@ -4,12 +4,7 @@ Description: >-
   (qs-1rpegts3l)
 
 Metadata:
-  cfn-lint:
-    config:
-      ignore_checks:
-        - W9002
-        - W9003
-        - W9004
+  cfn-lint: { config: { ignore_checks: [W9002, W9003, W9004] } }
 
 Parameters:
   QSS3BucketName:
@@ -17,43 +12,17 @@ Parameters:
   QSS3KeyPrefix:
     Type: String
 
-Mappings:
-  Config:
-    EksPrefix: { Value: eks-quickstart }
-    GitLabPrefix: { Value: gitlab-quickstart }
-
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, aws-quickstart]
 
 Resources:
 
-  # Using lambda packages from EKS quickstart.
-  # NOTE: This creates a dependency on EKS QS implementaton.
-  # Consider this safe as DeleteBucketContents lambda is generic enough.
-
-  CrHelperLayer:
-    DependsOn: CopyZips
-    Type: AWS::Lambda::LayerVersion
+  GetCrHelperLayerArn:
+    Type: Custom::ResourceReader
     Properties:
-      LayerName: !Sub ['${Prefix}-Crhelper', {Prefix: !FindInMap [Config, GitLabPrefix, Value]}]
-      CompatibleRuntimes:
-        - python3.7
-      Content:
-        S3Bucket: !Sub ['${Prefix}-lambdazips-${AWS::Region}-${AWS::AccountId}', {Prefix: !FindInMap [Config, EksPrefix, Value]}]
-        S3Key: !Sub ${QSS3KeyPrefix}submodules/quickstart-amazon-eks/functions/packages/crhelperLayer/lambda.zip
-
-  DeleteBucketContentsFunction:
-    Type: AWS::Lambda::Function
-    Properties:
-      Handler: lambda_function.lambda_handler
-      MemorySize: 128
-      Role: !GetAtt DeleteBucketContentsRole.Arn
-      Runtime: python3.7
-      Timeout: 900
-      Layers: [!Ref CrHelperLayer]
-      Code:
-        S3Bucket: !Sub ['${Prefix}-lambdazips-${AWS::Region}-${AWS::AccountId}', {Prefix: !FindInMap [Config, EksPrefix, Value]}]
-        S3Key: !Sub ${QSS3KeyPrefix}submodules/quickstart-amazon-eks/functions/packages/DeleteBucketContents/lambda.zip
+      ServiceToken: !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:eks-quickstart-ResourceReader
+      AwsCliCommand: lambda list-layer-versions --layer-name eks-quickstart-CrHelper --query 'max_by(LayerVersions, &Version)'
+      IdField: LayerVersionArn
 
   DeleteBucketContentsRole:
     Type: AWS::IAM::Role
@@ -68,45 +37,34 @@ Resources:
       ManagedPolicyArns:
         - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
 
+  DeleteBucketContentsFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.handler
+      MemorySize: 128
+      Role: !GetAtt DeleteBucketContentsRole.Arn
+      Runtime: python3.8
+      Timeout: 900
+      Layers: [!Ref GetCrHelperLayerArn]
+      Code:
+        S3Bucket: !Sub eks-quickstart-lambdazips-${AWS::Region}-${AWS::AccountId}
+        S3Key: !Sub ${QSS3KeyPrefix}submodules/quickstart-amazon-eks/functions/packages/DeleteBucketContents/lambda.zip
+
   CopyZips:
     Type: Custom::CopyZips
     Properties:
-      ServiceToken: !Sub ['arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Prefix}-CopyZips', {Prefix: !FindInMap [Config, EksPrefix, Value]}]
-      DestBucket: !Sub ['${Prefix}-lambdazips-${AWS::Region}-${AWS::AccountId}', {Prefix: !FindInMap [Config, EksPrefix, Value]}]
+      ServiceToken: !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:eks-quickstart-CopyZips
       SourceBucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      DestBucket: !Sub eks-quickstart-lambdazips-${AWS::Region}-${AWS::AccountId}
       Prefix: !Ref QSS3KeyPrefix
       Objects:
         - functions/packages/CfnSesDomain/lambda.zip
         - functions/packages/CleanupACMDNSValidation/lambda.zip
+        - functions/packages/RandomString/lambda.zip
         - functions/packages/SmtpPasswordGenerator/lambda.zip
         - functions/packages/UpdateDnsRecord/lambda.zip
 
-  RandomStringFunction:
-    Type: AWS::Lambda::Function
-    Properties:
-      Handler: index.lambda_handler
-      Timeout: 30
-      Role: !GetAtt TrivialFunctionRole.Arn
-      Runtime: python3.8
-      Code:
-        ZipFile: |
-          import cfnresponse
-          import string, random
-
-          def random_string(length):
-            return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(length))
-
-          def lambda_handler(event, context):
-            rs = ''
-            if event['RequestType'] == 'Create':
-              length = int(event['ResourceProperties']['Length'])
-              rs = random_string(length)
-            else: # Delete / Update
-              rs = event['PhysicalResourceId']
-
-            cfnresponse.send(event, context, cfnresponse.SUCCESS, { 'Value': rs }, rs)
-
-  TrivialFunctionRole:
+  RandomStringRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -120,9 +78,21 @@ Resources:
       ManagedPolicyArns:
         - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
 
+  RandomStringFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Generates a random string.
+      Handler: index.handler
+      Timeout: 30
+      Role: !GetAtt RandomStringRole.Arn
+      Runtime: python3.9
+      Code:
+        S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+        S3Key: !Sub ${QSS3KeyPrefix}functions/packages/RandomString/lambda.zip
+
 Outputs:
   FunctionsBucketName:
-    Value: !Sub ['${Prefix}-lambdazips-${AWS::Region}-${AWS::AccountId}', {Prefix: !FindInMap [Config, EksPrefix, Value]}]
+    Value: !Sub eks-quickstart-lambdazips-${AWS::Region}-${AWS::AccountId}
   RandomStringFunctionArn:
     Value: !GetAtt RandomStringFunction.Arn
   DeleteBucketContentsFunctionArn:

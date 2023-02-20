@@ -3,15 +3,9 @@ Description: Deploys GitLab databases. (qs-1skk6s476)
 
 # Lint rules to ignore
 Metadata:
-  cfn-lint:
-    config:
-      ignore_checks:
-        - W9002
-        - W9003
-        - W9004
+  cfn-lint: { config: { ignore_checks: [W9002, W9003, W9004] } }
 
 Parameters:
-
   EnvironmentName:
     Type: String
 

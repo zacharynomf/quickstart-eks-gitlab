@@ -2,12 +2,7 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: Deploys GitLab infrastructure resources. (qs-1rpegts4g)
 
 Metadata:
-  cfn-lint:
-    config:
-      ignore_checks:
-        - W9002
-        - W9003
-        - W9004
+  cfn-lint: { config: { ignore_checks: [W9002, W9003, W9004] } }
 
 Parameters:
   VPCID:
@@ -115,7 +110,6 @@ Resources:
         - DomainName: !Sub '*.${DomainName}'
           HostedZoneId: !If [HostedZoneToBeCreated, !Ref HostedZone, !Ref PublicHostedZoneId]
 
-
   CleanupACMDNSValidationLambdaRole:
     Type: AWS::IAM::Role
     Condition: CertificateRequested
@@ -137,8 +131,7 @@ Resources:
             Version: 2012-10-17
             Statement:
               - Effect: Allow
-                Action:
-                  - acm:DescribeCertificate
+                Action: acm:DescribeCertificate
                 Resource: !Ref SslCertificate
               - Effect: Allow
                 Action:
@@ -152,7 +145,7 @@ Resources:
     Type: AWS::Lambda::Function
     Condition: CertificateRequested
     Properties:
-      Handler: handler.handler
+      Handler: index.handler
       Runtime: python3.8
       Role: !GetAtt CleanupACMDNSValidationLambdaRole.Arn
       Code:
@@ -243,17 +236,6 @@ Resources:
       UserName:
         Ref: SmtpUser
 
-  SmtpPasswordGeneratorFunction:
-    Type: AWS::Lambda::Function
-    Condition: EmailDomainRequested
-    Properties:
-      Handler: handler.handler
-      Runtime: python3.8
-      Role: !GetAtt SmtpPasswordGeneratorRole.Arn
-      Code:
-        S3Bucket: !Ref FunctionsBucketName
-        S3Key: !Sub ${QSS3KeyPrefix}functions/packages/SmtpPasswordGenerator/lambda.zip
-
   SmtpPasswordGeneratorRole:
     Type: AWS::IAM::Role
     Condition: EmailDomainRequested
@@ -261,14 +243,33 @@ Resources:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
-        - Sid: AssumeLambdaExecutionRole
-          Effect: Allow
-          Principal:
-            Service: lambda.amazonaws.com
-          Action: sts:AssumeRole
+          - Sid: AssumeLambdaExecutionRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
       ManagedPolicyArns:
         # (allows logging)
         - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  GetCrHelperLayerArn:
+    Type: Custom::ResourceReader
+    Properties:
+      ServiceToken: !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:eks-quickstart-ResourceReader
+      AwsCliCommand: lambda list-layer-versions --layer-name eks-quickstart-CrHelper --query 'max_by(LayerVersions, &Version)'
+      IdField: LayerVersionArn
+
+  SmtpPasswordGeneratorFunction:
+    Type: AWS::Lambda::Function
+    Condition: EmailDomainRequested
+    Properties:
+      Handler: index.handler
+      Runtime: python3.8
+      Role: !GetAtt SmtpPasswordGeneratorRole.Arn
+      Layers: [!Ref GetCrHelperLayerArn]
+      Code:
+        S3Bucket: !Ref FunctionsBucketName
+        S3Key: !Sub ${QSS3KeyPrefix}functions/packages/SmtpPasswordGenerator/lambda.zip
 
   SmtpPasswordGenerator:
     Type: Custom::SMTPPassword
