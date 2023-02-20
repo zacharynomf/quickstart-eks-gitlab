@@ -473,6 +473,8 @@ Resources:
         HelmChartNamespace: !Ref HelmChartNamespace
         OIDCProviderArn: !Ref OIDCProviderArn
         OIDCProviderEndpoint: !Ref OIDCProviderEndpoint
+        DeleteBucketContentsFunctionArn: !GetAtt Functions.Outputs.DeleteBucketContentsFunctionArn
+        DeleteBucketContentsRoleName: !GetAtt Functions.Outputs.DeleteBucketContentsRoleName
 
   ChartNamespace:
     Type: AWSQS::Kubernetes::Resource
