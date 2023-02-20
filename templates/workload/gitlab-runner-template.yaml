@@ -42,6 +42,10 @@ Resources:
       Name: !Ref HelmChartName
       Version: !Ref HelmChartVersion
       ValueYaml: !Sub |
+        image:
+          registry: public.ecr.aws
+          image: gitlab/gitlab-runner
+
         gitlabUrl: https://gitlab.${DomainName}/
         runnerRegistrationToken: ${RunnerRegistrationToken}
 
