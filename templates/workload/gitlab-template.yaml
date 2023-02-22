@@ -184,6 +184,7 @@ Conditions:
   CreateCacheCluster: !Equals [!Ref CacheMode, External]
   ConfigureRunner: !Equals [!Ref ConfigureRunner, 'Yes']
   PrivilegedMode: !Equals [!Ref PrivilegedMode, 'Yes']
+  UseKMS: !Equals [!Ref ObjectStorageSSEAlgorithm, aws:kms]
 
 Mappings:
   GitLabVersion:
@@ -682,7 +683,9 @@ Resources:
         global.minio.enabled: false
         global.appConfig.object_store.enabled: true
         global.appConfig.object_store.proxy_download: true
-        global.appConfig.object_store.storage_options.server_side_encryption: AES256
+        global.appConfig.object_store.storage_options.server_side_encryption: !Ref ObjectStorageSSEAlgorithm
+        global.appConfig.object_store.storage_options.server_side_encryption_kms_key_id:
+          !If [UseKMS, !Ref ObjectStorageKMSKeyID, '']
         global.appConfig.object_store.connection.secret: !GetAtt KubeSecrets.Outputs.ObjectStorageKubeSecretName
         global.appConfig.object_store.connection.key: !GetAtt KubeSecrets.Outputs.ConnectionSecretKey
         global.appConfig.artifacts.bucket: !GetAtt ObjectStorage.Outputs.ArtifactsBucket
