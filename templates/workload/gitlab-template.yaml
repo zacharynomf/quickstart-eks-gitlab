@@ -678,7 +678,7 @@ Resources:
         global.gitaly.enabled: false
 
         # S3 storage configuration
-        ## object storage
+        ## object storage, see https://docs.gitlab.com/charts/advanced/external-object-storage/index.html
         global.minio.enabled: false
         global.appConfig.object_store.enabled: true
         global.appConfig.object_store.proxy_download: true
@@ -687,10 +687,14 @@ Resources:
         global.appConfig.object_store.connection.key: !GetAtt KubeSecrets.Outputs.ConnectionSecretKey
         global.appConfig.artifacts.bucket: !GetAtt ObjectStorage.Outputs.ArtifactsBucket
         global.appConfig.lfs.bucket: !GetAtt ObjectStorage.Outputs.LfsBucket
-        global.appConfig.uploads.bucket: !GetAtt ObjectStorage.Outputs.UploadsBucket
         global.appConfig.packages.bucket: !GetAtt ObjectStorage.Outputs.PackagesBucket
+        global.appConfig.uploads.bucket: !GetAtt ObjectStorage.Outputs.UploadsBucket
+        global.appConfig.externalDiffs.enabled: true
+        global.appConfig.externalDiffs.bucket: !GetAtt ObjectStorage.Outputs.MergeRequestDiffsBucket
         global.appConfig.terraformState.bucket: !GetAtt ObjectStorage.Outputs.TerraformBucket
-        global.appConfig.pseudonymizer.bucket: !GetAtt ObjectStorage.Outputs.PseudonymizerBucket
+        global.appConfig.dependencyProxy.enabled: true
+        global.appConfig.dependencyProxy.bucket: !GetAtt ObjectStorage.Outputs.DependencyProxyBucket
+        global.appConfig.ciSecureFiles.bucket: !GetAtt ObjectStorage.Outputs.CISecureFilesBucket
         global.appConfig.backups.bucket: !GetAtt ObjectStorage.Outputs.BackupBucket
         global.appConfig.backups.tmpBucket: !GetAtt ObjectStorage.Outputs.BackupTempBucket
         ## registry
