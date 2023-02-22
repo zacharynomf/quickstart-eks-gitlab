@@ -246,7 +246,7 @@ Metadata:
       ObjectStorageSSEAlgorithm:
         default: Object storage encryption algorithm
       ObjectStorageKMSKeyID:
-        default: KMS key ID
+        default: KMS key ARN
       BackupSchedule:
         default: Object storage backup schedule
       BackupVolumeSize:
@@ -791,9 +791,9 @@ Parameters:
   ObjectStorageKMSKeyID:
     Type: String
     Description: >-
-      Provide KMS key ID or ARN to be used for encryption if KMS encryption is
+      Provide KMS key ARN to be used for encryption if KMS encryption is
       selected.
-    AllowedPattern: ^(arn:(aws|aws-cn|aws-us-gov):kms:\S+:[0-9]{12}:key/)?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|$
+    AllowedPattern: ^arn:(aws|aws-cn|aws-us-gov):kms:\S+:[0-9]{12}:key/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|$
     ConstraintDescription: Must be a valid KMS key ID or ARN.
     Default: ''
   BackupSchedule:
