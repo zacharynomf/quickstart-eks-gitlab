@@ -422,8 +422,8 @@ Resources:
         VPCID: !Ref VPCID
         PraefectSubnetIds: !If
           - Using3AvailabilityZones
-          - !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID, !Ref PrivateSubnet3ID ] ]
-          - !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID ] ]
+          - !Sub ${PrivateSubnet1ID},${PrivateSubnet2ID},${PrivateSubnet3ID}
+          - !Sub ${PrivateSubnet1ID},${PrivateSubnet2ID}
         PraefectSecurityGroup: !GetAtt Infrastructure.Outputs.PraefectSecurityGroupID
         GitLabVersion: !Ref GitLabVersion
         GitLabShellToken: !GetAtt GitLabShellToken.Value
@@ -451,8 +451,8 @@ Resources:
         TlsCA: !GetAtt PostInstall.Outputs.RootCA
         GitalySubnetIds: !If
           - Using3AvailabilityZones
-          - !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID, !Ref PrivateSubnet3ID ] ]
-          - !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID ] ]
+          - !Sub ${PrivateSubnet1ID},${PrivateSubnet2ID},${PrivateSubnet3ID}
+          - !Sub ${PrivateSubnet1ID},${PrivateSubnet2ID}
         GitalySecurityGroup: !GetAtt Infrastructure.Outputs.PraefectSecurityGroupID
         GitLabVersion: !Ref GitLabVersion
         GitLabShellToken: !GetAtt GitLabShellToken.Value
