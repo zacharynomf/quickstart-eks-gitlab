@@ -764,3 +764,8 @@ Resources:
         TlsCASecretName: !GetAtt PostInstall.Outputs.RootCAChainSecretName
         MaximumConcurrentJobs: !Ref MaximumConcurrentJobs
         PrivilegedMode: !If [PrivilegedMode, 'true', 'false']
+
+Outputs:
+  GitLabFqdn:
+    Description: GitLab instance fully qualified domain name (FQDN).
+    Value: !GetAtt PostInstall.Outputs.GitLabFqdn

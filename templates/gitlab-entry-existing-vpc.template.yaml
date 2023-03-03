@@ -855,6 +855,9 @@ Parameters:
     Default: AutoDetect
 
 Conditions:
+  EnableBastionWithEIP: !And
+    - !Equals [!Ref ProvisionBastionHost, Enabled]
+    - !Not [!Equals [!Ref RemoteAccessCIDR, disabled-onlyssmaccess]]
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, aws-quickstart]
   UsingSpotNodeGroups: !Not [!Equals [!Ref OnDemandPercentage, 100]]
   EmptyEnvironmentName: !Equals [!Ref EnvironmentName, '']
@@ -1003,6 +1006,21 @@ Resources:
         RunnerImage: !Ref RunnerImage
         MaximumConcurrentJobs: !Ref MaximumConcurrentJobs
         PrivilegedMode: !Ref PrivilegedMode
+
+Outputs:
+  GitLabUrl:
+    Description: GitLab instance URL.
+    Value: !Sub https://${GitLabStack.Outputs.GitLabFqdn}
+  EKSClusterName:
+    Description: EKS cluster name.
+    Value: !GetAtt EKSStack.Outputs.EKSClusterName
+  BastionIP:
+    Condition: EnableBastionWithEIP
+    Description: Bastion host Elastic IP address.
+    Value: !GetAtt EKSStack.Outputs.BastionIP
+  Postdeployment:
+    Description: See the deployment guide for postdeployment steps.
+    Value: https://aws-quickstart.github.io/quickstart-eks-gitlab/#_postdeployment_steps
 
 Rules:
   SMTPParameters:

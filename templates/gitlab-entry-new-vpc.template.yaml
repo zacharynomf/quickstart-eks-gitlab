@@ -881,6 +881,9 @@ Parameters:
     AllowedValues: [AutoDetect, 'Yes', 'No']
     Default: AutoDetect
 Conditions:
+  EnableBastionWithEIP: !And
+    - !Equals [!Ref ProvisionBastionHost, Enabled]
+    - !Not [!Equals [!Ref RemoteAccessCIDR, disabled-onlyssmaccess]]
   Using3AvailabilityZones: !Equals [!Ref NumberOfAZs, 3]
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, aws-quickstart]
 
@@ -909,7 +912,7 @@ Resources:
         PrivateSubnetATag2: kubernetes.io/role/internal-elb=
 
   # https://aws-quickstart.github.io/quickstart-amazon-eks/#_configure_advanced_options
-  GitLab:
+  ExistingVpcStack:
     Type: AWS::CloudFormation::Stack
     UpdateReplacePolicy: Retain
     DeletionPolicy: Delete
@@ -998,6 +1001,21 @@ Resources:
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
         PerAccountSharedResources: !Ref PerAccountSharedResources
         PerRegionSharedResources: !Ref PerRegionSharedResources
+
+Outputs:
+  GitLabUrl:
+    Description: GitLab instance URL.
+    Value: !GetAtt ExistingVpcStack.Outputs.GitLabUrl
+  EKSClusterName:
+    Description: EKS cluster name.
+    Value: !GetAtt ExistingVpcStack.Outputs.EKSClusterName
+  BastionIP:
+    Condition: EnableBastionWithEIP
+    Description: Bastion host Elastic IP address.
+    Value: !GetAtt ExistingVpcStack.Outputs.BastionIP
+  Postdeployment:
+    Description: See the deployment guide for postdeployment steps.
+    Value: !GetAtt ExistingVpcStack.Outputs.Postdeployment
 
 Rules:
   SMTPParameters:
