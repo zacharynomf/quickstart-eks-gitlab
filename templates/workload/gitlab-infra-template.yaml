@@ -218,7 +218,7 @@ Resources:
           - Effect: Allow
             Action:
               - ses:SendRawEmail
-            Resource: !Sub arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:identity/mail.${DomainName}
+            Resource: !Sub arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:identity/*
 
   SmtpUser:
     Type: AWS::IAM::User
