@@ -43,7 +43,7 @@ Conditions:
 
 Mappings:
   CacheEngineVersion:
-  # https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/ParameterGroups.Redis.html
+    # https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/ParameterGroups.Redis.html
     5.0.6:
       CacheParameterGroupName: default.redis5.0
     '6.0':
