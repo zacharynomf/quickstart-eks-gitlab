@@ -242,7 +242,7 @@ Metadata:
       ObjectStorageSSEAlgorithm:
         default: Object storage encryption algorithm
       ObjectStorageKMSKeyID:
-        default: KMS key ID
+        default: KMS key ARN
       BackupSchedule:
         default: Object storage backup schedule
       BackupVolumeSize:
@@ -759,15 +759,15 @@ Parameters:
       GitLab will be configured to use object storage for everything that is
       capable of using it (artifacts, packages, LFS, et cetera). Encryption
       algorithm for GitLab object storage artifacts.
-    AllowedValues: [AES256]
+    AllowedValues: [AES256, aws:kms]
     Default: AES256
   ObjectStorageKMSKeyID:
     Type: String
     Description: >-
-      Provide KMS key ID to be used for encryption if KMS encryption is
+      Provide KMS key ARN to be used for encryption if KMS encryption is
       selected.
-    AllowedPattern: ^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}|$
-    ConstraintDescription: Must be a valid KMS key ID.
+    AllowedPattern: ^arn:(aws|aws-cn|aws-us-gov):kms:\S+:[0-9]{12}:key/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|$
+    ConstraintDescription: Must be a valid KMS key ID or ARN.
     Default: ''
   BackupSchedule:
     Type: String
@@ -855,6 +855,9 @@ Parameters:
     Default: AutoDetect
 
 Conditions:
+  EnableBastionWithEIP: !And
+    - !Equals [!Ref ProvisionBastionHost, Enabled]
+    - !Not [!Equals [!Ref RemoteAccessCIDR, disabled-onlyssmaccess]]
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, aws-quickstart]
   UsingSpotNodeGroups: !Not [!Equals [!Ref OnDemandPercentage, 100]]
   EmptyEnvironmentName: !Equals [!Ref EnvironmentName, '']
@@ -1003,6 +1006,21 @@ Resources:
         RunnerImage: !Ref RunnerImage
         MaximumConcurrentJobs: !Ref MaximumConcurrentJobs
         PrivilegedMode: !Ref PrivilegedMode
+
+Outputs:
+  GitLabUrl:
+    Description: GitLab instance URL.
+    Value: !Sub https://${GitLabStack.Outputs.GitLabFqdn}
+  EKSClusterName:
+    Description: EKS cluster name.
+    Value: !GetAtt EKSStack.Outputs.EKSClusterName
+  BastionIP:
+    Condition: EnableBastionWithEIP
+    Description: Bastion host Elastic IP address.
+    Value: !GetAtt EKSStack.Outputs.BastionIP
+  Postdeployment:
+    Description: See the deployment guide for postdeployment steps.
+    Value: https://aws-quickstart.github.io/quickstart-eks-gitlab/#_postdeployment_steps
 
 Rules:
   SMTPParameters:

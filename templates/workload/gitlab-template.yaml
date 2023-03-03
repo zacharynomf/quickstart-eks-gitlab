@@ -78,8 +78,8 @@ Parameters:
     AllowedValues: [AES256, aws:kms]
   ObjectStorageKMSKeyID:
     Type: String
-    AllowedPattern: ^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}|$
-    ConstraintDescription: Must be a valid KMS key ID.
+    AllowedPattern: ^arn:(aws|aws-cn|aws-us-gov):kms:\S+:[0-9]{12}:key/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|$
+    ConstraintDescription: Must be a valid KMS key ID or ARN.
 
 # Cache Parameters
   CacheMode:
@@ -184,6 +184,7 @@ Conditions:
   CreateCacheCluster: !Equals [!Ref CacheMode, External]
   ConfigureRunner: !Equals [!Ref ConfigureRunner, 'Yes']
   PrivilegedMode: !Equals [!Ref PrivilegedMode, 'Yes']
+  UseKMS: !Equals [!Ref ObjectStorageSSEAlgorithm, aws:kms]
 
 Mappings:
   GitLabVersion:
@@ -421,8 +422,8 @@ Resources:
         VPCID: !Ref VPCID
         PraefectSubnetIds: !If
           - Using3AvailabilityZones
-          - !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID, !Ref PrivateSubnet3ID ] ]
-          - !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID ] ]
+          - !Sub ${PrivateSubnet1ID},${PrivateSubnet2ID},${PrivateSubnet3ID}
+          - !Sub ${PrivateSubnet1ID},${PrivateSubnet2ID}
         PraefectSecurityGroup: !GetAtt Infrastructure.Outputs.PraefectSecurityGroupID
         GitLabVersion: !Ref GitLabVersion
         GitLabShellToken: !GetAtt GitLabShellToken.Value
@@ -450,8 +451,8 @@ Resources:
         TlsCA: !GetAtt PostInstall.Outputs.RootCA
         GitalySubnetIds: !If
           - Using3AvailabilityZones
-          - !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID, !Ref PrivateSubnet3ID ] ]
-          - !Join [ ',', [ !Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID ] ]
+          - !Sub ${PrivateSubnet1ID},${PrivateSubnet2ID},${PrivateSubnet3ID}
+          - !Sub ${PrivateSubnet1ID},${PrivateSubnet2ID}
         GitalySecurityGroup: !GetAtt Infrastructure.Outputs.PraefectSecurityGroupID
         GitLabVersion: !Ref GitLabVersion
         GitLabShellToken: !GetAtt GitLabShellToken.Value
@@ -539,6 +540,7 @@ Resources:
         RunnerTokenSecretValue: !GetAtt RunnerRegistrationToken.Value
 
   Chart:
+    # https://gitlab.com/gitlab-org/charts/gitlab/blob/master/values.yaml
     Type: AWSQS::Kubernetes::Helm
     Metadata: { cfn-lint: { config: { ignore_checks: [I3042] } } }
     Properties:
@@ -678,19 +680,25 @@ Resources:
         global.gitaly.enabled: false
 
         # S3 storage configuration
-        ## object storage
+        ## object storage, see https://docs.gitlab.com/charts/advanced/external-object-storage/index.html
         global.minio.enabled: false
         global.appConfig.object_store.enabled: true
         global.appConfig.object_store.proxy_download: true
-        global.appConfig.object_store.storage_options.server_side_encryption: AES256
+        global.appConfig.object_store.storage_options.server_side_encryption: !Ref ObjectStorageSSEAlgorithm
+        global.appConfig.object_store.storage_options.server_side_encryption_kms_key_id:
+          !If [UseKMS, !Ref ObjectStorageKMSKeyID, '']
         global.appConfig.object_store.connection.secret: !GetAtt KubeSecrets.Outputs.ObjectStorageKubeSecretName
         global.appConfig.object_store.connection.key: !GetAtt KubeSecrets.Outputs.ConnectionSecretKey
         global.appConfig.artifacts.bucket: !GetAtt ObjectStorage.Outputs.ArtifactsBucket
         global.appConfig.lfs.bucket: !GetAtt ObjectStorage.Outputs.LfsBucket
-        global.appConfig.uploads.bucket: !GetAtt ObjectStorage.Outputs.UploadsBucket
         global.appConfig.packages.bucket: !GetAtt ObjectStorage.Outputs.PackagesBucket
+        global.appConfig.uploads.bucket: !GetAtt ObjectStorage.Outputs.UploadsBucket
+        global.appConfig.externalDiffs.enabled: true
+        global.appConfig.externalDiffs.bucket: !GetAtt ObjectStorage.Outputs.MergeRequestDiffsBucket
         global.appConfig.terraformState.bucket: !GetAtt ObjectStorage.Outputs.TerraformBucket
-        global.appConfig.pseudonymizer.bucket: !GetAtt ObjectStorage.Outputs.PseudonymizerBucket
+        global.appConfig.dependencyProxy.enabled: true
+        global.appConfig.dependencyProxy.bucket: !GetAtt ObjectStorage.Outputs.DependencyProxyBucket
+        global.appConfig.ciSecureFiles.bucket: !GetAtt ObjectStorage.Outputs.CISecureFilesBucket
         global.appConfig.backups.bucket: !GetAtt ObjectStorage.Outputs.BackupBucket
         global.appConfig.backups.tmpBucket: !GetAtt ObjectStorage.Outputs.BackupTempBucket
         ## registry
@@ -756,3 +764,8 @@ Resources:
         TlsCASecretName: !GetAtt PostInstall.Outputs.RootCAChainSecretName
         MaximumConcurrentJobs: !Ref MaximumConcurrentJobs
         PrivilegedMode: !If [PrivilegedMode, 'true', 'false']
+
+Outputs:
+  GitLabFqdn:
+    Description: GitLab instance fully qualified domain name (FQDN).
+    Value: !GetAtt PostInstall.Outputs.GitLabFqdn

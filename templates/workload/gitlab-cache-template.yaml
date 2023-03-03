@@ -2,12 +2,7 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: Deploys ElastiCache Redis cluster. (qs-1rpegts33)
 
 Metadata:
-  cfn-lint:
-    config:
-      ignore_checks:
-        - W9002
-        - W9003
-        - W9004
+  cfn-lint: { config: { ignore_checks: [W9002, W9003, W9004] } }
 
 Parameters:
 
@@ -43,7 +38,7 @@ Conditions:
 
 Mappings:
   CacheEngineVersion:
-  # https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/ParameterGroups.Redis.html
+    # https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/ParameterGroups.Redis.html
     5.0.6:
       CacheParameterGroupName: default.redis5.0
     '6.0':

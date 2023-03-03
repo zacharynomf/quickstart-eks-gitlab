@@ -211,6 +211,8 @@ Resources:
       Value: !Ref ClusterName
 
 Outputs:
+  GitLabFqdn:
+    Value: !Ref GitLabPrivateDNSRecord
   RootCA:
     Value: !GetAtt RootCAQuery.Response
   RootCAChainSecretName:
