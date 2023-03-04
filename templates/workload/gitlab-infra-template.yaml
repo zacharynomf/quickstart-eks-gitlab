@@ -216,25 +216,22 @@ Resources:
           Version: 2012-10-17
           Statement:
           - Effect: Allow
-            Action:
-              - ses:SendRawEmail
-            Resource: !Sub arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:identity/mail.${DomainName}
+            Action: ses:SendRawEmail
+            Resource: !Sub arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:identity/*
 
   SmtpUser:
     Type: AWS::IAM::User
     Condition: EmailDomainRequested
     Properties:
       Path: /quickstart/gitlab/
-      Groups:
-        - !Ref SmtpGroup
+      Groups: [!Ref SmtpGroup]
 
   SmtpKeys:
     Type: AWS::IAM::AccessKey
     Condition: EmailDomainRequested
     Properties:
       Status: Active
-      UserName:
-        Ref: SmtpUser
+      UserName: !Ref SmtpUser
 
   SmtpPasswordGeneratorRole:
     Type: AWS::IAM::Role
